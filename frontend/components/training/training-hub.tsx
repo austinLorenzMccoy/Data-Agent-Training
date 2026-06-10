@@ -1,0 +1,246 @@
+'use client'
+
+import { useMemo, useState } from 'react'
+import Link from 'next/link'
+import { motion, AnimatePresence } from 'motion/react'
+import { useAgent } from '@/components/providers/agent-provider'
+import { getQuestionsByType } from '@/lib/questions'
+import type { AssignmentType, Question } from '@/lib/types'
+import { TYPE_LABELS, TYPE_NAMES, XP, isSelectionCorrect, hasJustification } from '@/lib/scoring'
+import { gradeJustification } from '@/lib/grade-client'
+import { AssignmentRenderer, type SubmittedAnswer } from '@/components/assignments/assignment-renderer'
+import { FeedbackPanel } from '@/components/assignments/feedback-panel'
+import { NeuralNoise } from '@/components/neural-noise'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { ArrowRight, Crosshair, GitCompare, ShieldCheck, ListChecks, Lock } from 'lucide-react'
+
+const TYPE_META: Record<AssignmentType, { icon: typeof Crosshair; blurb: string }> = {
+  alpha: { icon: Crosshair, blurb: 'Rate a single AI response: clear, ambiguous, or compromised.' },
+  beta: { icon: GitCompare, blurb: 'Compare two responses and identify the superior intelligence.' },
+  gamma: { icon: ShieldCheck, blurb: 'Clear or flag transcripts for contamination and leakage.' },
+  delta: { icon: ListChecks, blurb: 'Select the single best response from multiple candidates.' },
+}
+
+const ORDER: AssignmentType[] = ['alpha', 'beta', 'gamma', 'delta']
+
+export function TrainingHub() {
+  const { agent, addXp, completeTraining } = useAgent()
+  const [active, setActive] = useState<AssignmentType | null>(null)
+
+  if (active) {
+    return (
+      <TrainingSession
+        type={active}
+        onExit={() => setActive(null)}
+        onComplete={() => {
+          completeTraining(active)
+          addXp(XP.TRAINING_MODULE)
+        }}
+      />
+    )
+  }
+
+  return (
+    <div className="relative">
+      <NeuralNoise className="opacity-40" />
+      <div className="relative mx-auto max-w-5xl px-4 py-12">
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">
+          Sector 02 · Low-Stakes Drills
+        </p>
+        <h1 className="mt-2 text-pretty font-sans text-4xl font-bold tracking-tight">
+          Field Training
+        </h1>
+        <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
+          Sharpen your instincts without the clock. Every drill gives instant analyst feedback.
+          Clear all four disciplines to unlock full operational duty.
+        </p>
+
+        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          {ORDER.map((type) => {
+            const meta = TYPE_META[type]
+            const Icon = meta.icon
+            const done = agent?.completedTraining.includes(type)
+            return (
+              <button
+                key={type}
+                onClick={() => setActive(type)}
+                className={cn(
+                  'group relative overflow-hidden rounded-xl border border-border bg-card p-5 text-left transition-colors hover:border-accent/60',
+                )}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex size-11 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                    <Icon className="size-5" />
+                  </div>
+                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    {TYPE_LABELS[type]}
+                  </span>
+                </div>
+                <h3 className="mt-4 font-sans text-lg font-semibold">{TYPE_NAMES[type]}</h3>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{meta.blurb}</p>
+                <div className="mt-4 flex items-center gap-2 font-mono text-xs uppercase tracking-wider">
+                  {done ? (
+                    <span className="text-success">Cleared · +{XP.TRAINING_MODULE} XP earned</span>
+                  ) : (
+                    <span className="text-accent">Begin drill</span>
+                  )}
+                  <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                </div>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="mt-10 flex flex-col items-start gap-4 rounded-xl border border-border bg-card/60 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              {ORDER.every((t) => agent?.completedTraining.includes(t)) ? (
+                <ShieldCheck className="size-4 text-success" />
+              ) : (
+                <Lock className="size-4 text-muted-foreground" />
+              )}
+              <h3 className="font-sans font-semibold">Ready for live duty?</h3>
+            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Operations are timed, scored, and graded by Agency AI. No feedback until debrief.
+            </p>
+          </div>
+          <Button asChild size="lg">
+            <Link href="/operation">Deploy to Operation</Link>
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+interface Result {
+  correct: boolean
+  justificationScore?: 0 | 1 | 2
+  justificationFeedback?: string
+}
+
+function TrainingSession({
+  type,
+  onExit,
+  onComplete,
+}: {
+  type: AssignmentType
+  onExit: () => void
+  onComplete: () => void
+}) {
+  const pool = useMemo(() => getQuestionsByType(type).slice(0, 5), [type])
+  const [index, setIndex] = useState(0)
+  const [result, setResult] = useState<Result | null>(null)
+  const [grading, setGrading] = useState(false)
+  const [completedAll, setCompletedAll] = useState(false)
+  const question: Question | undefined = pool[index]
+
+  async function handleSubmit(answer: SubmittedAnswer) {
+    if (!question) return
+    const correct = isSelectionCorrect(question, answer.selection)
+    setResult({ correct })
+    if (hasJustification(question.type) && answer.justification) {
+      setGrading(true)
+      const decision =
+        typeof answer.selection === 'object'
+          ? JSON.stringify(answer.selection)
+          : String(answer.selection)
+      const graded = await gradeJustification(question, answer.justification, decision)
+      setGrading(false)
+      setResult({
+        correct,
+        justificationScore: graded.score,
+        justificationFeedback: graded.feedback,
+      })
+    }
+  }
+
+  function next() {
+    if (index + 1 >= pool.length) {
+      setCompletedAll(true)
+      onComplete()
+      return
+    }
+    setIndex((i) => i + 1)
+    setResult(null)
+  }
+
+  return (
+    <div className="relative mx-auto max-w-3xl px-4 py-8">
+      <div className="flex items-center justify-between">
+        <button
+          onClick={onExit}
+          className="font-mono text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground"
+        >
+          {'<'} Back to training
+        </button>
+        <span className="font-mono text-xs uppercase tracking-wider text-accent">
+          {TYPE_NAMES[type]} · {Math.min(index + 1, pool.length)}/{pool.length}
+        </span>
+      </div>
+
+      <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-secondary">
+        <div
+          className="h-full bg-accent transition-all"
+          style={{ width: `${(index / pool.length) * 100}%` }}
+        />
+      </div>
+
+      <AnimatePresence mode="wait">
+        {completedAll ? (
+          <motion.div
+            key="done"
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mt-10 rounded-xl border border-success/40 bg-success/5 p-8 text-center"
+          >
+            <ShieldCheck className="mx-auto size-10 text-success" />
+            <h2 className="mt-4 font-sans text-2xl font-bold">Drill Cleared</h2>
+            <p className="mt-2 text-muted-foreground">
+              {TYPE_NAMES[type]} discipline logged. +{XP.TRAINING_MODULE} XP credited to your file.
+            </p>
+            <Button className="mt-6" onClick={onExit}>
+              Return to Training
+            </Button>
+          </motion.div>
+        ) : question ? (
+          <motion.div
+            key={question.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="mt-6 space-y-4"
+          >
+            <AssignmentRenderer
+              question={question}
+              onSubmit={handleSubmit}
+              disabled={!!result}
+              flashState={result ? (result.correct ? 'correct' : 'wrong') : null}
+            />
+            {grading && (
+              <p className="font-mono text-xs uppercase tracking-wider text-accent">
+                Agency AI reviewing justification...
+              </p>
+            )}
+            {result && !grading && (
+              <>
+                <FeedbackPanel
+                  question={question}
+                  correct={result.correct}
+                  justificationScore={result.justificationScore}
+                  justificationFeedback={result.justificationFeedback}
+                />
+                <Button onClick={next} className="w-full" size="lg">
+                  {index + 1 >= pool.length ? 'Complete Drill' : 'Next Assignment'}
+                  <ArrowRight className="size-4" />
+                </Button>
+              </>
+            )}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  )
+}

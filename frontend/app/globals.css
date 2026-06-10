@@ -1,0 +1,241 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-heading: var(--font-space-grotesk), 'Space Grotesk Fallback';
+  --font-sans: var(--font-space-grotesk), 'Space Grotesk Fallback';
+  --font-mono: var(--font-jetbrains-mono), 'JetBrains Mono Fallback';
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Agency semantic tokens */
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-xp: var(--xp);
+  --color-xp-foreground: var(--xp-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-indigo-border: var(--indigo-border);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+}
+
+:root {
+  /* Bureau Gold — warm near-black, aged gold primary, muted sage/crimson */
+
+  /* Backgrounds — warm charcoal with brown undertone, never cold blue */
+  --background:    #0a0907;
+  --foreground:    #f0e9db;    /* warm ivory, not blinding white */
+
+  --surface:       #131009;    /* slightly lighter warm black */
+  --surface-raised:#1e1a11;    /* elevated surface */
+
+  --card:          #131009;
+  --card-foreground:#f0e9db;
+  --popover:       #131009;
+  --popover-foreground:#f0e9db;
+
+  /* Gold primary — editorial, rare in tech, perfect for ranks/clearance */
+  --primary:       #c8973a;
+  --primary-foreground: #0a0907;
+
+  --secondary:     #1e1a11;
+  --secondary-foreground: #f0e9db;
+
+  --muted:         #131009;
+  --muted-foreground: #8a7d69;  /* warm stone, not lavender */
+
+  --accent:        #1e1a11;
+  --accent-foreground: #f0e9db;
+
+  /* XP uses a brighter gold to stand apart from primary */
+  --xp:            #e8c24a;
+  --xp-foreground: #0a0907;
+
+  /* Success — muted sage green, grounded not neon */
+  --success:       #5aab7a;
+  --success-foreground: #0a0907;
+
+  /* Danger — deep crimson, not coral */
+  --danger:        #cc3d3d;
+  --danger-foreground: #f0e9db;
+  --destructive:   #cc3d3d;
+  --destructive-foreground: #f0e9db;
+
+  /* Borders — warm dark, like aged paper edges */
+  --border:        #2a2218;
+  --indigo-border: #2a2218;
+  --input:         #1e1a11;
+  --ring:          #c8973a;
+
+  --radius: 8px;
+
+  --chart-1: #c8973a;   /* gold */
+  --chart-2: #5aab7a;   /* sage */
+  --chart-3: #e8c24a;   /* bright gold */
+  --chart-4: #cc3d3d;   /* crimson */
+  --chart-5: #8a7d69;   /* stone */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+  }
+  html {
+    @apply font-sans;
+    color-scheme: dark;
+  }
+}
+
+@layer utilities {
+  /* signature top accent line on primary cards */
+  .agency-card {
+    position: relative;
+    background: var(--surface);
+    border: 0.5px solid var(--indigo-border);
+    border-radius: var(--radius-lg);
+  }
+  .agency-card-accent::before {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 1.5px;
+    background: var(--primary);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  /* aged-paper / dossier texture */
+  .dossier-texture {
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(200, 151, 58, 0.018) 0px,
+      rgba(200, 151, 58, 0.018) 1px,
+      transparent 1px,
+      transparent 6px
+    );
+  }
+
+  .text-glow-primary {
+    text-shadow: 0 0 20px rgba(200, 151, 58, 0.5);
+  }
+  .text-glow-xp {
+    text-shadow: 0 0 20px rgba(232, 194, 74, 0.5);
+  }
+}
+
+/* ---- Keyframe animations ---- */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+@keyframes flash-success {
+  0%, 100% { border-color: var(--indigo-border); }
+  50% { border-color: var(--success); box-shadow: 0 0 24px rgba(90, 171, 122, 0.4); }
+}
+.animate-flash-success {
+  animation: flash-success 0.6s ease-in-out;
+}
+
+@keyframes flash-danger {
+  0%, 100% { border-color: var(--indigo-border); }
+  50% { border-color: var(--danger); box-shadow: 0 0 24px rgba(204, 61, 61, 0.4); }
+}
+.animate-flash-danger {
+  animation: flash-danger 0.6s ease-in-out;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.badge-shimmer {
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    rgba(200, 151, 58, 0.15) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.6s linear infinite;
+}
+
+@keyframes node-pulse {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes line-pulse {
+  0%, 100% { opacity: 0.06; }
+  50% { opacity: 0.18; }
+}
+
+@keyframes timer-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.animate-timer-pulse {
+  animation: timer-pulse 1s ease-in-out infinite;
+}
+
+@keyframes smoke-out {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-12px) scale(1.3); filter: blur(4px); }
+}
+.animate-smoke-out {
+  animation: smoke-out 0.6s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-shake,
+  .animate-flash-success,
+  .animate-flash-danger,
+  .badge-shimmer,
+  .animate-timer-pulse,
+  .animate-smoke-out {
+    animation: none !important;
+  }
+}
