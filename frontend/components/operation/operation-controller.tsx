@@ -10,7 +10,9 @@ import { OperationHud } from './operation-hud'
 import { AssignmentRenderer, type SubmittedAnswer } from '@/components/assignments/assignment-renderer'
 import { Button } from '@/components/ui/button'
 import { gradeJustification } from '@/lib/grade-client'
-import { isSelectionCorrect, XP, hasJustification, buildResult, pointsPossible } from '@/lib/scoring'
+import { isSelectionCorrect, XP, hasJustification, buildResult, pointsPossible, selectionScore } from '@/lib/scoring'
+import { getEnabledTypes, getProficiencyGatedTypes, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM } from '@/lib/feature-flags'
+import { hasPassedProficiency } from '@/lib/proficiency'
 import type { Answer, Question } from '@/lib/types'
 
 const OPERATION_COUNT = 25
@@ -40,14 +42,20 @@ export function OperationController() {
   const [bestStreak, setBestStreak] = useState(0)
   const [totalXp, setTotalXp] = useState(0)
   const [timeLeft, setTimeLeft] = useState(OPERATION_TIME_MIN * 60)
-  const [flashState, setFlashState] = useState<'correct' | 'wrong' | null>(null)
+  const [flashState, setFlashState] = useState<'correct' | 'wrong' | 'partial' | null>(null)
   const [grading, setGrading] = useState(false)
 
   // Initialize operation
   useEffect(() => {
     const name = randomOperationName()
     setOperationName(name)
-    const qs = drawOperation(OPERATION_COUNT)
+    const gated = new Set(getProficiencyGatedTypes())
+    const passed =
+      !FEATURE_PROFICIENCY_GATE ||
+      !REQUIRED_PROFICIENCY_EXAM ||
+      hasPassedProficiency(REQUIRED_PROFICIENCY_EXAM)
+    const types = getEnabledTypes().filter((t) => passed || !gated.has(t))
+    const qs = drawOperation(OPERATION_COUNT, types)
     setQuestions(qs)
     setTimeLeft(OPERATION_TIME_MIN * 60)
   }, [])
@@ -75,19 +83,18 @@ export function OperationController() {
 
     try {
       // Grade the answer
+      const ratio = selectionScore(currentQuestion, answer.selection)
       const correct = isSelectionCorrect(currentQuestion, answer.selection)
       let justificationScore: 0 | 1 | 2 = 0
 
       // Grade justification if present
       if (answer.justification) {
         try {
-          const result = await gradeJustification({
-            prompt: currentQuestion.prompt,
-            response: 'responseA' in currentQuestion ? currentQuestion.responseA : '',
-            justification: answer.justification,
-            rubric: currentQuestion.rubric || '',
-            decision: answer.selection as string,
-          })
+          const result = await gradeJustification(
+            currentQuestion,
+            answer.justification,
+            typeof answer.selection === 'string' ? answer.selection : JSON.stringify(answer.selection),
+          )
           justificationScore = result.score as 0 | 1 | 2
         } catch (err) {
           console.error('Grading error:', err)
@@ -99,19 +106,19 @@ export function OperationController() {
       const newStreak = correct ? streak + 1 : 0
       const newBestStreak = Math.max(bestStreak, newStreak)
 
-      // Calculate XP and points
       let xpEarned = 0
-      if (correct) {
-        xpEarned = XP.CORRECT_MCQ
+      if (ratio > 0) {
+        xpEarned = Math.round(XP.CORRECT_MCQ * ratio)
         if (hasJustification(currentQuestion.type)) {
           xpEarned += justificationScore === 2 ? XP.JUSTIFICATION_FULL : justificationScore === 1 ? XP.JUSTIFICATION_PARTIAL : 0
         }
-        // Add streak bonus
-        if (newStreak === 3) xpEarned += XP.STREAK_3
-        else if (newStreak === 5) xpEarned += XP.STREAK_5
-        else if (newStreak === 10) xpEarned += XP.STREAK_10
+        if (correct) {
+          if (newStreak === 3) xpEarned += XP.STREAK_3
+          else if (newStreak === 5) xpEarned += XP.STREAK_5
+          else if (newStreak === 10) xpEarned += XP.STREAK_10
+        }
       }
-      const pointsEarned = correct ? currentQuestion.xpValue : 0
+      const pointsEarned = Math.round(ratio * currentQuestion.xpValue)
 
       // Record answer
       const possiblePoints = pointsPossible(currentQuestion)
@@ -135,7 +142,7 @@ export function OperationController() {
       setTotalXp((prev) => prev + xpEarned)
 
       // Visual feedback
-      setFlashState(correct ? 'correct' : 'wrong')
+      setFlashState(correct ? 'correct' : ratio > 0 ? 'partial' : 'wrong')
       setTimeout(() => setFlashState(null), 1000)
 
       // Move to next question or submit

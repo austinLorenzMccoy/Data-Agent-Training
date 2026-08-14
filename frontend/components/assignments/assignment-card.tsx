@@ -12,13 +12,14 @@ export function AssignmentCard({
 }: {
   question: Question
   children: React.ReactNode
-  flashState?: 'correct' | 'wrong' | null
+  flashState?: 'correct' | 'wrong' | 'partial' | null
 }) {
   return (
     <div
       className={cn(
         'agency-card agency-card-accent dossier-texture p-5 sm:p-6',
         flashState === 'correct' && 'animate-flash-success',
+        flashState === 'partial' && 'animate-flash-success',
         flashState === 'wrong' && 'animate-shake animate-flash-danger',
       )}
     >

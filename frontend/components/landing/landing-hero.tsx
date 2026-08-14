@@ -17,13 +17,21 @@ import {
   ShieldCheck,
   ListChecks,
   Shield,
+  MapPin,
+  Search,
+  AudioLines,
 } from 'lucide-react'
+import { getEnabledTypes } from '@/lib/feature-flags'
 
 const TYPE_ICONS: Record<AssignmentType, React.ElementType> = {
   alpha: Target,
   beta: GitCompareArrows,
   gamma: ShieldCheck,
   delta: ListChecks,
+  epsilon: MapPin,
+  zeta: Search,
+  eta: Search,
+  theta: AudioLines,
 }
 
 const TYPE_DESC: Record<AssignmentType, string> = {
@@ -31,6 +39,10 @@ const TYPE_DESC: Record<AssignmentType, string> = {
   beta: 'Two field reports on one target. Rate each, then pick the more reliable.',
   gamma: 'Screen an intercepted transcript and flag every anomaly you find.',
   delta: 'Choose the optimal reply for an undercover operative from four candidates.',
+  epsilon: 'Rate map POIs: relevance, name, address, pin, and a closed-business flag.',
+  zeta: 'Page Quality (10-point) and Needs Met (5-point) on a frozen page snapshot.',
+  eta: 'A four-point search-satisfaction scale — the lite on-ramp to Zeta.',
+  theta: 'Segment speech, label speakers, transcribe verbatim, and tag spans.',
 }
 
 export function LandingHero() {
@@ -98,10 +110,10 @@ export function LandingHero() {
       {/* Assignment types */}
       <section className="relative mx-auto max-w-4xl px-4 pb-16">
         <p className="mb-4 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-          Four Assignment Classes
+          Assignment Classes
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          {(Object.keys(TYPE_LABELS) as AssignmentType[]).map((t) => {
+          {getEnabledTypes().map((t) => {
             const Icon = TYPE_ICONS[t]
             return (
               <div key={t} className="agency-card agency-card-accent p-5">

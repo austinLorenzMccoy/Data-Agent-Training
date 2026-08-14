@@ -6,26 +6,38 @@ import { FLAG_REASONS } from '@/lib/types'
 import { hasJustification } from '@/lib/scoring'
 import { AssignmentCard, PromptBlock } from './assignment-card'
 import { RatingSelect } from './rating-select'
+import { EpsilonAssignment } from './epsilon-assignment'
+import { ZetaAssignment } from './zeta-assignment'
+import { ThetaAssignment } from './theta-assignment'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Check } from 'lucide-react'
+import type { SubmittedAnswer } from './types'
 
-export interface SubmittedAnswer {
-  selection: unknown
-  justification?: string
+export type { SubmittedAnswer }
+
+type RendererProps = {
+  question: Question
+  onSubmit: (answer: SubmittedAnswer) => void
+  flashState?: 'correct' | 'wrong' | 'partial' | null
+  disabled?: boolean
 }
 
-export function AssignmentRenderer({
+export function AssignmentRenderer(props: RendererProps) {
+  if (props.question.type === 'epsilon') return <EpsilonAssignment {...props} />
+  if (props.question.type === 'zeta' || props.question.type === 'eta') {
+    return <ZetaAssignment {...props} />
+  }
+  if (props.question.type === 'theta') return <ThetaAssignment {...props} />
+  return <CoreAssignment {...props} />
+}
+
+function CoreAssignment({
   question,
   onSubmit,
   flashState,
   disabled,
-}: {
-  question: Question
-  onSubmit: (answer: SubmittedAnswer) => void
-  flashState?: 'correct' | 'wrong' | null
-  disabled?: boolean
-}) {
+}: RendererProps) {
   // ALPHA
   const [alphaRating, setAlphaRating] = useState<AlphaRating | null>(null)
   // BETA

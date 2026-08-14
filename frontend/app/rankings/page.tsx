@@ -1,29 +1,57 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { SiteNav } from '@/components/site-nav'
 import { useAgent } from '@/components/providers/agent-provider'
-import { RANKS, getRank } from '@/lib/ranks'
-import { Shield, Trophy, Crown } from 'lucide-react'
+import { RANKS } from '@/lib/ranks'
+import { Shield, Trophy, Crown, Loader2, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
-// Simulated leaderboard entries for display when no real data exists
-const DEMO_BOARD = [
-  { alias: 'VECTOR-9', iqScore: 98, xp: 22400, rank: 'director' },
-  { alias: 'SPECTRE', iqScore: 95, xp: 18900, rank: 'senior-analyst' },
-  { alias: 'CIPHER-7', iqScore: 93, xp: 15200, rank: 'senior-analyst' },
-  { alias: 'PHANTOM', iqScore: 91, xp: 12800, rank: 'senior-analyst' },
-  { alias: 'NEXUS', iqScore: 89, xp: 9700, rank: 'analyst' },
-  { alias: 'PRISM-4', iqScore: 87, xp: 8100, rank: 'analyst' },
-  { alias: 'ATLAS', iqScore: 85, xp: 7300, rank: 'analyst' },
-  { alias: 'ECHO-2', iqScore: 83, xp: 5900, rank: 'specialist' },
-  { alias: 'SIGNAL', iqScore: 81, xp: 4500, rank: 'specialist' },
-  { alias: 'GHOST', iqScore: 78, xp: 3800, rank: 'specialist' },
-]
+interface LeaderboardEntry {
+  id: string
+  alias: string
+  total_xp: number
+  best_iq_score: number
+  operations_count: number
+  rank_label: string
+  rank_icon: string
+  rank_colour: string
+  rank_tier_id: number
+  position: number
+}
 
 export default function RankingsPage() {
   const { agent, rank } = useAgent()
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [filterRank, setFilterRank] = useState<number | null>(null)
+
+  useEffect(() => {
+    async function fetchLeaderboard() {
+      setLoading(true)
+      setError(null)
+      try {
+        const params = new URLSearchParams()
+        if (filterRank) params.set('rank', String(filterRank))
+        params.set('limit', '50')
+
+        const res = await fetch(`/api/leaderboard?${params}`)
+        if (!res.ok) throw new Error('Failed to fetch rankings')
+        const data = await res.json()
+        setEntries(data)
+      } catch (err) {
+        console.error('Leaderboard fetch error:', err)
+        setError('Unable to load rankings. Try again later.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchLeaderboard()
+  }, [filterRank])
 
   const agentOnBoard = agent?.onLeaderboard
 
@@ -36,21 +64,39 @@ export default function RankingsPage() {
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary">Sector 05 · Global Intelligence</p>
           <h1 className="mt-2 text-4xl font-bold tracking-tight">Agency Rankings</h1>
           <p className="mt-3 text-muted-foreground">
-            Top agents ranked by average IQ-Score across all operations. Opt in from your dossier to appear here.
+            Top agents ranked by total XP across all operations. Opt in from your dossier to appear here.
           </p>
         </div>
 
         {/* Rank filter pills */}
         <div className="mb-6 flex flex-wrap gap-2">
-          {RANKS.map((r) => (
-            <div
+          <button
+            onClick={() => setFilterRank(null)}
+            className={cn(
+              'flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-wider transition-all',
+              filterRank === null
+                ? 'border-primary bg-primary/15 text-primary'
+                : 'border-border text-muted-foreground hover:border-muted-foreground/50'
+            )}
+          >
+            <Users className="size-3" />
+            All
+          </button>
+          {RANKS.map((r, i) => (
+            <button
               key={r.id}
-              className="flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-wider"
-              style={{ borderColor: `${r.color}44`, color: r.color, background: `${r.color}10` }}
+              onClick={() => setFilterRank(i + 1)}
+              className={cn(
+                'flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-wider transition-all',
+                filterRank === i + 1
+                  ? 'border-primary bg-primary/15 text-primary'
+                  : 'border-border text-muted-foreground hover:border-muted-foreground/50'
+              )}
+              style={filterRank === i + 1 ? { borderColor: `${r.color}66`, color: r.color, background: `${r.color}15` } : {}}
             >
               <Shield className="size-3" />
               {r.name}
-            </div>
+            </button>
           ))}
         </div>
 
@@ -60,50 +106,70 @@ export default function RankingsPage() {
           <div className="flex items-center gap-3 border-b border-border px-5 py-3">
             <Trophy className="size-4 text-xp" />
             <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Global Rankings — Demo Board
+              Global Rankings
             </p>
           </div>
 
-          <ul className="divide-y divide-border">
-            {DEMO_BOARD.map((entry, i) => {
-              const entryRank = RANKS.find((r) => r.id === entry.rank) ?? RANKS[0]
-              const isTop3 = i < 3
-              const medal = ['🥇', '🥈', '🥉'][i] ?? null
+          {loading ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="size-6 animate-spin text-primary" />
+              <span className="ml-3 font-mono text-xs uppercase tracking-wider text-muted-foreground">
+                Loading intel...
+              </span>
+            </div>
+          ) : error ? (
+            <div className="py-16 text-center">
+              <p className="text-sm text-danger">{error}</p>
+            </div>
+          ) : entries.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <Shield className="size-10 text-muted-foreground/30" />
+              <p className="mt-4 font-mono text-sm text-muted-foreground">No agents on the board yet.</p>
+              <p className="mt-1 text-xs text-muted-foreground/70">
+                Complete operations and opt in from your dossier to claim your position.
+              </p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-border">
+              {entries.map((entry, i) => {
+                const isTop3 = i < 3
+                const medal = ['🥇', '🥈', '🥉'][i] ?? null
 
-              return (
-                <li
-                  key={entry.alias}
-                  className={cn(
-                    'flex items-center gap-4 px-5 py-3',
-                    isTop3 && 'bg-primary/3',
-                  )}
-                >
-                  <span className="w-6 text-center font-mono text-sm">
-                    {medal ?? <span className="text-xs text-muted-foreground">{i + 1}</span>}
-                  </span>
-
-                  <div
-                    className="flex size-8 shrink-0 items-center justify-center rounded-lg border font-mono text-xs font-bold"
-                    style={{ borderColor: `${entryRank.color}55`, background: `${entryRank.color}15`, color: entryRank.color }}
+                return (
+                  <li
+                    key={entry.id}
+                    className={cn(
+                      'flex items-center gap-4 px-5 py-3',
+                      isTop3 && 'bg-primary/3',
+                    )}
                   >
-                    {entry.alias.slice(0, 2)}
-                  </div>
+                    <span className="w-6 text-center font-mono text-sm">
+                      {medal ?? <span className="text-xs text-muted-foreground">{entry.position}</span>}
+                    </span>
 
-                  <div className="flex-1 min-w-0">
-                    <p className="font-mono text-sm font-bold uppercase tracking-wider">{entry.alias}</p>
-                    <p className="font-mono text-[10px] uppercase tracking-wider" style={{ color: entryRank.color }}>
-                      {entryRank.name}
-                    </p>
-                  </div>
+                    <div
+                      className="flex size-8 shrink-0 items-center justify-center rounded-lg border font-mono text-xs font-bold"
+                      style={{ borderColor: `${entry.rank_colour}55`, background: `${entry.rank_colour}15`, color: entry.rank_colour }}
+                    >
+                      {entry.alias.slice(0, 2).toUpperCase()}
+                    </div>
 
-                  <div className="text-right">
-                    <p className="font-mono text-sm font-bold text-success">{entry.iqScore}%</p>
-                    <p className="font-mono text-[10px] text-muted-foreground">{entry.xp.toLocaleString()} XP</p>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-mono text-sm font-bold uppercase tracking-wider">{entry.alias}</p>
+                      <p className="font-mono text-[10px] uppercase tracking-wider" style={{ color: entry.rank_colour }}>
+                        {entry.rank_label}
+                      </p>
+                    </div>
+
+                    <div className="text-right">
+                      <p className="font-mono text-sm font-bold text-success">{entry.best_iq_score}%</p>
+                      <p className="font-mono text-[10px] text-muted-foreground">{entry.total_xp.toLocaleString()} XP</p>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
 
           {/* Agent's position */}
           {agent && (

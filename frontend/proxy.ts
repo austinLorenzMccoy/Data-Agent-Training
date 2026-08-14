@@ -1,10 +1,34 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PROTECTED_ROUTES = ['/operation', '/training', '/dossier', '/rankings']
+const PROTECTED_ROUTES = ['/operation', '/training', '/dossier', '/rankings', '/proficiency']
 const AUTH_ROUTES = ['/login']
 
+function proficiencyRedirect(request: NextRequest): NextResponse | null {
+  const gateOn = process.env.NEXT_PUBLIC_FEATURE_PROFICIENCY_GATE === 'true'
+  const requiredExam = process.env.NEXT_PUBLIC_REQUIRED_PROFICIENCY_EXAM?.trim()
+  const pathname = request.nextUrl.pathname
+  if (!gateOn || !requiredExam || pathname.startsWith('/proficiency')) return null
+  const gated = (process.env.NEXT_PUBLIC_PROFICIENCY_GATED_TYPES || 'theta')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+  const hitsGatedTrack = gated.some(
+    (t) => pathname === `/training/${t}` || pathname.startsWith(`/training/${t}/`),
+  )
+  const passed = request.cookies.get(`dna_proficiency_${requiredExam}`)?.value === 'passed'
+  if (hitsGatedTrack && !passed) {
+    const examUrl = new URL(`/proficiency/${requiredExam}`, request.url)
+    examUrl.searchParams.set('next', pathname)
+    return NextResponse.redirect(examUrl)
+  }
+  return null
+}
+
 export async function proxy(request: NextRequest) {
+  const gated = proficiencyRedirect(request)
+  if (gated) return gated
+
   // If Supabase is not configured, skip auth checks
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return NextResponse.next({ request })

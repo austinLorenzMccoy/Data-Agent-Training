@@ -6,27 +6,48 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useAgent } from '@/components/providers/agent-provider'
 import { getQuestionsByType } from '@/lib/questions'
 import type { AssignmentType, Question } from '@/lib/types'
-import { TYPE_LABELS, TYPE_NAMES, XP, isSelectionCorrect, hasJustification } from '@/lib/scoring'
+import { TYPE_LABELS, TYPE_NAMES, XP, isSelectionCorrect, hasJustification, selectionScore } from '@/lib/scoring'
 import { gradeJustification } from '@/lib/grade-client'
 import { AssignmentRenderer, type SubmittedAnswer } from '@/components/assignments/assignment-renderer'
 import { FeedbackPanel } from '@/components/assignments/feedback-panel'
 import { NeuralNoise } from '@/components/neural-noise'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { ArrowRight, Crosshair, GitCompare, ShieldCheck, ListChecks, Lock } from 'lucide-react'
+import { ArrowRight, Crosshair, GitCompare, ShieldCheck, ListChecks, Lock, MapPin, Search, AudioLines } from 'lucide-react'
+import { CORE_TYPES, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM, getEnabledTypes, getProficiencyGatedTypes } from '@/lib/feature-flags'
+import { hasPassedProficiency } from '@/lib/proficiency'
+import { useRouter } from 'next/navigation'
 
 const TYPE_META: Record<AssignmentType, { icon: typeof Crosshair; blurb: string }> = {
   alpha: { icon: Crosshair, blurb: 'Rate a single AI response: clear, ambiguous, or compromised.' },
   beta: { icon: GitCompare, blurb: 'Compare two responses and identify the superior intelligence.' },
   gamma: { icon: ShieldCheck, blurb: 'Clear or flag transcripts for contamination and leakage.' },
   delta: { icon: ListChecks, blurb: 'Select the single best response from multiple candidates.' },
+  epsilon: { icon: MapPin, blurb: 'Rate map POIs for relevance, name, address, and pin accuracy.' },
+  zeta: { icon: Search, blurb: 'Page Quality + Needs Met on the full search-quality scale.' },
+  eta: { icon: Search, blurb: 'Lite four-point search satisfaction — the on-ramp to Zeta.' },
+  theta: { icon: AudioLines, blurb: 'Segment, label speakers, transcribe, and tag an audio clip.' },
 }
 
-const ORDER: AssignmentType[] = ['alpha', 'beta', 'gamma', 'delta']
-
 export function TrainingHub() {
-  const { agent, addXp, completeTraining } = useAgent()
+  const { agent, completeTraining } = useAgent()
+  const router = useRouter()
   const [active, setActive] = useState<AssignmentType | null>(null)
+  const order = useMemo(() => getEnabledTypes(), [])
+  const gated = useMemo(() => new Set(getProficiencyGatedTypes()), [])
+
+  function startType(type: AssignmentType) {
+    if (
+      FEATURE_PROFICIENCY_GATE &&
+      REQUIRED_PROFICIENCY_EXAM &&
+      gated.has(type) &&
+      !hasPassedProficiency(REQUIRED_PROFICIENCY_EXAM)
+    ) {
+      router.push(`/proficiency/${REQUIRED_PROFICIENCY_EXAM}?next=/training`)
+      return
+    }
+    setActive(type)
+  }
 
   if (active) {
     return (
@@ -35,7 +56,6 @@ export function TrainingHub() {
         onExit={() => setActive(null)}
         onComplete={() => {
           completeTraining(active)
-          addXp(XP.TRAINING_MODULE)
         }}
       />
     )
@@ -53,18 +73,18 @@ export function TrainingHub() {
         </h1>
         <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
           Sharpen your instincts without the clock. Every drill gives instant analyst feedback.
-          Clear all four disciplines to unlock full operational duty.
+          Core Alpha–Delta tracks stay on the main ladder. New domains are specialisation tracks.
         </p>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {ORDER.map((type) => {
+          {order.map((type) => {
             const meta = TYPE_META[type]
             const Icon = meta.icon
             const done = agent?.completedTraining.includes(type)
             return (
               <button
                 key={type}
-                onClick={() => setActive(type)}
+                onClick={() => startType(type)}
                 className={cn(
                   'group relative overflow-hidden rounded-xl border border-border bg-card p-5 text-left transition-colors hover:border-accent/60',
                 )}
@@ -95,7 +115,7 @@ export function TrainingHub() {
         <div className="mt-10 flex flex-col items-start gap-4 rounded-xl border border-border bg-card/60 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              {ORDER.every((t) => agent?.completedTraining.includes(t)) ? (
+              {CORE_TYPES.every((t) => agent?.completedTraining.includes(t)) ? (
                 <ShieldCheck className="size-4 text-success" />
               ) : (
                 <Lock className="size-4 text-muted-foreground" />
@@ -117,6 +137,8 @@ export function TrainingHub() {
 
 interface Result {
   correct: boolean
+  ratio: number
+  selection: unknown
   justificationScore?: 0 | 1 | 2
   justificationFeedback?: string
 }
@@ -139,8 +161,9 @@ function TrainingSession({
 
   async function handleSubmit(answer: SubmittedAnswer) {
     if (!question) return
+    const ratio = selectionScore(question, answer.selection)
     const correct = isSelectionCorrect(question, answer.selection)
-    setResult({ correct })
+    setResult({ correct, ratio, selection: answer.selection })
     if (hasJustification(question.type) && answer.justification) {
       setGrading(true)
       const decision =
@@ -151,6 +174,8 @@ function TrainingSession({
       setGrading(false)
       setResult({
         correct,
+        ratio,
+        selection: answer.selection,
         justificationScore: graded.score,
         justificationFeedback: graded.feedback,
       })
@@ -217,7 +242,15 @@ function TrainingSession({
               question={question}
               onSubmit={handleSubmit}
               disabled={!!result}
-              flashState={result ? (result.correct ? 'correct' : 'wrong') : null}
+              flashState={
+                result
+                  ? result.correct
+                    ? 'correct'
+                    : result.ratio > 0
+                      ? 'partial'
+                      : 'wrong'
+                  : null
+              }
             />
             {grading && (
               <p className="font-mono text-xs uppercase tracking-wider text-accent">
@@ -229,6 +262,8 @@ function TrainingSession({
                 <FeedbackPanel
                   question={question}
                   correct={result.correct}
+                  selection={result.selection}
+                  ratio={result.ratio}
                   justificationScore={result.justificationScore}
                   justificationFeedback={result.justificationFeedback}
                 />

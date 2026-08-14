@@ -1,0 +1,593 @@
+import type { Question } from './types'
+import type { EpsilonPayload, ThetaPayload, ZetaPayload } from './domain-types'
+
+function q(
+  base: Omit<Question, 'correctAnswer' | 'prompt'> & {
+    prompt?: string
+    payload: EpsilonPayload | ZetaPayload | ThetaPayload
+    correctAnswer?: Question['correctAnswer']
+  },
+): Question {
+  return {
+    prompt: base.prompt ?? '',
+    correctAnswer: base.correctAnswer ?? {},
+    ...base,
+  }
+}
+
+const EPSILON: Question[] = [
+  q({
+    id: 'epsilon_001',
+    type: 'epsilon',
+    difficulty: 'easy',
+    category: 'map_relevance',
+    operationContext:
+      'Local-search intercept: user is looking for nearby Chinese food. Rate each POI the way a map evaluator would.',
+    explanation:
+      'Debrief: this is a near-me restaurant query, not navigational. Golden Dragon is an excellent on-category hit. Panda Express is a good chain match but farther. Ocean City Library is off-category (Bad).',
+    xpValue: 50,
+    tags: ['map', 'relevance', 'near-me'],
+    payload: {
+      query: 'Chinese near me',
+      user_location: 'Ocean City, NJ, US',
+      has_navigational_result: false,
+      results: [
+        {
+          id: 'a',
+          name_shown: 'Golden Dragon',
+          address_shown: '850 Asbury Ave, Ocean City, NJ 08226',
+          category: 'Chinese restaurant',
+          distance: '0.3 mi',
+          pin_shown: { lat: 39.2776, lng: -74.5746, label: 'Golden Dragon' },
+          correct_relevance: 'Excellent',
+          correct_relevance_subreason: null,
+          correct_name_accuracy: 'Correct',
+          correct_address_accuracy: 'Correct',
+          correct_pin_accuracy: 'Perfect',
+          correct_business_closed: false,
+        },
+        {
+          id: 'b',
+          name_shown: 'Panda Express',
+          address_shown: '2100 Roosevelt Blvd, Ocean City, NJ 08226',
+          category: 'Chinese restaurant',
+          distance: '2.1 mi',
+          pin_shown: { lat: 39.2631, lng: -74.6018, label: 'Panda Express' },
+          correct_relevance: 'Good',
+          correct_relevance_subreason: 'Dt.',
+          correct_name_accuracy: 'Correct',
+          correct_address_accuracy: 'Correct',
+          correct_pin_accuracy: 'Perfect',
+          correct_business_closed: false,
+        },
+        {
+          id: 'c',
+          name_shown: 'Ocean City Library',
+          address_shown: '1735 Simpson Ave, Ocean City, NJ 08226',
+          category: 'Public library',
+          distance: '0.8 mi',
+          pin_shown: { lat: 39.271, lng: -74.578, label: 'Ocean City Library' },
+          correct_relevance: 'Bad',
+          correct_relevance_subreason: 'User',
+          correct_name_accuracy: 'Correct',
+          correct_address_accuracy: 'Correct',
+          correct_pin_accuracy: 'Perfect',
+          correct_business_closed: false,
+        },
+      ],
+    },
+  }),
+  q({
+    id: 'epsilon_002',
+    type: 'epsilon',
+    difficulty: 'medium',
+    category: 'map_navigational',
+    operationContext:
+      'User typed a specific brand + city. Decide whether any result is navigational, then rate the cards.',
+    explanation:
+      'Debrief: "Starbucks Ocean City NJ" is a navigational query. Result A is the intended store (Navigational). Result B is another Starbucks in a different town — Acceptable at best, not the destination.',
+    xpValue: 50,
+    tags: ['map', 'navigational'],
+    payload: {
+      query: 'Starbucks Ocean City NJ',
+      user_location: 'Ocean City, NJ, US',
+      has_navigational_result: true,
+      results: [
+        {
+          id: 'a',
+          name_shown: 'Starbucks',
+          address_shown: '2701 Ocean Heights Ave, Egg Harbor Township, NJ 08234',
+          category: 'Coffee shop',
+          distance: '6.4 mi',
+          pin_shown: { lat: 39.342, lng: -74.641, label: 'Starbucks' },
+          correct_relevance: 'Navigational',
+          correct_relevance_subreason: null,
+          correct_name_accuracy: 'Correct',
+          correct_address_accuracy: 'Correct',
+          correct_pin_accuracy: 'Perfect',
+          correct_business_closed: false,
+        },
+        {
+          id: 'b',
+          name_shown: 'Starbucks',
+          address_shown: '1331 Boardwalk, Atlantic City, NJ 08401',
+          category: 'Coffee shop',
+          distance: '11.2 mi',
+          pin_shown: { lat: 39.36, lng: -74.423, label: 'Starbucks Boardwalk' },
+          correct_relevance: 'Acceptable',
+          correct_relevance_subreason: 'Dt.',
+          correct_name_accuracy: 'Correct',
+          correct_address_accuracy: 'Correct',
+          correct_pin_accuracy: 'Perfect',
+          correct_business_closed: false,
+        },
+      ],
+    },
+  }),
+  q({
+    id: 'epsilon_003',
+    type: 'epsilon',
+    difficulty: 'medium',
+    category: 'map_accuracy',
+    operationContext:
+      'Name, address, and pin have independent errors. Rate each field; do not let a closed flag change relevance.',
+    explanation:
+      'Debrief: Tony\'s Pizza is the right business but the name is truncated (Partially Correct), the street number is wrong, and the pin is next door. Business Closed can sit on any relevance rating — here the shop is still open.',
+    xpValue: 50,
+    tags: ['map', 'name', 'address', 'pin'],
+    payload: {
+      query: 'pizza',
+      user_location: 'Ocean City, NJ, US',
+      has_navigational_result: false,
+      results: [
+        {
+          id: 'a',
+          name_shown: "Tony's",
+          address_shown: '940 Asbury Ave, Ocean City, NJ 08226',
+          category: 'Pizza restaurant',
+          distance: '0.2 mi',
+          pin_shown: { lat: 39.2779, lng: -74.5749, label: "Tony's Pizza" },
+          correct_relevance: 'Excellent',
+          correct_relevance_subreason: null,
+          correct_name_accuracy: 'Partially Correct',
+          correct_address_accuracy: 'Incorrect',
+          correct_address_issue: 'Street Number',
+          correct_pin_accuracy: 'Next Door',
+          correct_business_closed: false,
+        },
+        {
+          id: 'b',
+          name_shown: 'Boardwalk Slices',
+          address_shown: '1200 Boardwalk, Ocean City, NJ 08226',
+          category: 'Pizza restaurant',
+          distance: '0.6 mi',
+          pin_shown: { lat: 39.275, lng: -74.562, label: 'Boardwalk Slices' },
+          correct_relevance: 'Good',
+          correct_relevance_subreason: null,
+          correct_name_accuracy: 'Correct',
+          correct_address_accuracy: 'Correct',
+          correct_pin_accuracy: 'Perfect',
+          correct_business_closed: false,
+        },
+      ],
+    },
+  }),
+  q({
+    id: 'epsilon_004',
+    type: 'epsilon',
+    difficulty: 'hard',
+    category: 'map_closed',
+    operationContext:
+      'One result is permanently closed. Closed is an independent flag — still rate relevance, name, address, and pin.',
+    explanation:
+      'Debrief: Mimi\'s Diner is closed but still an on-category restaurant, so relevance stays Excellent and Business Closed is checked. The pharmacy is off-intent (Bad).',
+    xpValue: 50,
+    tags: ['map', 'closed'],
+    payload: {
+      query: 'diner',
+      user_location: 'Ocean City, NJ, US',
+      has_navigational_result: false,
+      results: [
+        {
+          id: 'a',
+          name_shown: "Mimi's Diner",
+          address_shown: '401 9th St, Ocean City, NJ 08226',
+          category: 'Diner · Permanently closed',
+          distance: '0.4 mi',
+          pin_shown: { lat: 39.2788, lng: -74.5755, label: "Mimi's Diner" },
+          correct_relevance: 'Excellent',
+          correct_relevance_subreason: null,
+          correct_name_accuracy: 'Correct',
+          correct_address_accuracy: 'Correct',
+          correct_pin_accuracy: 'Perfect',
+          correct_business_closed: true,
+        },
+        {
+          id: 'b',
+          name_shown: 'Ocean City Pharmacy',
+          address_shown: '701 Asbury Ave, Ocean City, NJ 08226',
+          category: 'Pharmacy',
+          distance: '0.5 mi',
+          pin_shown: { lat: 39.2765, lng: -74.574, label: 'Ocean City Pharmacy' },
+          correct_relevance: 'Bad',
+          correct_relevance_subreason: 'User',
+          correct_name_accuracy: 'Correct',
+          correct_address_accuracy: 'Correct',
+          correct_pin_accuracy: 'Perfect',
+          correct_business_closed: false,
+        },
+      ],
+    },
+  }),
+  q({
+    id: 'epsilon_005',
+    type: 'epsilon',
+    difficulty: 'hard',
+    category: 'map_verify',
+    operationContext:
+      'Sparse listing — some fields cannot be verified from the card. Use n/a and Can\'t Verify rather than guessing.',
+    explanation:
+      'Debrief: the name is right, the address is only a city (n/a / Can\'t Verify), and the pin is in the wrong neighborhood (Wrong). No navigational result.',
+    xpValue: 50,
+    tags: ['map', 'cant-verify'],
+    payload: {
+      query: 'hardware store',
+      user_location: 'Ocean City, NJ, US',
+      has_navigational_result: false,
+      results: [
+        {
+          id: 'a',
+          name_shown: 'Shore Hardware',
+          address_shown: 'Ocean City, NJ',
+          category: 'Hardware store',
+          distance: '—',
+          pin_shown: { lat: 39.31, lng: -74.59, label: 'Approximate' },
+          correct_relevance: 'Acceptable',
+          correct_relevance_subreason: 'Dt.',
+          correct_name_accuracy: 'Correct',
+          correct_address_accuracy: "Can't Verify",
+          correct_pin_accuracy: 'Wrong',
+          correct_business_closed: false,
+        },
+      ],
+    },
+  }),
+]
+
+const ZETA: Question[] = [
+  q({
+    id: 'zeta_001',
+    type: 'zeta',
+    difficulty: 'medium',
+    category: 'page_quality_ymyl',
+    operationContext:
+      'YMYL medical landing page. Rate Page Quality using the full slider. Needs Met is also required.',
+    explanation:
+      'Debrief: an unsourced blog selling supplements for "curing dehydration" is Lowest on a YMYL topic. It Fails to Meet a query seeking actual symptoms.',
+    xpValue: 50,
+    tags: ['pq', 'nm', 'ymyl'],
+    payload: {
+      rubric: 'full',
+      landing_page_snapshot_url: '/snapshots/zeta-supplements.html',
+      query: 'symptoms of dehydration',
+      user_intent: 'Find information about the symptoms of dehydration.',
+      ask_pq: true,
+      ask_nm: true,
+      correct_pq: 'Lowest',
+      correct_nm: 'FailsM',
+      correct_flags: { porn: false, foreign_language: false, did_not_load: false },
+      ymyl_topic: true,
+    },
+  }),
+  q({
+    id: 'zeta_002',
+    type: 'zeta',
+    difficulty: 'easy',
+    category: 'page_quality_high',
+    operationContext:
+      'Authoritative encyclopedia page for a straightforward informational query.',
+    explanation:
+      'Debrief: a well-maintained encyclopedia article on dehydration symptoms is High+ PQ (strong MC, clear purpose, reputational) and Highly Meets the query. Highest is reserved for the single dominant official destination.',
+    xpValue: 50,
+    tags: ['pq', 'nm'],
+    payload: {
+      rubric: 'full',
+      landing_page_snapshot_url: '/snapshots/zeta-encyclopedia.html',
+      query: 'symptoms of dehydration',
+      user_intent: 'Find information about the symptoms of dehydration.',
+      ask_pq: true,
+      ask_nm: true,
+      correct_pq: 'High+',
+      correct_nm: 'HighlyM',
+      correct_flags: { porn: false, foreign_language: false, did_not_load: false },
+      ymyl_topic: true,
+    },
+  }),
+  q({
+    id: 'zeta_003',
+    type: 'zeta',
+    difficulty: 'medium',
+    category: 'needs_met_only',
+    operationContext:
+      'Block-content Needs Met only — do not rate Page Quality on this item.',
+    explanation:
+      'Debrief: the featured snippet lists the core symptoms in plain language. It Highly Meets an informational query. Fully Meets is reserved for a dominant official answer (e.g. the exact store hours for a named store).',
+    xpValue: 50,
+    tags: ['nm'],
+    payload: {
+      rubric: 'full',
+      landing_page_snapshot_url: '/snapshots/zeta-snippet.html',
+      query: 'symptoms of dehydration',
+      user_intent: 'Find information about the symptoms of dehydration.',
+      ask_pq: false,
+      ask_nm: true,
+      correct_nm: 'HighlyM',
+      correct_flags: { porn: false, foreign_language: false, did_not_load: false },
+      ymyl_topic: true,
+    },
+  }),
+  q({
+    id: 'zeta_004',
+    type: 'zeta',
+    difficulty: 'easy',
+    category: 'page_quality_only',
+    operationContext:
+      'Landing-page Page Quality only. The query is provided for context; do not submit a Needs Met rating.',
+    explanation:
+      'Debrief: a local restaurant homepage with menu, hours, and address is Medium+ / High for a non-YMYL small business with adequate MC. Gold rating here is Medium+.',
+    xpValue: 50,
+    tags: ['pq'],
+    payload: {
+      rubric: 'full',
+      landing_page_snapshot_url: '/snapshots/zeta-restaurant.html',
+      query: 'Golden Dragon Ocean City menu',
+      user_intent: 'See the menu for Golden Dragon in Ocean City.',
+      ask_pq: true,
+      ask_nm: false,
+      correct_pq: 'Medium+',
+      correct_flags: { porn: false, foreign_language: false, did_not_load: false },
+      ymyl_topic: false,
+    },
+  }),
+  q({
+    id: 'zeta_005',
+    type: 'zeta',
+    difficulty: 'hard',
+    category: 'flags',
+    operationContext:
+      'The snapshot failed to load. Use the Did Not Load flag. Ratings may still be N/A.',
+    explanation:
+      'Debrief: when the page does not load, check Did Not Load. PQ is N/A. Needs Met Fails because the user got nothing.',
+    xpValue: 50,
+    tags: ['flags', 'did-not-load'],
+    payload: {
+      rubric: 'full',
+      landing_page_snapshot_url: '/snapshots/zeta-failed.html',
+      query: 'city hall hours',
+      user_intent: 'Find opening hours for city hall.',
+      ask_pq: true,
+      ask_nm: true,
+      correct_pq: 'N/A',
+      correct_nm: 'FailsM',
+      correct_flags: { porn: false, foreign_language: false, did_not_load: true },
+      ymyl_topic: false,
+    },
+  }),
+]
+
+const ETA: Question[] = [
+  q({
+    id: 'eta_001',
+    type: 'eta',
+    difficulty: 'easy',
+    category: 'satisfaction',
+    operationContext:
+      'Lite search-satisfaction scale. Rate how satisfying the result is for the query.',
+    explanation:
+      'Debrief: the official Parks Canada page for Banff is the intended destination — Highly Satisfying, zero degrees of separation.',
+    xpValue: 50,
+    tags: ['lite', 'hs'],
+    payload: {
+      rubric: 'lite',
+      landing_page_snapshot_url: '/snapshots/eta-banff.html',
+      query: 'Banff National Park official site',
+      user_intent: 'Open the official Banff National Park website.',
+      correct_satisfaction: 'HS',
+      degrees_of_separation: 0,
+      correct_flags: { wrong_language: false, content_unavailable: false, inappropriate: false },
+    },
+  }),
+  q({
+    id: 'eta_002',
+    type: 'eta',
+    difficulty: 'easy',
+    category: 'satisfaction',
+    operationContext: 'Off-topic result on the lite scale.',
+    explanation:
+      'Debrief: a page about kitchen knives does not satisfy a query for hiking boots. Not Satisfying. Two or more hops from the concept.',
+    xpValue: 50,
+    tags: ['lite', 'ns'],
+    payload: {
+      rubric: 'lite',
+      landing_page_snapshot_url: '/snapshots/zeta-supplements.html',
+      query: 'best hiking boots for wide feet',
+      user_intent: 'Find hiking boots that fit wide feet.',
+      correct_satisfaction: 'NS',
+      degrees_of_separation: 3,
+      correct_flags: { wrong_language: false, content_unavailable: false, inappropriate: false },
+    },
+  }),
+  q({
+    id: 'eta_003',
+    type: 'eta',
+    difficulty: 'medium',
+    category: 'satisfaction',
+    operationContext: 'Related but not exact — one conceptual hop.',
+    explanation:
+      'Debrief: a general "how to choose hiking boots" guide is related but does not address wide feet. Somewhat Satisfying (one degree of separation).',
+    xpValue: 50,
+    tags: ['lite', 'ss'],
+    payload: {
+      rubric: 'lite',
+      landing_page_snapshot_url: '/snapshots/eta-boots.html',
+      query: 'best hiking boots for wide feet',
+      user_intent: 'Find hiking boots that fit wide feet.',
+      correct_satisfaction: 'SS',
+      degrees_of_separation: 1,
+      correct_flags: { wrong_language: false, content_unavailable: false, inappropriate: false },
+    },
+  }),
+  q({
+    id: 'eta_004',
+    type: 'eta',
+    difficulty: 'medium',
+    category: 'flags',
+    operationContext: 'Result is in the wrong language for an English locale.',
+    explanation:
+      'Debrief: mark Wrong Language. Satisfaction is Not Satisfying for an en-CA user who cannot read the page.',
+    xpValue: 50,
+    tags: ['lite', 'language'],
+    payload: {
+      rubric: 'lite',
+      landing_page_snapshot_url: '/snapshots/eta-foreign.html',
+      query: ' Banff National Park official site',
+      user_intent: 'Open the official Banff National Park website.',
+      correct_satisfaction: 'NS',
+      degrees_of_separation: 0,
+      correct_flags: { wrong_language: true, content_unavailable: false, inappropriate: false },
+    },
+  }),
+  q({
+    id: 'eta_005',
+    type: 'eta',
+    difficulty: 'easy',
+    category: 'satisfaction',
+    operationContext: 'A solid product listing that answers the query.',
+    explanation:
+      'Debrief: a retailer page of wide-fit hiking boots Satisfies the query. Highly Satisfying would require the official or dominant brand destination.',
+    xpValue: 50,
+    tags: ['lite', 's'],
+    payload: {
+      rubric: 'lite',
+      landing_page_snapshot_url: '/snapshots/eta-boots-wide.html',
+      query: 'best hiking boots for wide feet',
+      user_intent: 'Find hiking boots that fit wide feet.',
+      correct_satisfaction: 'S',
+      degrees_of_separation: 0,
+      correct_flags: { wrong_language: false, content_unavailable: false, inappropriate: false },
+    },
+  }),
+]
+
+const THETA: Question[] = [
+  q({
+    id: 'theta_001',
+    type: 'theta',
+    difficulty: 'medium',
+    category: 'transcription',
+    operationContext:
+      'Segment the clip, assign speaker turns in first-appearance order, transcribe verbatim, and tag unsure/truncated spans with the highlight control — never type brackets.',
+    explanation:
+      'Debrief: two speakers. Pause between turns is over 2s so they are separate segments. "er" is an unsure filled pause. Heavy accent is flagged on the clip.',
+    xpValue: 75,
+    tags: ['transcription', 'segmentation'],
+    audioAssetUrl: '/audio/theta-001.wav',
+    payload: {
+      duration_seconds: 8,
+      audio_asset_url: '/audio/theta-001.wav',
+      reference_audio_quality_flags: ['heavy_accent'],
+      reference_segments: [
+        {
+          speaker: 1,
+          gender: 'Female',
+          start_ms: 0,
+          end_ms: 2720,
+          transcript: 'So er how can I explain this.',
+          tags: [{ type: 'unsure', start_char: 3, end_char: 5 }],
+        },
+        {
+          speaker: 2,
+          gender: 'Male',
+          start_ms: 5220,
+          end_ms: 7100,
+          transcript: 'I think we start with the data.',
+          tags: [],
+        },
+      ],
+    },
+  }),
+  q({
+    id: 'theta_002',
+    type: 'theta',
+    difficulty: 'hard',
+    category: 'transcription',
+    operationContext:
+      'Same clip, different grading weights — this item cares more about tag discipline than raw wording.',
+    explanation:
+      'Debrief: truncated always wins over unsure when a word is cut off. Do not type tags. Speaker numbers stay in first-appearance order.',
+    xpValue: 75,
+    tags: ['transcription', 'tags'],
+    audioAssetUrl: '/audio/theta-001.wav',
+    payload: {
+      duration_seconds: 8,
+      audio_asset_url: '/audio/theta-001.wav',
+      weights: { segmentation: 0.2, speaker: 0.2, transcription: 0.2, tags: 0.4 },
+      reference_audio_quality_flags: ['heavy_accent'],
+      reference_segments: [
+        {
+          speaker: 1,
+          gender: 'Female',
+          start_ms: 0,
+          end_ms: 2720,
+          transcript: 'So how can I explain this.',
+          tags: [{ type: 'truncated', start_char: 22, end_char: 26 }],
+        },
+        {
+          speaker: 2,
+          gender: 'Male',
+          start_ms: 5220,
+          end_ms: 7100,
+          transcript: 'I think we start with the data.',
+          tags: [],
+        },
+      ],
+    },
+  }),
+  q({
+    id: 'theta_003',
+    type: 'theta',
+    difficulty: 'easy',
+    category: 'transcription',
+    operationContext: 'Warm-up clip. Focus on two clean turns and a clean transcript.',
+    explanation:
+      'Debrief: two speakers, no tags, no quality flags. Segment at the long pause.',
+    xpValue: 50,
+    tags: ['transcription', 'warmup'],
+    audioAssetUrl: '/audio/theta-001.wav',
+    payload: {
+      duration_seconds: 8,
+      audio_asset_url: '/audio/theta-001.wav',
+      reference_audio_quality_flags: [],
+      reference_segments: [
+        {
+          speaker: 1,
+          gender: 'Female',
+          start_ms: 0,
+          end_ms: 2720,
+          transcript: 'So how can I explain this.',
+          tags: [],
+        },
+        {
+          speaker: 2,
+          gender: 'Male',
+          start_ms: 5220,
+          end_ms: 7100,
+          transcript: 'I think we start with the data.',
+          tags: [],
+        },
+      ],
+    },
+  }),
+]
+
+export const V4_QUESTIONS: Question[] = [...EPSILON, ...ZETA, ...ETA, ...THETA]

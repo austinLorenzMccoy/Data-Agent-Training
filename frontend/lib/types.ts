@@ -1,6 +1,16 @@
 // Core domain types for Datanerds Annotation (codename DNA)
 
-export type AssignmentType = 'alpha' | 'beta' | 'gamma' | 'delta'
+import type { EpsilonPayload, ThetaPayload, ZetaPayload } from './domain-types'
+
+export type AssignmentType =
+  | 'alpha'
+  | 'beta'
+  | 'gamma'
+  | 'delta'
+  | 'epsilon'
+  | 'zeta'
+  | 'eta'
+  | 'theta'
 export type Difficulty = 'easy' | 'medium' | 'hard'
 export type AlphaRating = 'CLEAR' | 'AMBIGUOUS' | 'COMPROMISED'
 
@@ -38,7 +48,8 @@ export interface Question {
   // gamma
   transcript?: string
   // alpha: AlphaRating | beta: 'A' | 'B' | gamma: GammaCorrectAnswer | delta: index
-  correctAnswer: AlphaRating | 'A' | 'B' | GammaCorrectAnswer | number
+  // v4 types store the gold answer inside payload; correctAnswer may be unused.
+  correctAnswer: AlphaRating | 'A' | 'B' | GammaCorrectAnswer | number | Record<string, unknown>
   // beta also requires each response rated, optional reference
   ratingA?: AlphaRating
   ratingB?: AlphaRating
@@ -46,6 +57,9 @@ export interface Question {
   rubric?: string
   xpValue: number
   tags: string[]
+  /** v4 domain payload (map eval, search quality, transcription). */
+  payload?: EpsilonPayload | ZetaPayload | ThetaPayload
+  audioAssetUrl?: string
 }
 
 export interface Answer {

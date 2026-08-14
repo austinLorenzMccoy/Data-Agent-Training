@@ -9,6 +9,7 @@ import { ALL_BADGES } from '@/lib/badges'
 import { RANKS } from '@/lib/ranks'
 import { TYPE_NAMES } from '@/lib/scoring'
 import type { AssignmentType, OperationResult } from '@/lib/types'
+import { getEnabledTypes } from '@/lib/feature-flags'
 import { cn } from '@/lib/utils'
 import { Shield, Zap, Target, Flame, Clock, CheckCircle2, Lock, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -134,7 +135,7 @@ export default function DossierPage() {
         <div className="mb-8 rounded-xl border border-border bg-card p-5">
           <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Field Training Progress</p>
           <div className="grid gap-2 sm:grid-cols-4">
-            {(['alpha', 'beta', 'gamma', 'delta'] as AssignmentType[]).map((t) => {
+            {getEnabledTypes().map((t) => {
               const done = agent.completedTraining.includes(t)
               return (
                 <div key={t} className={cn('flex items-center gap-2 rounded-lg border px-3 py-2.5', done ? 'border-success/30 bg-success/5' : 'border-border')}>

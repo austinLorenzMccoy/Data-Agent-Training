@@ -18,7 +18,11 @@ import {
   Target,
   GitCompare,
   Sparkles,
+  MapPin,
+  Search,
+  AudioLines,
 } from 'lucide-react'
+import { getEnabledTypes, isV4Type } from '@/lib/feature-flags'
 import { Button } from '@/components/ui/button'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -122,12 +126,14 @@ function RuleTag({ children }: { children: React.ReactNode }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function PrepHub() {
-  const [activeTab, setActiveTab] = useState<'core' | 'transcript' | 'response'>('core')
+  const [activeTab, setActiveTab] = useState<'core' | 'transcript' | 'response' | 'special'>('core')
+  const showSpecial = getEnabledTypes().some(isV4Type)
 
   const tabs = [
     { id: 'core' as const, label: 'Core Framework', icon: BookOpen },
     { id: 'transcript' as const, label: 'Transcript Clearance', icon: FileText },
     { id: 'response' as const, label: 'Response Selection', icon: MessageSquare },
+    ...(showSpecial ? [{ id: 'special' as const, label: 'Specialisation Tracks', icon: MapPin }] : []),
   ]
 
   return (
@@ -184,6 +190,8 @@ export function PrepHub() {
 
           {/* ─── TAB: Response Selection ─────────────────────────────── */}
           {activeTab === 'response' && <ResponseSelectionSection />}
+
+          {activeTab === 'special' && <SpecialisationSection />}
         </motion.div>
       </AnimatePresence>
 
@@ -754,6 +762,72 @@ function ResponseSelectionSection() {
           ))}
         </div>
       </div>
+    </>
+  )
+}
+
+function SpecialisationSection() {
+  return (
+    <>
+      <div className="agency-card agency-card-accent p-5">
+        <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-primary">
+          Vendor-faithful specialisation tracks
+        </p>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          These tracks simulate live annotation programs. XP stays on the track by default and does
+          not feed the core Recruit → Intelligence Director ladder.
+        </p>
+      </div>
+
+      <Accordion title="Epsilon — Map / POI evaluation" subtitle="Relevance · name · address · pin" icon={MapPin} defaultOpen>
+        <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+          <p>
+            Rate each result independently. Navigational is a query-level Yes/No, not a per-card
+            substitute for Excellent. Business Closed can sit on any relevance rating.
+          </p>
+          <p>
+            Grading is structural: each of relevance / name / address / pin is worth a quarter of
+            the result score. Adjacent guesses are not tolerated here — the gold value is defined
+            at authoring time.
+          </p>
+        </div>
+      </Accordion>
+
+      <Accordion title="Zeta — Page Quality + Needs Met" subtitle="10-point PQ · 5-point NM" icon={Search}>
+        <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+          <p>
+            PQ considers purpose, harm, YMYL, main-content quality, reputation, and E-E-A-T. NM
+            asks how well the result satisfies this query. A question may ask for one or both.
+          </p>
+          <p>
+            Adjacent-tier grading: exact match = 1.0, one step away = 0.5, further = 0. Porn,
+            Foreign Language, and Did Not Load are independent flags.
+          </p>
+        </div>
+      </Accordion>
+
+      <Accordion title="Eta — Search satisfaction lite" subtitle="NS · SS · S · HS" icon={Search}>
+        <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+          <p>
+            Same snapshot shell as Zeta, one four-point scale. Degrees of separation is a debrief
+            teaching aid, not a rating you submit.
+          </p>
+        </div>
+      </Accordion>
+
+      <Accordion title="Theta — Segmentation & transcription" subtitle="Waveform · speakers · tags" icon={AudioLines}>
+        <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+          <p>
+            Pause under 2s stays in the same segment unless you override. Speaker numbers are
+            first-appearance order and never renumbered. Never type [ or ] — highlight a span and
+            apply Unsure or Truncated. Truncated always wins on the same span.
+          </p>
+          <p>
+            Live Operation still allows scrub and rewind inside the current clip. Forward-only
+            applies between assignments, not inside one.
+          </p>
+        </div>
+      </Accordion>
     </>
   )
 }

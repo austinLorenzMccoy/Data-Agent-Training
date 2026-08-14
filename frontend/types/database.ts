@@ -76,6 +76,79 @@ export type Database = {
         Insert: never
         Update: never
       }
+      tracks: {
+        Row: {
+          id: string
+          label: string
+          focus_type: string
+          xp_required: number
+        }
+        Insert: Database['public']['Tables']['tracks']['Row']
+        Update: Partial<Database['public']['Tables']['tracks']['Insert']>
+      }
+      agent_tracks: {
+        Row: {
+          agent_id: string
+          track_id: string
+          xp: number
+        }
+        Insert: Database['public']['Tables']['agent_tracks']['Row']
+        Update: Partial<Pick<Database['public']['Tables']['agent_tracks']['Row'], 'xp'>>
+      }
+      questions: {
+        Row: {
+          id: string
+          type: string
+          difficulty: string
+          category: string | null
+          operation_context: string | null
+          payload: Record<string, unknown>
+          explanation: string | null
+          rubric: string | null
+          xp_value: number
+          tags: string[]
+          audio_asset_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['questions']['Row'], 'created_at' | 'updated_at' | 'audio_asset_url'> & {
+          audio_asset_url?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['questions']['Insert']>
+      }
+      proficiency_exams: {
+        Row: {
+          id: string
+          label: string
+          pass_score: number
+          questions: unknown
+        }
+        Insert: Database['public']['Tables']['proficiency_exams']['Row']
+        Update: Partial<Database['public']['Tables']['proficiency_exams']['Insert']>
+      }
+      agent_proficiency_results: {
+        Row: {
+          agent_id: string
+          exam_id: string
+          score: number
+          passed: boolean
+          completed_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['agent_proficiency_results']['Row'], 'completed_at'>
+        Update: never
+      }
+      recruiter_orgs: {
+        Row: {
+          id: string
+          name: string
+          required_proficiency_exam: string | null
+          created_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['recruiter_orgs']['Row'], 'created_at' | 'required_proficiency_exam'> & {
+          required_proficiency_exam?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['recruiter_orgs']['Insert']>
+      }
     }
     Views: {
       leaderboard: {
@@ -104,7 +177,7 @@ export type Database = {
 
 export interface AnswerLog {
   questionId: string
-  questionType: 'alpha' | 'beta' | 'gamma' | 'delta'
+  questionType: 'alpha' | 'beta' | 'gamma' | 'delta' | 'epsilon' | 'zeta' | 'eta' | 'theta'
   agentAnswer: string | string[] | Record<string, string>
   correctAnswer: string | string[] | Record<string, unknown>
   isCorrect: boolean

@@ -1,5 +1,8 @@
-import { generateObject } from 'ai'
+import { generateText } from 'ai'
+import { createGroq } from '@ai-sdk/groq'
 import { z } from 'zod'
+
+const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
 
 export const maxDuration = 30
 
@@ -65,23 +68,27 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { object } = await generateObject({
-      model: 'groq/llama-3.3-70b-versatile',
-      schema,
+    const { text } = await generateText({
+      model: groq('llama-3.3-70b-versatile'),
       system:
         'You are a senior data annotation reviewer at a covert intelligence agency. ' +
         'Grade the agent\'s justification for their classification of an AI response. ' +
         'Score 0 (no real reasoning / off-base), 1 (partial reasoning, lacks specifics), ' +
         'or 2 (clear reasoning grounded in concrete evidence from the response). ' +
-        'Keep feedback under 2 sentences, direct, and in an agency tone.',
+        'Keep feedback under 2 sentences, direct, and in an agency tone. ' +
+        'Return ONLY valid JSON with no extra text: {"score": 0|1|2, "feedback": "your feedback"}',
       prompt:
         `CLASSIFICATION DECISION: ${decision}\n\n` +
         `PROMPT GIVEN TO AI:\n${prompt}\n\n` +
         `AI RESPONSE:\n${response}\n\n` +
         (rubric ? `RUBRIC:\n${rubric}\n\n` : '') +
         `AGENT JUSTIFICATION:\n${justification}`,
+      maxTokens: 150,
     })
-    return Response.json({ ...object, mode: 'ai' })
+
+    // Parse and validate the JSON response
+    const parsed = schema.parse(JSON.parse(text))
+    return Response.json({ ...parsed, mode: 'ai' })
   } catch (err) {
     console.log('[v0] grade route AI error, falling back:', (err as Error).message)
     const result = heuristicGrade(justification ?? '')

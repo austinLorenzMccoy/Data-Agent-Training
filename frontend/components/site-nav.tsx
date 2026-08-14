@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useAgent } from '@/components/providers/agent-provider'
 import { cn } from '@/lib/utils'
 import { Radar } from 'lucide-react'
+import { FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM } from '@/lib/feature-flags'
 
 const LINKS = [
   { href: '/prep', label: 'Briefing' },
@@ -32,7 +33,14 @@ export function SiteNav() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {LINKS.map((l) => {
+          {[
+            ...LINKS,
+            ...(FEATURE_PROFICIENCY_GATE && REQUIRED_PROFICIENCY_EXAM
+              ? [{ href: `/proficiency/${REQUIRED_PROFICIENCY_EXAM}`, label: 'Proficiency' }]
+              : FEATURE_PROFICIENCY_GATE
+                ? [{ href: '/proficiency/en-CA', label: 'Proficiency' }]
+                : []),
+          ].map((l) => {
             const active = pathname === l.href || pathname?.startsWith(l.href + '/')
             return (
               <Link

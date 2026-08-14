@@ -5,6 +5,8 @@ import type {
   OperationResult,
   Question,
 } from './types'
+import { isV4Type } from './feature-flags'
+import { scoreDomainQuestion } from './domain-scoring'
 
 export const XP = {
   CORRECT_MCQ: 50,
@@ -27,6 +29,10 @@ export const TYPE_LABELS: Record<AssignmentType, string> = {
   beta: 'BETA',
   gamma: 'GAMMA',
   delta: 'DELTA',
+  epsilon: 'EPSILON',
+  zeta: 'ZETA',
+  eta: 'ETA',
+  theta: 'THETA',
 }
 
 export const TYPE_NAMES: Record<AssignmentType, string> = {
@@ -34,7 +40,22 @@ export const TYPE_NAMES: Record<AssignmentType, string> = {
   beta: 'Comparative Analysis',
   gamma: 'Transcript Clearance',
   delta: 'Response Selection',
+  epsilon: 'Map Evaluation',
+  zeta: 'Search Quality',
+  eta: 'Search Quality Lite',
+  theta: 'Transcription',
 }
+
+export const ALL_ASSIGNMENT_TYPES: AssignmentType[] = [
+  'alpha',
+  'beta',
+  'gamma',
+  'delta',
+  'epsilon',
+  'zeta',
+  'eta',
+  'theta',
+]
 
 export function streakBonus(streak: number): number {
   if (streak > 0 && streak % 10 === 0) return XP.STREAK_10
@@ -43,8 +64,21 @@ export function streakBonus(streak: number): number {
   return 0
 }
 
+/** 0–1 credit for a selection. v4 domains support partial credit. */
+export function selectionScore(q: Question, selection: unknown): number {
+  if (isV4Type(q.type)) {
+    return scoreDomainQuestion(q, selection).ratio
+  }
+  return isExactSelection(q, selection) ? 1 : 0
+}
+
 // Determine MCQ correctness for a question given the agent's selection.
 export function isSelectionCorrect(q: Question, selection: unknown): boolean {
+  if (isV4Type(q.type)) return selectionScore(q, selection) >= 1
+  return isExactSelection(q, selection)
+}
+
+function isExactSelection(q: Question, selection: unknown): boolean {
   switch (q.type) {
     case 'alpha':
       return selection === q.correctAnswer
@@ -90,13 +124,8 @@ export function computeIqScore(answers: Answer[]): number {
 export function computeCategoryScores(
   answers: Answer[],
 ): Record<AssignmentType, number> {
-  const result: Record<AssignmentType, number> = {
-    alpha: 0,
-    beta: 0,
-    gamma: 0,
-    delta: 0,
-  }
-  ;(['alpha', 'beta', 'gamma', 'delta'] as AssignmentType[]).forEach((type) => {
+  const result = {} as Record<AssignmentType, number>
+  ALL_ASSIGNMENT_TYPES.forEach((type) => {
     const subset = answers.filter((a) => a.type === type)
     if (subset.length === 0) {
       result[type] = 0
