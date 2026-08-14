@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { NeuralNoise } from '@/components/neural-noise'
@@ -10,6 +10,9 @@ import { Button } from '@/components/ui/button'
 import { RANKS } from '@/lib/ranks'
 import { TYPE_LABELS, TYPE_NAMES } from '@/lib/scoring'
 import type { AssignmentType } from '@/lib/types'
+import { CORE_TYPES, getEnabledTypes, isV4Type } from '@/lib/feature-flags'
+import { trackForType } from '@/lib/tracks'
+import { cn } from '@/lib/utils'
 import {
   Radar,
   Target,
@@ -20,8 +23,9 @@ import {
   MapPin,
   Search,
   AudioLines,
+  ArrowDown,
+  ArrowRight,
 } from 'lucide-react'
-import { getEnabledTypes } from '@/lib/feature-flags'
 
 const TYPE_ICONS: Record<AssignmentType, React.ElementType> = {
   alpha: Target,
@@ -50,6 +54,9 @@ export function LandingHero() {
   const router = useRouter()
   const [dialogOpen, setDialogOpen] = useState(false)
   const enrolled = hydrated && !!agent
+  const enabled = useMemo(() => getEnabledTypes(), [])
+  const core = enabled.filter((t) => CORE_TYPES.includes(t))
+  const special = enabled.filter(isV4Type)
 
   function primaryAction() {
     if (enrolled) router.push('/training')
@@ -64,8 +71,7 @@ export function LandingHero() {
         className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background"
       />
 
-      {/* Hero */}
-      <section className="relative mx-auto flex max-w-3xl flex-col items-center px-4 pb-16 pt-24 text-center">
+      <section className="relative mx-auto flex max-w-3xl flex-col items-center px-4 pb-12 pt-24 text-center">
         <div className="flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3 py-1">
           <Radar size={14} className="text-primary" />
           <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
@@ -105,41 +111,66 @@ export function LandingHero() {
             <Link href="/prep">Read the Briefing</Link>
           </Button>
         </div>
+
+        {special.length > 0 && (
+          <a
+            href="#specialisations"
+            className="mt-10 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-primary transition-colors hover:bg-primary/15"
+          >
+            New briefing · {special.length} specialisation tracks
+            <ArrowDown size={14} />
+          </a>
+        )}
       </section>
 
-      {/* Assignment types */}
-      <section className="relative mx-auto max-w-4xl px-4 pb-16">
+      <section className="relative mx-auto max-w-4xl px-4 pb-12">
         <p className="mb-4 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-          {getEnabledTypes().length} Assignment Classes
+          Core disciplines
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          {getEnabledTypes().map((t) => {
-            const Icon = TYPE_ICONS[t]
-            return (
-              <div key={t} className="agency-card agency-card-accent p-5">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-md border border-primary/40 bg-primary/10 text-primary">
-                    <Icon size={20} />
-                  </div>
-                  <div>
-                    <p className="font-mono text-xs uppercase tracking-widest text-primary">
-                      Type {TYPE_LABELS[t]}
-                    </p>
-                    <h3 className="font-mono text-sm font-bold uppercase tracking-wide">
-                      {TYPE_NAMES[t]}
-                    </h3>
-                  </div>
-                </div>
-                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  {TYPE_DESC[t]}
-                </p>
-              </div>
-            )
-          })}
+          {core.map((t) => (
+            <TypeCard key={t} type={t} />
+          ))}
         </div>
       </section>
 
-      {/* Rank ladder */}
+      {special.length > 0 && (
+        <section id="specialisations" className="relative mx-auto max-w-4xl scroll-mt-24 px-4 pb-16">
+          <div className="relative overflow-hidden rounded-xl border border-primary/35 bg-primary/5 p-5 sm:p-6">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent"
+            />
+            <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-primary">
+                  Now briefing · expansion
+                </p>
+                <h2 className="mt-1 font-sans text-2xl font-bold tracking-tight">
+                  Specialisation tracks
+                </h2>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
+                  Vendor-faithful drills — maps, search quality, and transcription.
+                  These sit beside the core ladder, not inside the eight identical cards.
+                </p>
+              </div>
+              <Button asChild variant="outline" className="shrink-0 font-mono text-xs uppercase tracking-wider">
+                <Link href="/training">
+                  Open Field Training
+                  <ArrowRight className="size-3.5" />
+                </Link>
+              </Button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {special.map((t) => (
+                <TypeCard key={t} type={t} featured />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="relative mx-auto max-w-4xl px-4 pb-24">
         <p className="mb-4 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
           The Clearance Ladder
@@ -174,5 +205,48 @@ export function LandingHero() {
 
       <RecruitDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
     </main>
+  )
+}
+
+function TypeCard({ type, featured = false }: { type: AssignmentType; featured?: boolean }) {
+  const Icon = TYPE_ICONS[type]
+  const track = trackForType(type)
+
+  return (
+    <div
+      className={cn(
+        'agency-card p-5',
+        featured ? 'border-primary/30 bg-background/40' : 'agency-card-accent',
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-md border border-primary/40 bg-primary/10 text-primary">
+            <Icon size={20} />
+          </div>
+          <div>
+            <p className="font-mono text-xs uppercase tracking-widest text-primary">
+              Type {TYPE_LABELS[type]}
+            </p>
+            <h3 className="font-mono text-sm font-bold uppercase tracking-wide">
+              {TYPE_NAMES[type]}
+            </h3>
+          </div>
+        </div>
+        {featured && (
+          <span className="shrink-0 rounded-full border border-primary/50 bg-primary/15 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
+            New
+          </span>
+        )}
+      </div>
+      {track && (
+        <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-foreground/70">
+          {track.label}
+        </p>
+      )}
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        {TYPE_DESC[type]}
+      </p>
+    </div>
   )
 }
