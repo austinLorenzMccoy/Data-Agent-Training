@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { Question } from '@/lib/types'
 import type {
   AddressAccuracy,
@@ -21,7 +21,8 @@ import {
   RELEVANCE_SCALE,
   RELEVANCE_SUBREASONS,
 } from '@/lib/domain-types'
-import { AssignmentCard, PromptBlock } from './assignment-card'
+import { AssignmentCard } from './assignment-card'
+import { EpsilonMap } from './epsilon-map'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { SubmittedAnswer } from './types'
@@ -91,11 +92,20 @@ export function EpsilonAssignment({
 }) {
   const payload = question.payload as EpsilonPayload
   const [nav, setNav] = useState<boolean | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(payload.results[0]?.id ?? null)
   const [results, setResults] = useState<Record<string, EpsilonResultAnswer>>(() => {
     const init: Record<string, EpsilonResultAnswer> = {}
     for (const r of payload.results) init[r.id] = emptyResult()
     return init
   })
+
+  useEffect(() => {
+    if (!selectedId) return
+    document.getElementById(`epsilon-result-${selectedId}`)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    })
+  }, [selectedId])
 
   function patch(id: string, partial: Partial<EpsilonResultAnswer>) {
     setResults((prev) => ({ ...prev, [id]: { ...prev[id], ...partial } }))
@@ -123,12 +133,14 @@ export function EpsilonAssignment({
     <AssignmentCard question={question} flashState={flashState}>
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <span className="rounded-md border border-primary/40 bg-primary/10 px-2.5 py-1 font-mono text-xs font-bold uppercase tracking-wider text-primary">
-          {payload.query}
+          Query · {payload.query}
         </span>
-        <span className="rounded-md border border-border px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-          User loc · {payload.user_location}
+        <span className="rounded-md border border-[#3b82f6]/40 bg-[#3b82f6]/10 px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider text-[#93c5fd]">
+          User location · {payload.user_location}
         </span>
       </div>
+
+      <EpsilonMap payload={payload} selectedId={selectedId} onSelect={setSelectedId} />
 
       <div className="mb-5">
         <p className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
@@ -161,26 +173,30 @@ export function EpsilonAssignment({
         {payload.results.map((r) => {
           const a = results[r.id]
           return (
-            <div key={r.id} className="rounded-lg border border-border bg-background/40 p-4">
+            <div
+              id={`epsilon-result-${r.id}`}
+              className={cn(
+                'rounded-lg border bg-background/40 p-4 transition-colors',
+                selectedId === r.id ? 'border-primary/60 ring-1 ring-primary/30' : 'border-border',
+              )}
+            >
               <div className="mb-3 flex items-start justify-between gap-3">
-                <div>
+                <button
+                  type="button"
+                  className="text-left"
+                  onClick={() => setSelectedId(r.id)}
+                >
                   <p className="font-mono text-[10px] uppercase tracking-widest text-primary">
                     Result {r.id.toUpperCase()}
                   </p>
                   <h3 className="font-sans text-base font-semibold">{r.name_shown}</h3>
                   <p className="font-mono text-xs text-muted-foreground">{r.address_shown}</p>
-                </div>
+                </button>
                 <div className="text-right font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
                   {r.category && <div>{r.category}</div>}
                   {r.distance && <div>{r.distance}</div>}
                 </div>
               </div>
-
-              {r.pin_shown && (
-                <PromptBlock label="Pin shown">
-                  {r.pin_shown.label ?? 'Map pin'} · {r.pin_shown.lat.toFixed(4)}, {r.pin_shown.lng.toFixed(4)}
-                </PromptBlock>
-              )}
 
               <OptionRow<RelevanceRating>
                 label="Relevance"

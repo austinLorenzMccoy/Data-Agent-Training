@@ -66,9 +66,18 @@ export interface EpsilonResultSpec {
   correct_business_closed: boolean
 }
 
+export interface MapPoint {
+  lat: number
+  lng: number
+  label?: string
+}
+
 export interface EpsilonPayload {
   query: string
   user_location: string
+  user_location_pin?: MapPoint
+  /** Optional near-me search radius drawn around the user, in metres. */
+  search_radius_m?: number
   has_navigational_result: boolean
   results: EpsilonResultSpec[]
 }

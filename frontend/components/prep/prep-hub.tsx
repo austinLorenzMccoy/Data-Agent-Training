@@ -817,9 +817,10 @@ function SpecialisationSection() {
       <Accordion title="Epsilon — Map / POI evaluation" subtitle="Relevance · name · address · pin" icon={MapPin} defaultOpen>
         <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
           <p>
-            Given a query, a user location, and 2–3 map cards: first answer whether any result is
-            navigational, then rate each card on four independent fields. Business Closed is a
-            flag — it can sit on any relevance rating.
+            The assignment opens a real street map: a blue YOU marker is the user’s location, gold
+            pins are the results, and a dashed ring is the near-me search radius. First answer
+            whether any result is navigational, then rate each card. Click a pin to jump to that
+            result. Business Closed is a flag — it can sit on any relevance rating.
           </p>
           <Example label="Near-me restaurant" verdict="good" reason="Excellent + Correct + Perfect">
             Query “Chinese near me”. A named Chinese restaurant 0.3 mi away with a correct name,

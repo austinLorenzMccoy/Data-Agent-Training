@@ -30,6 +30,8 @@ const EPSILON: Question[] = [
     payload: {
       query: 'Chinese near me',
       user_location: 'Ocean City, NJ, US',
+      user_location_pin: { lat: 39.2768, lng: -74.5742, label: 'You are here' },
+      search_radius_m: 1600,
       has_navigational_result: false,
       results: [
         {
@@ -91,6 +93,7 @@ const EPSILON: Question[] = [
     payload: {
       query: 'Starbucks Ocean City NJ',
       user_location: 'Ocean City, NJ, US',
+      user_location_pin: { lat: 39.2768, lng: -74.5742, label: 'You are here' },
       has_navigational_result: true,
       results: [
         {
@@ -138,6 +141,8 @@ const EPSILON: Question[] = [
     payload: {
       query: 'pizza',
       user_location: 'Ocean City, NJ, US',
+      user_location_pin: { lat: 39.2768, lng: -74.5742, label: 'You are here' },
+      search_radius_m: 1600,
       has_navigational_result: false,
       results: [
         {
@@ -186,6 +191,8 @@ const EPSILON: Question[] = [
     payload: {
       query: 'diner',
       user_location: 'Ocean City, NJ, US',
+      user_location_pin: { lat: 39.2768, lng: -74.5742, label: 'You are here' },
+      search_radius_m: 1600,
       has_navigational_result: false,
       results: [
         {
@@ -233,6 +240,7 @@ const EPSILON: Question[] = [
     payload: {
       query: 'hardware store',
       user_location: 'Ocean City, NJ, US',
+      user_location_pin: { lat: 39.2768, lng: -74.5742, label: 'You are here' },
       has_navigational_result: false,
       results: [
         {
