@@ -3,7 +3,7 @@ import { OperationController } from '@/components/operation/operation-controller
 
 export const metadata = {
   title: 'Live Operation — Datanerds Annotation',
-  description: 'Timed Live Operation across core and specialisation assignment types. Forward-only between assignments.',
+  description: 'Pick a track, then sit a timed Live Operation of that assignment type only.',
 }
 
 export default function OperationPage() {

@@ -686,6 +686,11 @@ export function getQuestionsByType(type: Question['type']): Question[] {
   return getQuestionBank().filter((q) => q.type === type)
 }
 
+export function drawTrackOperation(type: AssignmentType, maxCount = 12): Question[] {
+  const pool = [...getQuestionsByType(type)].sort(() => Math.random() - 0.5)
+  return pool.slice(0, Math.min(maxCount, pool.length))
+}
+
 export function drawOperation(count: number, types?: AssignmentType[]): Question[] {
   const bank = getQuestionBank(types)
   const pool = types ? bank.filter((q) => types.includes(q.type)) : bank

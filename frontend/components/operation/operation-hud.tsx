@@ -16,19 +16,21 @@ export function OperationHud({
   timeLeft,
   streak,
   xp,
+  trackLabel,
 }: {
   index: number
   total: number
   timeLeft: number
   streak: number
   xp: number
+  trackLabel?: string
 }) {
   const danger = timeLeft <= 30
   return (
     <div className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
       <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3">
         <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-          <span className="text-accent">ASSIGNMENT</span>
+          <span className="text-accent">{trackLabel ?? 'ASSIGNMENT'}</span>
           <span className="text-foreground">
             {index + 1}/{total}
           </span>

@@ -3,7 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
-import { drawOperation } from '@/lib/questions'
+import { drawTrackOperation } from '@/lib/questions'
+import { TrackPicker } from './track-picker'
+import { TYPE_NAMES } from '@/lib/scoring'
+import type { Answer, AssignmentType, Question } from '@/lib/types'
 import { useAgent } from '@/components/providers/agent-provider'
 import { LaunchSequence } from './launch-sequence'
 import { OperationHud } from './operation-hud'
@@ -11,12 +14,11 @@ import { AssignmentRenderer, type SubmittedAnswer } from '@/components/assignmen
 import { Button } from '@/components/ui/button'
 import { gradeJustification } from '@/lib/grade-client'
 import { isSelectionCorrect, XP, hasJustification, buildResult, pointsPossible, selectionScore } from '@/lib/scoring'
-import { getEnabledTypes, getProficiencyGatedTypes, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM } from '@/lib/feature-flags'
+import { getProficiencyGatedTypes, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM } from '@/lib/feature-flags'
 import { hasPassedProficiency } from '@/lib/proficiency'
-import type { Answer, Question } from '@/lib/types'
-
-const OPERATION_COUNT = 25
-const OPERATION_TIME_MIN = 40
+const MAX_TRACK_QUESTIONS = 12
+const MINUTES_PER_ASSIGNMENT = 2.5
+const MIN_OPERATION_MIN = 10
 
 const OPERATION_NAMES = [
   { adjectives: ['PHANTOM', 'SILENT', 'NEURAL', 'SIGNAL', 'DARK', 'ECHO', 'SWIFT', 'COVERT'], nouns: ['GHOST', 'VECTOR', 'PRISM', 'CIPHER', 'NODE', 'ATLAS', 'NEXUS', 'CROWN'] }
@@ -33,7 +35,8 @@ export function OperationController() {
   const router = useRouter()
   const { agent, addXp, logOperation } = useAgent()
 
-  const [state, setState] = useState<'launching' | 'active' | 'submitting' | 'complete'>('launching')
+  const [state, setState] = useState<'selecting' | 'launching' | 'active' | 'submitting' | 'complete'>('selecting')
+  const [track, setTrack] = useState<AssignmentType | null>(null)
   const [operationName, setOperationName] = useState('')
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -41,24 +44,37 @@ export function OperationController() {
   const [streak, setStreak] = useState(0)
   const [bestStreak, setBestStreak] = useState(0)
   const [totalXp, setTotalXp] = useState(0)
-  const [timeLeft, setTimeLeft] = useState(OPERATION_TIME_MIN * 60)
+  const [timeLeft, setTimeLeft] = useState(0)
+  const [durationSec, setDurationSec] = useState(0)
   const [flashState, setFlashState] = useState<'correct' | 'wrong' | 'partial' | null>(null)
   const [grading, setGrading] = useState(false)
 
-  // Initialize operation
-  useEffect(() => {
-    const name = randomOperationName()
-    setOperationName(name)
-    const gated = new Set(getProficiencyGatedTypes())
-    const passed =
-      !FEATURE_PROFICIENCY_GATE ||
-      !REQUIRED_PROFICIENCY_EXAM ||
-      hasPassedProficiency(REQUIRED_PROFICIENCY_EXAM)
-    const types = getEnabledTypes().filter((t) => passed || !gated.has(t))
-    const qs = drawOperation(OPERATION_COUNT, types)
+  const gated = new Set(getProficiencyGatedTypes())
+  const examPassed =
+    !FEATURE_PROFICIENCY_GATE ||
+    !REQUIRED_PROFICIENCY_EXAM ||
+    hasPassedProficiency(REQUIRED_PROFICIENCY_EXAM)
+
+  function startTrack(type: AssignmentType) {
+    if (gated.has(type) && !examPassed) {
+      router.push(`/proficiency/${REQUIRED_PROFICIENCY_EXAM}?next=/operation`)
+      return
+    }
+    const qs = drawTrackOperation(type, MAX_TRACK_QUESTIONS)
+    if (qs.length === 0) return
+    const minutes = Math.max(MIN_OPERATION_MIN, Math.round(qs.length * MINUTES_PER_ASSIGNMENT))
+    setTrack(type)
     setQuestions(qs)
-    setTimeLeft(OPERATION_TIME_MIN * 60)
-  }, [])
+    setCurrentIndex(0)
+    setAnswers([])
+    setStreak(0)
+    setBestStreak(0)
+    setTotalXp(0)
+    setDurationSec(minutes * 60)
+    setTimeLeft(minutes * 60)
+    setOperationName(`${randomOperationName()} · ${TYPE_NAMES[type].toUpperCase()}`)
+    setState('launching')
+  }
 
   // Timer countdown
   useEffect(() => {
@@ -181,12 +197,16 @@ export function OperationController() {
     )
   }
 
+  if (state === 'selecting') {
+    return <TrackPicker onPick={startTrack} locked={examPassed ? undefined : gated} />
+  }
+
   if (state === 'launching' && questions.length > 0) {
     return (
       <LaunchSequence
         operationName={operationName}
         assignmentCount={questions.length}
-        durationSec={OPERATION_TIME_MIN * 60}
+        durationSec={durationSec}
         onReady={handleLaunchComplete}
       />
     )
@@ -210,6 +230,7 @@ export function OperationController() {
         timeLeft={timeLeft}
         streak={streak}
         xp={totalXp}
+        trackLabel={track ? TYPE_NAMES[track].toUpperCase() : undefined}
       />
 
       <AnimatePresence mode="wait">

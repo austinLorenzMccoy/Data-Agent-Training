@@ -131,7 +131,7 @@ export function TrainingHub() {
               <h3 className="font-sans font-semibold">Ready for live duty?</h3>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Operations are timed, scored, and graded by Agency AI. No feedback until debrief.
+              Pick one track, then sit a timed packet of that type only. No feedback until debrief.
             </p>
           </div>
           <Button asChild size="lg">
