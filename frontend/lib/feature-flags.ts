@@ -3,8 +3,11 @@ import type { AssignmentType } from './types'
 export const CORE_TYPES: AssignmentType[] = ['alpha', 'beta', 'gamma', 'delta']
 export const V4_TYPES: AssignmentType[] = ['epsilon', 'zeta', 'eta', 'theta']
 
+/** Unset means on, so shipped builds show the v4 tracks. Set `false` to hide one. */
 function flag(name: string): boolean {
-  return process.env[name] === 'true'
+  const value = process.env[name]
+  if (value === undefined || value === '') return true
+  return value === 'true'
 }
 
 export const TRACK_FLAGS = {

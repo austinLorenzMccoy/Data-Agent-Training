@@ -110,7 +110,7 @@ export function LandingHero() {
       {/* Assignment types */}
       <section className="relative mx-auto max-w-4xl px-4 pb-16">
         <p className="mb-4 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-          Assignment Classes
+          {getEnabledTypes().length} Assignment Classes
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           {getEnabledTypes().map((t) => {

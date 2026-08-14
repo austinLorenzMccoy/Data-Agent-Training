@@ -101,15 +101,7 @@ data-agent-training-platform/
 
 Alpha and Beta justifications are **AI-graded** by Groq in real-time (score 0/1/2 + feedback). Epsilon/Zeta/Eta are deterministic. Theta uses IoU + edit-distance + tag F1.
 
-v4 tracks are off by default. Enable in `.env.local`:
-
-```env
-NEXT_PUBLIC_TRACK_EPSILON=true
-NEXT_PUBLIC_TRACK_ZETA=true
-NEXT_PUBLIC_TRACK_ETA=true
-NEXT_PUBLIC_TRACK_THETA=true
-NEXT_PUBLIC_FEATURE_PROFICIENCY_GATE=true
-```
+v4 tracks are **on** unless a flag is set to `false`. To hide one, set e.g. `NEXT_PUBLIC_TRACK_THETA=false`.
 
 Optional language gate: set `NEXT_PUBLIC_REQUIRED_PROFICIENCY_EXAM=en-CA` to require `/proficiency/en-CA` before Theta (default gated type).
 
