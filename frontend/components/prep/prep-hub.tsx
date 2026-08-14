@@ -130,10 +130,12 @@ export function PrepHub() {
   const showSpecial = getEnabledTypes().some(isV4Type)
 
   const tabs = [
-    { id: 'core' as const, label: 'Core Framework', icon: BookOpen },
-    { id: 'transcript' as const, label: 'Transcript Clearance', icon: FileText },
-    { id: 'response' as const, label: 'Response Selection', icon: MessageSquare },
-    ...(showSpecial ? [{ id: 'special' as const, label: 'Specialisation Tracks', icon: MapPin }] : []),
+    { id: 'core' as const, label: 'Core Framework', icon: BookOpen, fresh: false },
+    { id: 'transcript' as const, label: 'Transcript Clearance', icon: FileText, fresh: false },
+    { id: 'response' as const, label: 'Response Selection', icon: MessageSquare, fresh: false },
+    ...(showSpecial
+      ? [{ id: 'special' as const, label: 'Specialisation Tracks', icon: MapPin, fresh: true }]
+      : []),
   ]
 
   return (
@@ -147,9 +149,30 @@ export function PrepHub() {
           Study Before You Deploy
         </h1>
         <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
-          Master the evaluation framework before your first assignment. This briefing covers every dimension you will be scored on — core rating criteria, transcript clearance rules, and response selection.
+          Master the core rating framework, then the new specialisation tracks — map evaluation,
+          search quality, and transcription. Those four sit beside the main ladder, not inside it.
         </p>
       </div>
+
+      {showSpecial && (
+        <button
+          type="button"
+          onClick={() => setActiveTab('special')}
+          className="mb-6 flex w-full items-center justify-between gap-3 rounded-xl border border-primary/40 bg-primary/10 px-4 py-3 text-left transition-colors hover:bg-primary/15"
+        >
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">
+              Now briefing · expansion
+            </p>
+            <p className="mt-0.5 text-sm text-foreground">
+              Four vendor-faithful tracks added — open the Specialisation tab.
+            </p>
+          </div>
+          <span className="shrink-0 rounded-full border border-primary/50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
+            New
+          </span>
+        </button>
+      )}
 
       {/* Progress pills */}
       <div className="mb-6 flex flex-wrap gap-2">
@@ -168,6 +191,11 @@ export function PrepHub() {
             >
               <Icon className="size-3.5" />
               {t.label}
+              {t.fresh && (
+                <span className="rounded-full bg-primary/20 px-1.5 py-0.5 text-[9px] font-bold">
+                  New
+                </span>
+              )}
             </button>
           )
         })}
@@ -774,21 +802,37 @@ function SpecialisationSection() {
           Vendor-faithful specialisation tracks
         </p>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          These tracks simulate live annotation programs. XP stays on the track by default and does
-          not feed the core Recruit → Intelligence Director ladder.
+          These drills copy the rating grids used on live map, search-quality, and transcription
+          programs. XP stays on the track by default and does not feed the core Recruit →
+          Intelligence Director ladder.
         </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <RuleTag>Epsilon · maps</RuleTag>
+          <RuleTag>Zeta · PQ + NM</RuleTag>
+          <RuleTag>Eta · lite satisfaction</RuleTag>
+          <RuleTag>Theta · transcription</RuleTag>
+        </div>
       </div>
 
       <Accordion title="Epsilon — Map / POI evaluation" subtitle="Relevance · name · address · pin" icon={MapPin} defaultOpen>
         <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
           <p>
-            Rate each result independently. Navigational is a query-level Yes/No, not a per-card
-            substitute for Excellent. Business Closed can sit on any relevance rating.
+            Given a query, a user location, and 2–3 map cards: first answer whether any result is
+            navigational, then rate each card on four independent fields. Business Closed is a
+            flag — it can sit on any relevance rating.
           </p>
+          <Example label="Near-me restaurant" verdict="good" reason="Excellent + Correct + Perfect">
+            Query “Chinese near me”. A named Chinese restaurant 0.3 mi away with a correct name,
+            address, and pin is Excellent. A library at the same distance is Bad — off category,
+            not a distance issue.
+          </Example>
+          <Example label="Brand + city" verdict="okay" reason="navigational is query-level">
+            “Starbucks Ocean City NJ” is navigational if one card is the intended store. Do not
+            also mark the other Starbucks Navigational — that second shop is Acceptable at best.
+          </Example>
           <p>
-            Grading is structural: each of relevance / name / address / pin is worth a quarter of
-            the result score. Adjacent guesses are not tolerated here — the gold value is defined
-            at authoring time.
+            Grading is structural: each of relevance / name / address / pin is a quarter of the
+            result. Adjacent guesses are not tolerated here.
           </p>
         </div>
       </Accordion>
@@ -796,32 +840,45 @@ function SpecialisationSection() {
       <Accordion title="Zeta — Page Quality + Needs Met" subtitle="10-point PQ · 5-point NM" icon={Search}>
         <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
           <p>
-            PQ considers purpose, harm, YMYL, main-content quality, reputation, and E-E-A-T. NM
-            asks how well the result satisfies this query. A question may ask for one or both.
+            You rate a frozen snapshot, never a live URL. PQ (N/A → Highest) is about the page.
+            NM (Fails to Meet → Fully Meets) is about this query. A question may ask for one or
+            both — never invent the missing slider.
           </p>
-          <p>
-            Adjacent-tier grading: exact match = 1.0, one step away = 0.5, further = 0. Porn,
-            Foreign Language, and Did Not Load are independent flags.
-          </p>
+          <Example label="YMYL junk" verdict="bad" reason="Lowest PQ · Fails NM">
+            An unsourced supplement page that “cures dehydration” on a medical query is Lowest
+            page quality and Fails to Meet. YMYL raises the bar; it does not change the flags.
+          </Example>
+          <Example label="Adjacent credit" verdict="okay" reason="High vs High+ = 0.5">
+            Exact match scores 1.0. One step on the ordinal scale scores 0.5. Two or more steps
+            scores 0. Porn, Foreign Language, and Did Not Load are independent checkboxes.
+          </Example>
         </div>
       </Accordion>
 
       <Accordion title="Eta — Search satisfaction lite" subtitle="NS · SS · S · HS" icon={Search}>
         <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
           <p>
-            Same snapshot shell as Zeta, one four-point scale. Degrees of separation is a debrief
-            teaching aid, not a rating you submit.
+            Same snapshot shell as Zeta, one four-point scale: Not Satisfying, Somewhat
+            Satisfying, Satisfying, Highly Satisfying. Degrees of separation is a debrief
+            teaching aid — you do not submit it.
           </p>
+          <Example label="Official destination" verdict="good" reason="HS · 0 hops">
+            Query “Banff National Park official site” → the Parks Canada page is Highly
+            Satisfying. A Japanese tourist blog is Not Satisfying and Wrong Language.
+          </Example>
         </div>
       </Accordion>
 
       <Accordion title="Theta — Segmentation & transcription" subtitle="Waveform · speakers · tags" icon={AudioLines}>
         <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
           <p>
-            Pause under 2s stays in the same segment unless you override. Speaker numbers are
-            first-appearance order and never renumbered. Never type [ or ] — highlight a span and
-            apply Unsure or Truncated. Truncated always wins on the same span.
+            Drag on the waveform to cut segments. Pause under 2s stays in the same segment unless
+            you override. Speaker numbers are first-appearance order and never renumbered.
           </p>
+          <Example label="Tags" verdict="pass" reason="highlight, never type brackets">
+            Highlight a span, then apply Unsure or Truncated. Typing [ or ] is blocked.
+            Truncated always wins over Unsure on the same span.
+          </Example>
           <p>
             Live Operation still allows scrub and rewind inside the current clip. Forward-only
             applies between assignments, not inside one.

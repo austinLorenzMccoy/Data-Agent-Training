@@ -3,7 +3,7 @@ import { PrepHub } from '@/components/prep/prep-hub'
 
 export const metadata = {
   title: 'Intelligence Briefing — Datanerds Annotation',
-  description: 'Study the evaluation framework before field training. Master transcript clearance, response rating, and selection.',
+  description: 'Study the core rating framework plus map, search-quality, and transcription specialisation tracks.',
 }
 
 export default function PrepPage() {

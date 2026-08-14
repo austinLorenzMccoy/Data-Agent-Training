@@ -15,7 +15,7 @@ export function LoginForm() {
           Agent Authentication Required
         </h1>
         <p className="text-muted-foreground text-sm">
-          Sign in to access the Datanerds Annotation platform
+          Sign in to run Field Training, Live Operations, and the new specialisation tracks.
         </p>
       </div>
 

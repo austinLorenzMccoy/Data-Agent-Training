@@ -58,7 +58,7 @@ export function LaunchSequence({
                   {operationName}
                 </h2>
                 <p className="mt-1 font-mono text-xs text-muted-foreground">
-                  {assignmentCount} ASSIGNMENTS · {Math.round(durationSec / 60)} MIN WINDOW
+                  {assignmentCount} ASSIGNMENTS · MIXED PACKET · {Math.round(durationSec / 60)} MIN WINDOW
                 </p>
               </div>
               <div className="space-y-1 font-mono text-sm text-success">

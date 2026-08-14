@@ -125,7 +125,8 @@ export default function ProficiencyPage() {
               This is a one-shot, timed exam — {exam.questions.length} questions,{' '}
               {Math.round(exam.timeLimitSec / 60)} minutes, pass mark {exam.passScore}%. There is
               no Field Training equivalent and no resume if you leave the page. Passing is
-              permanent.
+              permanent. Core Alpha–Delta drills stay open either way; an org can require this
+              exam before English-heavy specialisation tracks such as transcription.
             </p>
             <Button className="mt-6" size="lg" onClick={start}>
               Begin exam

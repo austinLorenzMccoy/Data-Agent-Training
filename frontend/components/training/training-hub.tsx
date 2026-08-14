@@ -14,7 +14,8 @@ import { NeuralNoise } from '@/components/neural-noise'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowRight, Crosshair, GitCompare, ShieldCheck, ListChecks, Lock, MapPin, Search, AudioLines } from 'lucide-react'
-import { CORE_TYPES, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM, getEnabledTypes, getProficiencyGatedTypes } from '@/lib/feature-flags'
+import { CORE_TYPES, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM, getEnabledTypes, getProficiencyGatedTypes, isV4Type } from '@/lib/feature-flags'
+import { trackForType } from '@/lib/tracks'
 import { hasPassedProficiency } from '@/lib/proficiency'
 import { useRouter } from 'next/navigation'
 
@@ -33,7 +34,9 @@ export function TrainingHub() {
   const { agent, completeTraining } = useAgent()
   const router = useRouter()
   const [active, setActive] = useState<AssignmentType | null>(null)
-  const order = useMemo(() => getEnabledTypes(), [])
+  const enabled = useMemo(() => getEnabledTypes(), [])
+  const core = enabled.filter((t) => CORE_TYPES.includes(t))
+  const special = enabled.filter(isV4Type)
   const gated = useMemo(() => new Set(getProficiencyGatedTypes()), [])
 
   function startType(type: AssignmentType) {
@@ -72,45 +75,50 @@ export function TrainingHub() {
           Field Training
         </h1>
         <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
-          Sharpen your instincts without the clock. Every drill gives instant analyst feedback.
-          Core Alpha–Delta tracks stay on the main ladder. New domains are specialisation tracks.
+          Sharpen your instincts without the clock. Core drills feed the main rank ladder.
+          The four specialisation tracks below are vendor-faithful expansions.
         </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
-          {order.map((type) => {
-            const meta = TYPE_META[type]
-            const Icon = meta.icon
-            const done = agent?.completedTraining.includes(type)
-            return (
-              <button
-                key={type}
-                onClick={() => startType(type)}
-                className={cn(
-                  'group relative overflow-hidden rounded-xl border border-border bg-card p-5 text-left transition-colors hover:border-accent/60',
-                )}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex size-11 items-center justify-center rounded-lg bg-accent/10 text-accent">
-                    <Icon className="size-5" />
-                  </div>
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                    {TYPE_LABELS[type]}
-                  </span>
-                </div>
-                <h3 className="mt-4 font-sans text-lg font-semibold">{TYPE_NAMES[type]}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{meta.blurb}</p>
-                <div className="mt-4 flex items-center gap-2 font-mono text-xs uppercase tracking-wider">
-                  {done ? (
-                    <span className="text-success">Cleared · +{XP.TRAINING_MODULE} XP earned</span>
-                  ) : (
-                    <span className="text-accent">Begin drill</span>
-                  )}
-                  <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
-                </div>
-              </button>
-            )
-          })}
+        <p className="mb-3 mt-8 font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
+          Core disciplines
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {core.map((type) => (
+            <DrillCard
+              key={type}
+              type={type}
+              done={!!agent?.completedTraining.includes(type)}
+              onStart={() => startType(type)}
+            />
+          ))}
         </div>
+
+        {special.length > 0 && (
+          <div className="mt-10 rounded-xl border border-primary/35 bg-primary/5 p-5">
+            <div className="mb-4 flex items-end justify-between gap-3">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-primary">
+                  Now briefing · expansion
+                </p>
+                <h2 className="mt-1 font-sans text-xl font-semibold">Specialisation tracks</h2>
+              </div>
+              <span className="rounded-full border border-primary/50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
+                New
+              </span>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {special.map((type) => (
+                <DrillCard
+                  key={type}
+                  type={type}
+                  featured
+                  done={!!agent?.completedTraining.includes(type)}
+                  onStart={() => startType(type)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mt-10 flex flex-col items-start gap-4 rounded-xl border border-border bg-card/60 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -132,6 +140,62 @@ export function TrainingHub() {
         </div>
       </div>
     </div>
+  )
+}
+
+function DrillCard({
+  type,
+  done,
+  onStart,
+  featured = false,
+}: {
+  type: AssignmentType
+  done: boolean
+  onStart: () => void
+  featured?: boolean
+}) {
+  const meta = TYPE_META[type]
+  const Icon = meta.icon
+  const track = trackForType(type)
+  return (
+    <button
+      onClick={onStart}
+      className={cn(
+        'group relative overflow-hidden rounded-xl border bg-card p-5 text-left transition-colors hover:border-primary/50',
+        featured ? 'border-primary/30 bg-background/50' : 'border-border',
+      )}
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <Icon className="size-5" />
+        </div>
+        <div className="flex items-center gap-2">
+          {featured && (
+            <span className="rounded-full border border-primary/50 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-primary">
+              New
+            </span>
+          )}
+          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            {TYPE_LABELS[type]}
+          </span>
+        </div>
+      </div>
+      <h3 className="mt-4 font-sans text-lg font-semibold">{TYPE_NAMES[type]}</h3>
+      {track && (
+        <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-foreground/60">
+          {track.label}
+        </p>
+      )}
+      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{meta.blurb}</p>
+      <div className="mt-4 flex items-center gap-2 font-mono text-xs uppercase tracking-wider">
+        {done ? (
+          <span className="text-success">Cleared · +{XP.TRAINING_MODULE} XP earned</span>
+        ) : (
+          <span className="text-primary">Begin drill</span>
+        )}
+        <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+      </div>
+    </button>
   )
 }
 

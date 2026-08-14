@@ -3,7 +3,7 @@ import { OperationController } from '@/components/operation/operation-controller
 
 export const metadata = {
   title: 'Live Operation — Datanerds Annotation',
-  description: 'Timed, AI-graded annotation operation. No second chances.',
+  description: 'Timed Live Operation across core and specialisation assignment types. Forward-only between assignments.',
 }
 
 export default function OperationPage() {

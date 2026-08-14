@@ -3,7 +3,7 @@ import { TrainingHub } from '@/components/training/training-hub'
 
 export const metadata = {
   title: 'Field Training — Datanerds Annotation',
-  description: 'Sharpen your annotation instincts in low-stakes practice drills.',
+  description: 'Practice Alpha–Delta plus map evaluation, search quality, and transcription drills. No timer.',
 }
 
 export default function TrainingPage() {

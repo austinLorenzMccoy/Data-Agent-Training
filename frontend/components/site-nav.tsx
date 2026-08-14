@@ -19,8 +19,14 @@ export function SiteNav() {
   const pathname = usePathname()
   const { agent, rank, hydrated } = useAgent()
 
-  // Hide nav during an active operation for immersion
   if (pathname?.startsWith('/operation/run')) return null
+
+  const links = [
+    ...LINKS,
+    ...(FEATURE_PROFICIENCY_GATE
+      ? [{ href: `/proficiency/${REQUIRED_PROFICIENCY_EXAM || 'en-CA'}`, label: 'Proficiency' }]
+      : []),
+  ]
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
@@ -33,14 +39,7 @@ export function SiteNav() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {[
-            ...LINKS,
-            ...(FEATURE_PROFICIENCY_GATE && REQUIRED_PROFICIENCY_EXAM
-              ? [{ href: `/proficiency/${REQUIRED_PROFICIENCY_EXAM}`, label: 'Proficiency' }]
-              : FEATURE_PROFICIENCY_GATE
-                ? [{ href: '/proficiency/en-CA', label: 'Proficiency' }]
-                : []),
-          ].map((l) => {
+          {links.map((l) => {
             const active = pathname === l.href || pathname?.startsWith(l.href + '/')
             return (
               <Link
@@ -82,6 +81,23 @@ export function SiteNav() {
           )}
         </div>
       </div>
+      <nav className="flex gap-1 overflow-x-auto border-t border-border px-4 py-1.5 md:hidden">
+        {links.map((l) => {
+          const active = pathname === l.href || pathname?.startsWith(l.href + '/')
+          return (
+            <Link
+              key={l.href}
+              href={l.href}
+              className={cn(
+                'shrink-0 rounded-md px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider',
+                active ? 'bg-secondary text-foreground' : 'text-muted-foreground',
+              )}
+            >
+              {l.label}
+            </Link>
+          )
+        })}
+      </nav>
     </header>
   )
 }

@@ -64,7 +64,7 @@ export default function RankingsPage() {
           <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary">Sector 05 · Global Intelligence</p>
           <h1 className="mt-2 text-4xl font-bold tracking-tight">Agency Rankings</h1>
           <p className="mt-3 text-muted-foreground">
-            Top agents ranked by total XP across all operations. Opt in from your dossier to appear here.
+            Top agents ranked by total XP on the core ladder. Specialisation-track XP stays on those tracks. Opt in from your dossier to appear here.
           </p>
         </div>
 

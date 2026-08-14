@@ -6,10 +6,9 @@ import { useAgent } from '@/components/providers/agent-provider'
 import { RankBadge } from '@/components/rank-badge'
 import { XpProgress } from '@/components/xp-progress'
 import { ALL_BADGES } from '@/lib/badges'
-import { RANKS } from '@/lib/ranks'
 import { TYPE_NAMES } from '@/lib/scoring'
-import type { AssignmentType, OperationResult } from '@/lib/types'
-import { getEnabledTypes } from '@/lib/feature-flags'
+import type { OperationResult } from '@/lib/types'
+import { CORE_TYPES, getEnabledTypes, isV4Type } from '@/lib/feature-flags'
 import { cn } from '@/lib/utils'
 import { Shield, Zap, Target, Flame, Clock, CheckCircle2, Lock, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -55,7 +54,7 @@ function OperationEntry({ op, index }: { op: OperationResult; index: number }) {
 }
 
 export default function DossierPage() {
-  const { agent, rank, nextRank, hydrated } = useAgent()
+  const { agent, rank, hydrated } = useAgent()
 
   if (!hydrated) {
     return (
@@ -134,8 +133,9 @@ export default function DossierPage() {
         {/* Training completed */}
         <div className="mb-8 rounded-xl border border-border bg-card p-5">
           <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Field Training Progress</p>
+          <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground/80">Core</p>
           <div className="grid gap-2 sm:grid-cols-4">
-            {getEnabledTypes().map((t) => {
+            {CORE_TYPES.map((t) => {
               const done = agent.completedTraining.includes(t)
               return (
                 <div key={t} className={cn('flex items-center gap-2 rounded-lg border px-3 py-2.5', done ? 'border-success/30 bg-success/5' : 'border-border')}>
@@ -147,6 +147,24 @@ export default function DossierPage() {
               )
             })}
           </div>
+          {getEnabledTypes().some(isV4Type) && (
+            <>
+              <p className="mb-2 mt-5 font-mono text-[10px] uppercase tracking-widest text-primary">Specialisation · New</p>
+              <div className="grid gap-2 sm:grid-cols-4">
+                {getEnabledTypes().filter(isV4Type).map((t) => {
+                  const done = agent.completedTraining.includes(t)
+                  return (
+                    <div key={t} className={cn('flex items-center gap-2 rounded-lg border px-3 py-2.5', done ? 'border-success/30 bg-success/5' : 'border-primary/25')}>
+                      {done ? <CheckCircle2 className="size-3.5 text-success" /> : <Lock className="size-3.5 text-muted-foreground" />}
+                      <span className={cn('font-mono text-xs uppercase tracking-wider', done ? 'text-success' : 'text-muted-foreground')}>
+                        {TYPE_NAMES[t]}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </>
+          )}
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2">
