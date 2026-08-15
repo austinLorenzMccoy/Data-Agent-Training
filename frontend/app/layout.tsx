@@ -4,6 +4,7 @@ import { Space_Grotesk, JetBrains_Mono } from 'next/font/google'
 import { AgentProvider } from '@/components/providers/agent-provider'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { AgentProvider as SupabaseAgentProvider } from '@/contexts/AgentContext'
+import { SiteNav } from '@/components/site-nav'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({
@@ -39,7 +40,10 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         <AuthProvider>
           <SupabaseAgentProvider>
-            <AgentProvider>{children}</AgentProvider>
+            <AgentProvider>
+              <SiteNav />
+              {children}
+            </AgentProvider>
           </SupabaseAgentProvider>
         </AuthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}

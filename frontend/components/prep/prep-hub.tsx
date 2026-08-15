@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
+import { GuidelinesSection } from '@/components/prep/guidelines-section'
 import {
   BookOpen,
   ChevronDown,
@@ -125,9 +127,36 @@ function RuleTag({ children }: { children: React.ReactNode }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
+type PrepTab = 'core' | 'transcript' | 'response' | 'special'
+
+function initialTab(tab: string, track: string): PrepTab {
+  if (tab === 'special' || track === 'special') return 'special'
+  if (tab === 'transcript' || tab === 'response' || tab === 'core') return tab
+  return 'core'
+}
+
 export function PrepHub() {
-  const [activeTab, setActiveTab] = useState<'core' | 'transcript' | 'response' | 'special'>('core')
+  const search = useSearchParams()
+  const requestedTab = search.get('tab')?.toLowerCase() ?? ''
+  const requestedTrack = search.get('track')?.toLowerCase() ?? ''
+  const [activeTab, setActiveTab] = useState<PrepTab>(() => initialTab(requestedTab, requestedTrack))
   const showSpecial = getEnabledTypes().some(isV4Type)
+
+  useEffect(() => {
+    const next = initialTab(requestedTab, requestedTrack)
+    setActiveTab(next)
+    const target =
+      requestedTrack && requestedTrack !== 'special' && requestedTrack !== 'guidelines'
+        ? `guideline-${requestedTrack}`
+        : requestedTab === 'guidelines' || requestedTrack === 'guidelines'
+          ? 'guidelines-brief'
+          : null
+    if (!target) return
+    const timer = window.setTimeout(() => {
+      document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 200)
+    return () => window.clearTimeout(timer)
+  }, [requestedTab, requestedTrack])
 
   const tabs = [
     { id: 'core' as const, label: 'Core Framework', icon: BookOpen, fresh: false },
@@ -149,30 +178,18 @@ export function PrepHub() {
           Study Before You Deploy
         </h1>
         <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
-          Master the core rating framework, then the new specialisation tracks — map evaluation,
-          search quality, and transcription. Those four sit beside the main ladder, not inside it.
+          Specialisation guidelines are on this page — maps, search quality, transcription, and the
+          language gate. Open a dossier, then a chapter. Core rating rules stay in the tabs below.
         </p>
       </div>
 
-      {showSpecial && (
-        <button
-          type="button"
-          onClick={() => setActiveTab('special')}
-          className="mb-6 flex w-full items-center justify-between gap-3 rounded-xl border border-primary/40 bg-primary/10 px-4 py-3 text-left transition-colors hover:bg-primary/15"
-        >
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">
-              Now briefing · expansion
-            </p>
-            <p className="mt-0.5 text-sm text-foreground">
-              Four vendor-faithful tracks added — open the Specialisation tab.
-            </p>
-          </div>
-          <span className="shrink-0 rounded-full border border-primary/50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
-            New
-          </span>
-        </button>
-      )}
+      <GuidelinesSection highlight={requestedTrack} />
+
+      <div className="mb-6 mt-10">
+        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+          Core briefing
+        </p>
+      </div>
 
       {/* Progress pills */}
       <div className="mb-6 flex flex-wrap gap-2">
@@ -219,7 +236,7 @@ export function PrepHub() {
           {/* ─── TAB: Response Selection ─────────────────────────────── */}
           {activeTab === 'response' && <ResponseSelectionSection />}
 
-          {activeTab === 'special' && <SpecialisationSection />}
+          {activeTab === 'special' && <SpecialisationSection highlight={requestedTrack} />}
         </motion.div>
       </AnimatePresence>
 
@@ -794,9 +811,9 @@ function ResponseSelectionSection() {
   )
 }
 
-function SpecialisationSection() {
+function SpecialisationSection({ highlight }: { highlight: string }) {
   return (
-    <>
+    <div id="specialisations-brief" className="scroll-mt-24 space-y-4">
       <div className="agency-card agency-card-accent p-5">
         <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-primary">
           Vendor-faithful specialisation tracks
@@ -804,7 +821,7 @@ function SpecialisationSection() {
         <p className="text-sm leading-relaxed text-muted-foreground">
           These drills copy the rating grids used on live map, search-quality, and transcription
           programs. XP stays on the track by default and does not feed the core Recruit →
-          Intelligence Director ladder.
+          Intelligence Director ladder. Full source guidelines live on the Guidelines page.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <RuleTag>Epsilon · maps</RuleTag>
@@ -814,7 +831,12 @@ function SpecialisationSection() {
         </div>
       </div>
 
-      <Accordion title="Epsilon — Map / POI evaluation" subtitle="Relevance · name · address · pin" icon={MapPin} defaultOpen>
+      <Accordion
+        title="Epsilon — Map / POI evaluation"
+        subtitle="Relevance · name · address · pin"
+        icon={MapPin}
+        defaultOpen={!highlight || highlight === 'epsilon'}
+      >
         <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
           <p>
             The assignment opens a real street map: a blue YOU marker is the user’s location, gold
@@ -835,10 +857,21 @@ function SpecialisationSection() {
             Grading is structural: each of relevance / name / address / pin is a quarter of the
             result. Adjacent guesses are not tolerated here.
           </p>
+          <Link
+            href="/guidelines#guideline-epsilon"
+            className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
+          >
+            Open the Maps guideline →
+          </Link>
         </div>
       </Accordion>
 
-      <Accordion title="Zeta — Page Quality + Needs Met" subtitle="10-point PQ · 5-point NM" icon={Search}>
+      <Accordion
+        title="Zeta — Page Quality + Needs Met"
+        subtitle="10-point PQ · 5-point NM"
+        icon={Search}
+        defaultOpen={highlight === 'zeta'}
+      >
         <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
           <p>
             You rate a frozen snapshot, never a live URL. PQ (N/A → Highest) is about the page.
@@ -853,10 +886,21 @@ function SpecialisationSection() {
             Exact match scores 1.0. One step on the ordinal scale scores 0.5. Two or more steps
             scores 0. Porn, Foreign Language, and Did Not Load are independent checkboxes.
           </Example>
+          <Link
+            href="/guidelines#guideline-zeta"
+            className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
+          >
+            Open the Page Quality guideline →
+          </Link>
         </div>
       </Accordion>
 
-      <Accordion title="Eta — Search satisfaction lite" subtitle="NS · SS · S · HS" icon={Search}>
+      <Accordion
+        title="Eta — Search satisfaction lite"
+        subtitle="NS · SS · S · HS"
+        icon={Search}
+        defaultOpen={highlight === 'eta'}
+      >
         <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
           <p>
             Same snapshot shell as Zeta, one four-point scale: Not Satisfying, Somewhat
@@ -867,10 +911,21 @@ function SpecialisationSection() {
             Query “Banff National Park official site” → the Parks Canada page is Highly
             Satisfying. A Japanese tourist blog is Not Satisfying and Wrong Language.
           </Example>
+          <Link
+            href="/guidelines#guideline-eta"
+            className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
+          >
+            Open the Lightspeed guideline →
+          </Link>
         </div>
       </Accordion>
 
-      <Accordion title="Theta — Segmentation & transcription" subtitle="Waveform · speakers · tags" icon={AudioLines}>
+      <Accordion
+        title="Theta — Segmentation & transcription"
+        subtitle="Waveform · speakers · tags"
+        icon={AudioLines}
+        defaultOpen={highlight === 'theta'}
+      >
         <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
           <p>
             Drag on the waveform to cut segments. Pause under 2s stays in the same segment unless
@@ -884,8 +939,36 @@ function SpecialisationSection() {
             Live Operation still allows scrub and rewind inside the current clip. Forward-only
             applies between assignments, not inside one.
           </p>
+          <Link
+            href="/guidelines#guideline-theta"
+            className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
+          >
+            Open the Freya guideline →
+          </Link>
         </div>
       </Accordion>
-    </>
+
+      <Accordion
+        title="Language proficiency gate"
+        subtitle="en-CA · sits in front of Theta"
+        icon={BookOpen}
+        defaultOpen={highlight === 'proficiency'}
+      >
+        <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+          <p>
+            Not a rating track. Recruiters running transcription (or any English-heavy track) can
+            require the en-CA exam before enrolment. The live exam is timed and one-shot — study
+            the patterns below, then sit it from the Proficiency page. The answer key is not shown
+            during the exam.
+          </p>
+          <Link
+            href="/guidelines#guideline-proficiency"
+            className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
+          >
+            Open the language-gate guideline →
+          </Link>
+        </div>
+      </Accordion>
+    </div>
   )
 }

@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils'
 import { ArrowRight, Crosshair, GitCompare, ShieldCheck, ListChecks, Lock, MapPin, Search, AudioLines } from 'lucide-react'
 import { CORE_TYPES, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM, getEnabledTypes, getProficiencyGatedTypes, isV4Type } from '@/lib/feature-flags'
 import { trackForType } from '@/lib/tracks'
+import { guidelineFor } from '@/lib/guidelines'
 import { hasPassedProficiency } from '@/lib/proficiency'
 import { useRouter } from 'next/navigation'
 
@@ -157,9 +158,9 @@ function DrillCard({
   const meta = TYPE_META[type]
   const Icon = meta.icon
   const track = trackForType(type)
+  const pack = featured ? guidelineFor(type) : undefined
   return (
-    <button
-      onClick={onStart}
+    <div
       className={cn(
         'group relative overflow-hidden rounded-xl border bg-card p-5 text-left transition-colors hover:border-primary/50',
         featured ? 'border-primary/30 bg-background/50' : 'border-border',
@@ -187,15 +188,29 @@ function DrillCard({
         </p>
       )}
       <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{meta.blurb}</p>
-      <div className="mt-4 flex items-center gap-2 font-mono text-xs uppercase tracking-wider">
-        {done ? (
-          <span className="text-success">Cleared · +{XP.TRAINING_MODULE} XP earned</span>
-        ) : (
-          <span className="text-primary">Begin drill</span>
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <button
+          type="button"
+          onClick={onStart}
+          className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider"
+        >
+          {done ? (
+            <span className="text-success">Cleared · +{XP.TRAINING_MODULE} XP earned</span>
+          ) : (
+            <span className="text-primary">Begin drill</span>
+          )}
+          <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+        </button>
+        {pack && (
+          <Link
+            href={`/guidelines#guideline-${type}`}
+            className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary"
+          >
+            Study guideline
+          </Link>
         )}
-        <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
       </div>
-    </button>
+    </div>
   )
 }
 

@@ -1,4 +1,3 @@
-import { SiteNav } from '@/components/site-nav'
 import { OperationController } from '@/components/operation/operation-controller'
 
 export const metadata = {
@@ -9,7 +8,6 @@ export const metadata = {
 export default function OperationPage() {
   return (
     <main className="relative min-h-screen">
-      <SiteNav />
       <OperationController />
     </main>
   )

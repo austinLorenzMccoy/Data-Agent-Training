@@ -1,4 +1,3 @@
-import { SiteNav } from '@/components/site-nav'
 import { TrainingHub } from '@/components/training/training-hub'
 
 export const metadata = {
@@ -9,7 +8,6 @@ export const metadata = {
 export default function TrainingPage() {
   return (
     <main className="relative min-h-screen">
-      <SiteNav />
       <TrainingHub />
     </main>
   )

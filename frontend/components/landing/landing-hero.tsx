@@ -12,6 +12,7 @@ import { TYPE_LABELS, TYPE_NAMES } from '@/lib/scoring'
 import type { AssignmentType } from '@/lib/types'
 import { CORE_TYPES, getEnabledTypes, isV4Type } from '@/lib/feature-flags'
 import { trackForType } from '@/lib/tracks'
+import { guidelineFor } from '@/lib/guidelines'
 import { cn } from '@/lib/utils'
 import {
   Radar,
@@ -64,14 +65,14 @@ export function LandingHero() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen overflow-hidden">
       <NeuralNoise className="opacity-60" />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background"
       />
 
-      <section className="relative mx-auto flex max-w-3xl flex-col items-center px-4 pb-12 pt-24 text-center">
+      <section className="relative mx-auto flex max-w-3xl flex-col items-center px-4 pb-12 pt-16 text-center">
         <div className="flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3 py-1">
           <Radar size={14} className="text-primary" />
           <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
@@ -108,7 +109,7 @@ export function LandingHero() {
             variant="outline"
             className="border-border bg-transparent font-mono uppercase tracking-wider hover:bg-secondary"
           >
-            <Link href="/prep">Read the Briefing</Link>
+            <Link href="/prep#guidelines-brief">Read the Briefing</Link>
           </Button>
         </div>
 
@@ -151,6 +152,7 @@ export function LandingHero() {
                 </h2>
                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
                   Vendor-faithful drills — maps, search quality, and transcription.
+                  Each track has an expandable source guideline on the briefing.
                   These sit beside the core ladder, not inside the eight identical cards.
                 </p>
               </div>
@@ -204,13 +206,14 @@ export function LandingHero() {
       </section>
 
       <RecruitDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
-    </main>
+    </div>
   )
 }
 
 function TypeCard({ type, featured = false }: { type: AssignmentType; featured?: boolean }) {
   const Icon = TYPE_ICONS[type]
   const track = trackForType(type)
+  const pack = featured ? guidelineFor(type) : undefined
 
   return (
     <div
@@ -247,6 +250,15 @@ function TypeCard({ type, featured = false }: { type: AssignmentType; featured?:
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
         {TYPE_DESC[type]}
       </p>
+      {pack && (
+        <Link
+          href={`/guidelines#guideline-${type}`}
+          className="mt-3 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-primary hover:underline"
+        >
+          Study source guideline
+          <ArrowRight size={12} />
+        </Link>
+      )}
     </div>
   )
 }

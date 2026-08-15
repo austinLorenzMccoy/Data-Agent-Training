@@ -1,4 +1,4 @@
-import { SiteNav } from '@/components/site-nav'
+import { Suspense } from 'react'
 import { PrepHub } from '@/components/prep/prep-hub'
 
 export const metadata = {
@@ -9,8 +9,15 @@ export const metadata = {
 export default function PrepPage() {
   return (
     <main className="relative min-h-screen">
-      <SiteNav />
-      <PrepHub />
+      <Suspense
+        fallback={
+          <div className="mx-auto max-w-4xl px-4 py-12 font-mono text-xs uppercase tracking-widest text-muted-foreground">
+            Loading briefing…
+          </div>
+        }
+      >
+        <PrepHub />
+      </Suspense>
     </main>
   )
 }

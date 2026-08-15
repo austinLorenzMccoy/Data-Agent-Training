@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { SiteNav } from '@/components/site-nav'
 import { useAgent } from '@/components/providers/agent-provider'
 import { RankBadge } from '@/components/rank-badge'
 import { XpProgress } from '@/components/xp-progress'
@@ -59,7 +58,6 @@ export default function DossierPage() {
   if (!hydrated) {
     return (
       <main className="relative min-h-screen">
-        <SiteNav />
         <div className="flex min-h-[60vh] items-center justify-center">
           <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading dossier...</p>
         </div>
@@ -70,7 +68,6 @@ export default function DossierPage() {
   if (!agent) {
     return (
       <main className="relative min-h-screen">
-        <SiteNav />
         <div className="mx-auto flex max-w-xl flex-col items-center px-4 py-32 text-center">
           <Shield className="size-12 text-muted-foreground" />
           <h1 className="mt-4 font-mono text-2xl font-bold uppercase tracking-tight">No Dossier Found</h1>
@@ -91,7 +88,6 @@ export default function DossierPage() {
 
   return (
     <main className="relative min-h-screen">
-      <SiteNav />
       <div className="mx-auto max-w-5xl px-4 py-12">
 
         {/* Header — agent identity */}

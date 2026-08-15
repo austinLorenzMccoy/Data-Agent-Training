@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { SiteNav } from '@/components/site-nav'
 import { useAgent } from '@/components/providers/agent-provider'
 import { RANKS } from '@/lib/ranks'
 import { Shield, Trophy, Crown, Loader2, Users } from 'lucide-react'
@@ -57,7 +56,6 @@ export default function RankingsPage() {
 
   return (
     <main className="relative min-h-screen">
-      <SiteNav />
       <div className="mx-auto max-w-3xl px-4 py-12">
 
         <div className="mb-8">

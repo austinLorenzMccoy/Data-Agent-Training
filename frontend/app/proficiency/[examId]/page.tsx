@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { SiteNav } from '@/components/site-nav'
 import { Button } from '@/components/ui/button'
 import { NeuralNoise } from '@/components/neural-noise'
 import {
@@ -61,7 +60,6 @@ export default function ProficiencyPage() {
   if (!exam) {
     return (
       <main className="relative min-h-screen">
-        <SiteNav />
         <div className="mx-auto max-w-xl px-4 py-24 text-center">
           <h1 className="font-mono text-2xl font-bold">Exam not found</h1>
           <Button asChild className="mt-6">
@@ -100,7 +98,6 @@ export default function ProficiencyPage() {
 
   return (
     <main className="relative min-h-screen">
-      <SiteNav />
       <NeuralNoise className="opacity-30" />
       <div className="relative mx-auto max-w-2xl px-4 py-12">
         <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary">
@@ -128,9 +125,17 @@ export default function ProficiencyPage() {
               permanent. Core Alpha–Delta drills stay open either way; an org can require this
               exam before English-heavy specialisation tracks such as transcription.
             </p>
-            <Button className="mt-6" size="lg" onClick={start}>
-              Begin exam
-            </Button>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Study the question patterns on the briefing first — the answer key is not shown here.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button size="lg" onClick={start}>
+                Begin exam
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link href="/guidelines#guideline-proficiency">Study the gate briefing</Link>
+              </Button>
+            </div>
           </div>
         )}
 
