@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { GuidelineTrackList } from '@/components/prep/guideline-track-list'
+import { specialisationGuidelinePacks } from '@/lib/guidelines'
 import {
   BookOpen,
   ChevronDown,
@@ -143,19 +143,7 @@ export function PrepHub() {
   const showSpecial = getEnabledTypes().some(isV4Type)
 
   useEffect(() => {
-    const next = initialTab(requestedTab, requestedTrack)
-    setActiveTab(next)
-    const target =
-      requestedTrack && requestedTrack !== 'special' && requestedTrack !== 'guidelines'
-        ? `guideline-${requestedTrack}`
-        : requestedTab === 'guidelines' || requestedTrack === 'guidelines'
-          ? 'guidelines-brief'
-          : null
-    if (!target) return
-    const timer = window.setTimeout(() => {
-      document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 200)
-    return () => window.clearTimeout(timer)
+    setActiveTab(initialTab(requestedTab, requestedTrack))
   }, [requestedTab, requestedTrack])
 
   const tabs = [
@@ -178,18 +166,12 @@ export function PrepHub() {
           Study Before You Deploy
         </h1>
         <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
-          Click a specialisation track to open its source guideline. Core rating rules stay in the
-          tabs below.
+          Core rating rules live in the tabs below. Source guidelines for the specialisation
+          tracks have their own page — open one from the pointer, or from Guidelines in the nav.
         </p>
       </div>
 
-      <GuidelineTrackList />
-
-      <div className="mb-6 mt-10">
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-          Core briefing
-        </p>
-      </div>
+      {showSpecial && <GuidelinePointer />}
 
       {/* Progress pills */}
       <div className="mb-6 flex flex-wrap gap-2">
@@ -808,6 +790,44 @@ function ResponseSelectionSection() {
         </div>
       </div>
     </>
+  )
+}
+
+function GuidelinePointer() {
+  const packs = specialisationGuidelinePacks()
+  return (
+    <div className="mb-10 rounded-xl border border-primary/35 bg-primary/5 p-5">
+      <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">
+        Source guidelines · separate page
+      </p>
+      <h2 className="mt-1 font-sans text-xl font-semibold tracking-tight">
+        Study the official track documents on Guidelines
+      </h2>
+      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+        Each specialisation has a full-page source document — maps with the original screenshots,
+        Page Quality + Needs Met, Lightspeed satisfaction, Freya transcription, and the en-CA
+        language gate. Figures scale to the screen. Nothing downloads. This briefing only covers
+        how DNA drills work.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {packs.map((pack) => (
+          <Link
+            key={pack.id}
+            href={`/guidelines/${pack.id}`}
+            className="rounded-full border border-primary/40 bg-background/50 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-primary transition-colors hover:bg-primary/15"
+          >
+            {pack.title}
+          </Link>
+        ))}
+      </div>
+      <Link
+        href="/guidelines"
+        className="mt-4 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-primary hover:underline"
+      >
+        Open the Guidelines page
+        <ArrowRight className="size-3.5" />
+      </Link>
+    </div>
   )
 }
 
