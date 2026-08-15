@@ -252,7 +252,7 @@ function TypeCard({ type, featured = false }: { type: AssignmentType; featured?:
       </p>
       {pack && (
         <Link
-          href={`/guidelines#guideline-${type}`}
+          href={`/guidelines/${type}`}
           className="mt-3 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-primary hover:underline"
         >
           Study source guideline

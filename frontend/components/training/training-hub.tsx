@@ -203,7 +203,7 @@ function DrillCard({
         </button>
         {pack && (
           <Link
-            href={`/guidelines#guideline-${type}`}
+            href={`/guidelines/${type}`}
             className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary"
           >
             Study guideline

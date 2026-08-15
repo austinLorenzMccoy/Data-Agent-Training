@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { GuidelinesSection } from '@/components/prep/guidelines-section'
+import { GuidelineTrackList } from '@/components/prep/guideline-track-list'
 import {
   BookOpen,
   ChevronDown,
@@ -178,12 +178,12 @@ export function PrepHub() {
           Study Before You Deploy
         </h1>
         <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
-          Specialisation guidelines are on this page — maps, search quality, transcription, and the
-          language gate. Open a dossier, then a chapter. Core rating rules stay in the tabs below.
+          Click a specialisation track to open its source guideline. Core rating rules stay in the
+          tabs below.
         </p>
       </div>
 
-      <GuidelinesSection highlight={requestedTrack} />
+      <GuidelineTrackList />
 
       <div className="mb-6 mt-10">
         <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
@@ -858,7 +858,7 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
             result. Adjacent guesses are not tolerated here.
           </p>
           <Link
-            href="/guidelines#guideline-epsilon"
+            href="/guidelines/epsilon"
             className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
           >
             Open the Maps guideline →
@@ -887,7 +887,7 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
             scores 0. Porn, Foreign Language, and Did Not Load are independent checkboxes.
           </Example>
           <Link
-            href="/guidelines#guideline-zeta"
+            href="/guidelines/zeta"
             className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
           >
             Open the Page Quality guideline →
@@ -912,7 +912,7 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
             Satisfying. A Japanese tourist blog is Not Satisfying and Wrong Language.
           </Example>
           <Link
-            href="/guidelines#guideline-eta"
+            href="/guidelines/eta"
             className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
           >
             Open the Lightspeed guideline →
@@ -940,7 +940,7 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
             applies between assignments, not inside one.
           </p>
           <Link
-            href="/guidelines#guideline-theta"
+            href="/guidelines/theta"
             className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
           >
             Open the Freya guideline →
@@ -962,7 +962,7 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
             during the exam.
           </p>
           <Link
-            href="/guidelines#guideline-proficiency"
+            href="/guidelines/proficiency"
             className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
           >
             Open the language-gate guideline →

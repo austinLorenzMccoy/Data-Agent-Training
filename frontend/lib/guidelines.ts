@@ -24,6 +24,8 @@ export interface GuidelinePack {
   source: string
   why: string
   chapters: StudyChapter[]
+  /** Render the illustrated source document instead of the digest chapters. */
+  illustrated?: 'maps'
 }
 
 const MAPS: GuidelinePack = {
@@ -32,77 +34,9 @@ const MAPS: GuidelinePack = {
   eyebrow: 'Epsilon · source dossier',
   title: 'Maps Search Evaluation',
   source: 'TryRating Maps Search Evaluation Guidelines · March 2025 · 278 pages',
-  why: 'The source is a 278-page illustrated guideline. Expand a chapter below and study the certification-critical extract in place.',
-  chapters: [
-    {
-      id: 'workflow',
-      title: 'Rating workflow',
-      subtitle: 'Do these in order, independently',
-      rows: [
-        { label: '1', body: 'Read the query, user location, and viewport. Decide intent before you look at the cards.' },
-        { label: '2', body: 'Answer the query-level question: is there a navigational result in the real world? You do not need to see the returned cards to answer this.' },
-        { label: '3', body: 'Per result: unexpected language/script, then closed / does-not-exist. A language flag ends that card.' },
-        { label: '4', body: 'Rate Relevance as if the entity exists and the name, address, and pin are correct.' },
-        { label: '5', body: 'On Search 2.0, rate Name, Address, and Pin separately. One can be Perfect while another is Incorrect.' },
-        { label: 'Rule', body: 'Do not demote a card because a duplicate or near-duplicate is also shown.', tone: 'warn' },
-      ],
-    },
-    {
-      id: 'navigational',
-      title: 'Navigational is query-level',
-      subtitle: 'Yes only when one real-world result fully satisfies a distinct intent',
-      rows: [
-        { label: 'Yes', body: '[Eiffel Tower] — one result in the world completely satisfies the intent.', tone: 'good' },
-        { label: 'No', body: '[Starbucks] — many equally valid stores. Category queries such as “Chinese near me” are almost never navigational.', tone: 'bad' },
-        { label: 'Exception', body: 'A chain + a unique location modifier (“Starbucks Ocean City NJ”) can be navigational if one branch is the intended store. The other Starbucks nearby is Acceptable at best — do not mark both Navigational.' },
-        { label: 'Note', body: 'A Navigational rating on one card does not forbid lesser ratings on the others.' },
-      ],
-    },
-    {
-      id: 'relevance',
-      title: 'Relevance scale',
-      subtitle: 'Always vs the real world — including better results that were not returned',
-      rows: [
-        { label: 'Navigational', body: 'The most likely result implied by query + location + viewport that completely satisfies a distinct intent (extreme prominence, uniqueness, or unambiguous proximity).' },
-        { label: 'Excellent', body: 'Clearly satisfies intent. Multiple cards can be Excellent. Highest initial rating for ambiguous or non-navigational queries.' },
-        { label: 'Good', body: 'Only partially satisfies intent — relevance, prominence, or distance. Requires a demotion reason.' },
-        { label: 'Acceptable', body: 'Technically on-intent but poorly. Requires a demotion reason.' },
-        { label: 'Bad', body: 'Does not satisfy intent, or much closer satisfying results exist. Requires a demotion reason.' },
-        { label: 'Demote with', body: 'User Intent and/or Distance/Prominence, plus a short English comment that states the intent you assumed.', tone: 'warn' },
-      ],
-    },
-    {
-      id: 'data',
-      title: 'Name, address, pin',
-      subtitle: 'Three independent data ratings',
-      rows: [
-        { label: 'Name', body: 'Correct · Partially Correct · Incorrect · n/a · Can\'t Verify. Use n/a on address-type results — they have no business name. Official trade names and stylized logos the business actually uses are Correct.' },
-        { label: 'Address', body: 'Correct · Incorrect · n/a · Can\'t Verify. When Incorrect, name the broken component: Street Number, Street Name, Unit/Apt, Locality, Postal Code, or Other. P.O. boxes and management-office addresses are Incorrect — Other.' },
-        { label: 'Pin', body: 'Perfect (rooftop or the feature itself) · Approximate (same property, same side, same block) · Next Door (first adjacent property, same street name and side) · Wrong · Can\'t Verify.' },
-        { label: 'Shared parcel', body: 'Two buildings on the same lot have no Next Door. They are Approximate or Wrong.', tone: 'warn' },
-        { label: 'Independence', body: 'A pin can be Perfect while the address is Incorrect. Missing pins are Wrong.' },
-      ],
-    },
-    {
-      id: 'closed',
-      title: 'Closed, missing, and viewport',
-      rows: [
-        { label: 'Temp closed', body: 'Treat temporarily closed businesses as if they were open when rating relevance.' },
-        { label: 'Permanent', body: 'Expected permanent closures (navigational query, or every chain in the area is gone) start lower. Unexpected closures among many open options are Acceptable or Bad.' },
-        { label: 'Does not exist', body: 'Flag closed / does-not-exist, then still rate relevance as if the entity existed.' },
-        { label: 'Viewport', body: 'Fresh viewport → results expected in or near the viewport. Stale viewport → use the user location. Rural or few possible results → be more lenient on distance.' },
-      ],
-    },
-    {
-      id: 'traps',
-      title: 'Examiner traps',
-      rows: [
-        { label: 'Name + address query', body: 'Query is the business and its address, result is the address only → Relevance Bad. The user cannot tell they are the same place. Name / address / pin still get normal data ratings.', tone: 'bad' },
-        { label: 'Street query', body: 'Query is a whole street, result is one shop on that street → too specific → Relevance Bad.', tone: 'bad' },
-        { label: 'Off category', body: '“Chinese near me” returning a library at 0.3 mi is Bad — wrong category, not a distance issue.', tone: 'bad' },
-      ],
-    },
-  ],
+  why: 'Full TryRating Maps Search Evaluation guideline, with the original screenshots. Scroll the document — figures scale to the screen.',
+  illustrated: 'maps',
+  chapters: [],
 }
 
 const SEARCH_PQ: GuidelinePack = {

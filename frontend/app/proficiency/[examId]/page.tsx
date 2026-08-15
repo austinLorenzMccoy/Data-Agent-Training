@@ -133,7 +133,7 @@ export default function ProficiencyPage() {
                 Begin exam
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link href="/guidelines#guideline-proficiency">Study the gate briefing</Link>
+                <Link href="/guidelines/proficiency">Study the gate briefing</Link>
               </Button>
             </div>
           </div>
