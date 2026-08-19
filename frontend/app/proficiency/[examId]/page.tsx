@@ -120,9 +120,10 @@ export default function ProficiencyPage() {
           <div className="mt-8 rounded-xl border border-border bg-card p-6">
             <p className="leading-relaxed text-muted-foreground">
               This is a timed English exam — {exam.questions.length} questions,{' '}
-              {Math.round(exam.timeLimitSec / 60)} minutes, pass mark {exam.passScore}%. You only
-              get one attempt, and leaving the page ends it. Passing is saved. You can still
-              practice the core tasks either way; some transcription jobs require this exam first.
+              {Math.round(exam.timeLimitSec / 60)} minutes, pass mark {exam.passScore}%. Leaving
+              the page while the clock is running ends the attempt. If you pass, you do not
+              retake it. If you miss the mark, you can try again. Core practice stays open either
+              way; transcription can require this exam first.
             </p>
             <p className="mt-3 text-sm text-muted-foreground">
               Study the question types first — answers are not shown during the exam.
@@ -152,7 +153,7 @@ export default function ProficiencyPage() {
               <p className="font-mono text-[10px] uppercase tracking-widest text-primary">
                 {question.kind === 'listening' ? 'Listening' : 'Multiple choice'}
               </p>
-              <p className="mt-2 text-base leading-relaxed">{question.prompt}</p>
+              <p className="mt-2 whitespace-pre-wrap text-base leading-relaxed">{question.prompt}</p>
               {question.audioUrl && (
                 <audio className="mt-4 w-full" controls src={question.audioUrl} />
               )}

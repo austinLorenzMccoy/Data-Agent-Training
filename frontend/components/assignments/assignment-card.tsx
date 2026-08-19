@@ -1,7 +1,9 @@
 'use client'
 
+import Link from 'next/link'
 import type { Question } from '@/lib/types'
 import { TYPE_NAMES } from '@/lib/scoring'
+import { guidelineHrefForType } from '@/lib/guidelines'
 import { ClassificationStamp } from '@/components/classification-stamp'
 import { cn } from '@/lib/utils'
 
@@ -28,6 +30,12 @@ export function AssignmentCard({
           <h2 className="text-lg font-semibold tracking-tight">
             {TYPE_NAMES[question.type]}
           </h2>
+          <Link
+            href={guidelineHrefForType(question.type)}
+            className="mt-1 inline-block text-xs text-primary hover:underline"
+          >
+            Open the guideline
+          </Link>
         </div>
         <ClassificationStamp difficulty={question.difficulty} />
       </div>

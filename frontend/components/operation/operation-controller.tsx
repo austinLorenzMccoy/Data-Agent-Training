@@ -16,6 +16,7 @@ import { gradeJustification } from '@/lib/grade-client'
 import { isSelectionCorrect, XP, hasJustification, buildResult, pointsPossible, selectionScore } from '@/lib/scoring'
 import { getProficiencyGatedTypes, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM } from '@/lib/feature-flags'
 import { hasPassedProficiency } from '@/lib/proficiency'
+import { buildLastTest, saveLastTest } from '@/lib/last-test'
 const MAX_TRACK_QUESTIONS = 12
 const MINUTES_PER_ASSIGNMENT = 2.5
 const MIN_OPERATION_MIN = 10
@@ -178,11 +179,11 @@ export function OperationController() {
     )
 
     // Log operation and check for rank up
-    const { rankedUp, from, to } = logOperation(result)
+    const { rankedUp } = logOperation(result)
 
     addXp(result.xpEarned)
+    saveLastTest(buildLastTest(result, rankedUp, questions, answers))
 
-    // Redirect to debrief
     router.push(
       `/operation/debrief?iqScore=${Math.round(result.iqScore)}&passed=${result.passed}&xp=${result.xpEarned}&rankedUp=${rankedUp}`
     )

@@ -131,7 +131,7 @@ export function TrainingHub() {
               <h3 className="font-sans font-semibold">Ready for a timed test?</h3>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Pick one task type. The clock is on, and you won’t see answers until the end.
+              Finish practice for a type, then sit that timed test. No answers until the end.
             </p>
           </div>
           <Button asChild size="lg">
@@ -220,7 +220,10 @@ function TrainingSession({
   onExit: () => void
   onComplete: () => void
 }) {
-  const pool = useMemo(() => getQuestionsByType(type).slice(0, 5), [type])
+  const pool = useMemo(() => {
+    const all = getQuestionsByType(type)
+    return [...all].sort(() => Math.random() - 0.5).slice(0, Math.min(8, all.length))
+  }, [type])
   const [index, setIndex] = useState(0)
   const [result, setResult] = useState<Result | null>(null)
   const [grading, setGrading] = useState(false)
