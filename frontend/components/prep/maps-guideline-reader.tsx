@@ -125,7 +125,7 @@ function MarkdownBody({ markdown }: { markdown: string }) {
       continue
     }
 
-    if (line.trim() === '') {
+    if (line.trim() === '' || /^[-*]{3,}$/.test(line.trim()) || /^\s*\|?\s*-{3,}/.test(line)) {
       i += 1
       continue
     }
@@ -146,8 +146,7 @@ function MarkdownBody({ markdown }: { markdown: string }) {
   return <div className="guideline-prose">{nodes}</div>
 }
 
-export function MapsGuidelineDocument() {
-  const chapters = (doc as { chapters: Chapter[] }).chapters
+export function GuidelineMarkdownDocument({ chapters }: { chapters: Chapter[] }) {
   return (
     <div className="space-y-12">
       <nav className="flex flex-wrap gap-2 border-b border-border pb-4">
@@ -155,7 +154,7 @@ export function MapsGuidelineDocument() {
           <a
             key={chapter.id}
             href={`#${chapter.id}`}
-            className="rounded-full border border-border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:border-primary/40 hover:text-primary"
+            className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground hover:border-primary/40 hover:text-primary"
           >
             {chapter.title.replace(/^\d+\.\s*/, '')}
           </a>
@@ -163,10 +162,14 @@ export function MapsGuidelineDocument() {
       </nav>
       {chapters.map((chapter) => (
         <section key={chapter.id} id={chapter.id} className="scroll-mt-24">
-          <h2 className="mb-4 text-xl font-semibold tracking-tight">{chapter.title}</h2>
+          <h2 className="mb-4 font-heading text-xl font-medium tracking-tight">{chapter.title}</h2>
           <MarkdownBody markdown={chapter.markdown} />
         </section>
       ))}
     </div>
   )
+}
+
+export function MapsGuidelineDocument() {
+  return <GuidelineMarkdownDocument chapters={(doc as { chapters: Chapter[] }).chapters} />
 }

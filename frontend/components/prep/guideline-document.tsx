@@ -3,8 +3,22 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import type { GuidelinePack } from '@/lib/guidelines'
-import { MapsGuidelineDocument } from '@/components/prep/maps-guideline-reader'
+import {
+  GuidelineMarkdownDocument,
+  MapsGuidelineDocument,
+} from '@/components/prep/maps-guideline-reader'
+import pqDoc from '@/lib/pq-guideline-doc.json'
+import lightspeedDoc from '@/lib/lightspeed-guideline-doc.json'
+import freyaDoc from '@/lib/freya-guideline-doc.json'
+import proficiencyDoc from '@/lib/proficiency-guideline-doc.json'
 import { cn } from '@/lib/utils'
+
+const MARKDOWN_DOCS = {
+  pq: pqDoc,
+  lightspeed: lightspeedDoc,
+  freya: freyaDoc,
+  proficiency: proficiencyDoc,
+} as const
 
 export function GuidelineDocument({ pack }: { pack: GuidelinePack }) {
   return (
@@ -29,6 +43,10 @@ export function GuidelineDocument({ pack }: { pack: GuidelinePack }) {
       <article className="min-w-0">
         {pack.illustrated === 'maps' ? (
           <MapsGuidelineDocument />
+        ) : pack.illustrated && pack.illustrated in MARKDOWN_DOCS ? (
+          <GuidelineMarkdownDocument
+            chapters={MARKDOWN_DOCS[pack.illustrated as keyof typeof MARKDOWN_DOCS].chapters}
+          />
         ) : (
           <div className="space-y-8">
             {pack.chapters.map((chapter) => (
