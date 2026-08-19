@@ -166,7 +166,7 @@ export function PrepHub() {
           Learn the rating rules
         </h1>
         <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
-          Core rules are in the tabs below. Full vendor guidelines live on the Guidelines page.
+          Core rules are in the tabs below. Official documents open from the box under this heading.
         </p>
       </div>
 
@@ -795,35 +795,41 @@ function ResponseSelectionSection() {
 function GuidelinePointer() {
   const packs = specialisationGuidelinePacks()
   return (
-    <div className="mb-10 rounded-xl border border-primary/35 bg-primary/5 p-5">
-      <p className="text-[12px] font-medium text-primary">
-        Full guidelines
-      </p>
-      <h2 className="mt-1 font-sans text-xl font-semibold tracking-tight">
-        Official documents live on Guidelines
-      </h2>
-      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-        Maps (with original screenshots), search quality, transcription, and the English exam.
-        Figures scale to the screen. Nothing downloads. This page only covers how practice works.
-      </p>
-      <div className="mt-4 flex flex-wrap gap-2">
+    <div
+      id="guidelines-brief"
+      className="mb-10 rounded-xl border-2 border-primary bg-primary/10 p-5 sm:p-6"
+    >
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="w-full min-w-0">
+          <p className="text-sm font-medium text-primary">Full guidelines</p>
+          <h2 className="mt-1 font-heading text-2xl font-medium tracking-tight">
+            Open the official documents
+          </h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            Maps, search quality, transcription, and the English exam. Figures scale on screen.
+            Nothing downloads. This page only covers how practice works.
+          </p>
+        </div>
+        <Button asChild size="lg" className="h-11 w-full shrink-0 text-base sm:w-auto">
+          <Link href="/guidelines">
+            Open Guidelines
+            <ArrowRight className="size-4" />
+          </Link>
+        </Button>
+      </div>
+      <p className="mt-5 text-xs font-medium text-muted-foreground">Or jump straight to a document</p>
+      <div className="mt-2 grid gap-2 sm:grid-cols-2">
         {packs.map((pack) => (
           <Link
             key={pack.id}
             href={`/guidelines/${pack.id}`}
-            className="rounded-full border border-primary/40 bg-background/50 px-3 py-1 text-xs text-primary transition-colors hover:bg-primary/15"
+            className="flex items-center justify-between gap-2 rounded-md border border-primary/35 bg-background px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary hover:bg-primary/10"
           >
-            {pack.title}
+            <span className="min-w-0 text-left">{pack.title}</span>
+            <ArrowRight className="size-4 shrink-0 text-primary" />
           </Link>
         ))}
       </div>
-      <Link
-        href="/guidelines"
-        className="mt-4 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
-      >
-        Open the Guidelines page
-        <ArrowRight className="size-3.5" />
-      </Link>
     </div>
   )
 }
@@ -874,12 +880,12 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
             Grading is structural: each of relevance / name / address / pin is a quarter of the
             result. Adjacent guesses are not tolerated here.
           </p>
-          <Link
-            href="/guidelines/epsilon"
-            className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
-          >
-            Open the Maps guideline →
-          </Link>
+          <Button asChild variant="outline" size="sm" className="mt-1">
+            <Link href="/guidelines/epsilon">
+              Open the Maps guideline
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </Button>
         </div>
       </Accordion>
 
@@ -903,12 +909,12 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
             Exact match scores 1.0. One step on the ordinal scale scores 0.5. Two or more steps
             scores 0. Porn, Foreign Language, and Did Not Load are independent checkboxes.
           </Example>
-          <Link
-            href="/guidelines/zeta"
-            className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
-          >
-            Open the Page Quality guideline →
-          </Link>
+          <Button asChild variant="outline" size="sm" className="mt-1">
+            <Link href="/guidelines/zeta">
+              Open the Page Quality guideline
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </Button>
         </div>
       </Accordion>
 
@@ -928,12 +934,12 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
             Query “Banff National Park official site” → the Parks Canada page is Highly
             Satisfying. A Japanese tourist blog is Not Satisfying and Wrong Language.
           </Example>
-          <Link
-            href="/guidelines/eta"
-            className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
-          >
-            Open the Lightspeed guideline →
-          </Link>
+          <Button asChild variant="outline" size="sm" className="mt-1">
+            <Link href="/guidelines/eta">
+              Open the Lightspeed guideline
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </Button>
         </div>
       </Accordion>
 
@@ -956,12 +962,12 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
             Timed tests still allow scrub and rewind inside the current clip. Forward-only
             applies between questions, not inside one.
           </p>
-          <Link
-            href="/guidelines/theta"
-            className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
-          >
-            Open the Freya guideline →
-          </Link>
+          <Button asChild variant="outline" size="sm" className="mt-1">
+            <Link href="/guidelines/theta">
+              Open the Freya guideline
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </Button>
         </div>
       </Accordion>
 
@@ -978,12 +984,12 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
             the patterns below, then sit it from the Proficiency page. The answer key is not shown
             during the exam.
           </p>
-          <Link
-            href="/guidelines/proficiency"
-            className="font-mono text-[11px] uppercase tracking-wider text-primary hover:underline"
-          >
-            Open the language-gate guideline →
-          </Link>
+          <Button asChild variant="outline" size="sm" className="mt-1">
+            <Link href="/guidelines/proficiency">
+              Open the English exam guide
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </Button>
         </div>
       </Accordion>
     </div>
