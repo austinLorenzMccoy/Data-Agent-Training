@@ -1,19 +1,25 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
-import { Space_Grotesk, JetBrains_Mono } from 'next/font/google'
+import { Newsreader, Public_Sans, IBM_Plex_Mono } from 'next/font/google'
 import { AgentProvider } from '@/components/providers/agent-provider'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { AgentProvider as SupabaseAgentProvider } from '@/contexts/AgentContext'
 import { SiteNav } from '@/components/site-nav'
 import './globals.css'
 
-const spaceGrotesk = Space_Grotesk({
-  variable: '--font-space-grotesk',
+const newsreader = Newsreader({
+  variable: '--font-newsreader',
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+})
+const publicSans = Public_Sans({
+  variable: '--font-public-sans',
   subsets: ['latin'],
 })
-const jetbrainsMono = JetBrains_Mono({
-  variable: '--font-jetbrains-mono',
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: '--font-ibm-plex-mono',
   subsets: ['latin'],
+  weight: ['400', '500', '600'],
 })
 
 export const metadata: Metadata = {
@@ -24,7 +30,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport = {
-  themeColor: '#0d0c1e',
+  themeColor: '#f3eee4',
 }
 
 export default function RootLayout({
@@ -35,7 +41,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark bg-background ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+      className={`bg-background ${newsreader.variable} ${publicSans.variable} ${ibmPlexMono.variable}`}
     >
       <body className="font-sans antialiased">
         <AuthProvider>

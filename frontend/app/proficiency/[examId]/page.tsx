@@ -98,7 +98,7 @@ export default function ProficiencyPage() {
 
   return (
     <main className="relative min-h-screen">
-      <NeuralNoise className="opacity-30" />
+      <NeuralNoise />
       <div className="relative mx-auto max-w-2xl px-4 py-12">
         <p className="text-sm font-medium text-primary">
           English exam

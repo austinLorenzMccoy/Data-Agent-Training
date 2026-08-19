@@ -7,49 +7,49 @@ export const RANKS: RankTier[] = [
     id: 'recruit',
     name: 'Recruit',
     xpRequired: 0,
-    color: '#7a7266',      // warm stone — entry level
+    color: '#6b6358',
     description: 'Just starting. Learning how to rate a response.',
   },
   {
     id: 'operative',
     name: 'Operative',
     xpRequired: 500,
-    color: '#6a9ecf',      // steel blue
+    color: '#2c5282',
     description: 'Knows the rating scale. Ready to practice alone.',
   },
   {
     id: 'field-agent',
     name: 'Field Agent',
     xpRequired: 1500,
-    color: '#5aab7a',      // sage green (matches success)
+    color: '#276749',
     description: 'Comfortable comparing two responses.',
   },
   {
     id: 'specialist',
     name: 'Specialist',
     xpRequired: 3500,
-    color: '#c07ab8',      // muted mauve — distinct from the warm palette
+    color: '#6b3a62',
     description: 'Catches problems in transcripts.',
   },
   {
     id: 'analyst',
     name: 'Analyst',
     xpRequired: 7000,
-    color: '#c8973a',      // gold — matches primary
+    color: '#b42318',
     description: 'High accuracy across every task type.',
   },
   {
     id: 'senior-analyst',
     name: 'Senior Analyst',
     xpRequired: 12000,
-    color: '#e8a84a',      // bright amber
+    color: '#9a3412',
     description: 'Consistently precise. Ready to coach others.',
   },
   {
     id: 'director',
     name: 'Director',
     xpRequired: 20000,
-    color: '#f0d060',      // pale gold/champagne — top tier
+    color: '#3f1d12',
     description: 'Highest rank. Rarely reached.',
   },
 ]

@@ -66,7 +66,7 @@ export function TrainingHub() {
 
   return (
     <div className="relative">
-      <NeuralNoise className="opacity-20" />
+      <NeuralNoise />
       <div className="relative mx-auto max-w-5xl px-4 py-12">
         <p className="font-sans text-sm font-medium text-accent">
           Practice at your own pace

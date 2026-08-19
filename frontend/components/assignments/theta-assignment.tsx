@@ -68,8 +68,8 @@ export function ThetaAssignment({
           url: audioUrl,
           height: 96,
           waveColor: '#8a7d69',
-          progressColor: '#c8973a',
-          cursorColor: '#f0e9db',
+          progressColor: '#b42318',
+          cursorColor: '#1a1714',
           normalize: true,
           plugins: [regions],
         })

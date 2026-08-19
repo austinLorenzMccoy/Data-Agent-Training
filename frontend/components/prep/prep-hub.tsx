@@ -268,7 +268,7 @@ function CoreFrameworkSection() {
               <div className={cn('flex size-9 items-center justify-center rounded-md', bg, color, 'mb-3')}>
                 <Icon className="size-4" />
               </div>
-              <h3 className={cn('font-mono text-sm font-bold uppercase tracking-wide', color)}>{title}</h3>
+              <h3 className={cn('font-heading text-base font-medium', color)}>{title}</h3>
               <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{desc}</p>
             </div>
           ))}

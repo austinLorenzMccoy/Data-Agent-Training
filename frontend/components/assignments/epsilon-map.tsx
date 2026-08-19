@@ -109,11 +109,11 @@ function buildMapHtml(opts: {
       box-shadow: 0 0 0 4px rgba(37,99,235,.28), 0 2px 8px rgba(0,0,0,.25);
     }
     .pin {
-      width: 28px; height: 28px; border-radius: 999px; background: #c8973a; color: #0a0907;
+      width: 28px; height: 28px; border-radius: 999px; background: #b42318; color: #faf7f1;
       font: 700 12px/28px ui-monospace, monospace; text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,.28);
+      box-shadow: 0 2px 8px rgba(26,23,20,.16);
     }
-    .pin.sel { background: #f0e9db; box-shadow: 0 0 0 3px #c8973a, 0 2px 10px rgba(0,0,0,.3); }
+    .pin.sel { background: #1a1714; box-shadow: 0 0 0 3px #b42318, 0 2px 10px rgba(26,23,20,.18); }
     .leaflet-div-icon { background: none; border: none; }
   </style>
 </head>
@@ -141,8 +141,8 @@ function buildMapHtml(opts: {
         bounds.extend([data.user.lat, data.user.lng]);
         if (data.radiusM) {
           L.circle([data.user.lat, data.user.lng], {
-            radius: data.radiusM, color: '#c8973a', weight: 1.5, dashArray: '5 5',
-            fillColor: '#c8973a', fillOpacity: 0.08
+            radius: data.radiusM, color: '#b42318', weight: 1.5, dashArray: '5 5',
+            fillColor: '#b42318', fillOpacity: 0.08
           }).addTo(map);
         }
       }

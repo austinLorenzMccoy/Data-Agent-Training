@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useAgent } from '@/components/providers/agent-provider'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
-import { LogOut, Radar } from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM } from '@/lib/feature-flags'
 
 const LINKS = [
@@ -50,12 +50,14 @@ export function SiteNav() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
+    <header className="masthead sticky top-0 z-50 bg-background">
       <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4">
-        <Link href="/" className="flex shrink-0 items-center gap-2">
-          <Radar size={18} className="text-primary" />
-          <span className="text-sm font-semibold tracking-tight">
+        <Link href="/" className="flex shrink-0 items-baseline gap-1.5">
+          <span className="font-heading text-lg italic leading-none text-foreground">
             Datanerds
+          </span>
+          <span className="hidden text-[11px] text-muted-foreground sm:inline">
+            Annotation
           </span>
         </Link>
 

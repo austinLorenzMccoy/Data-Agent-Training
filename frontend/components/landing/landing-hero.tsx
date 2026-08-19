@@ -1,20 +1,19 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { NeuralNoise } from '@/components/neural-noise'
 import { RecruitDialog } from '@/components/landing/recruit-dialog'
 import { useAgent } from '@/components/providers/agent-provider'
 import { Button } from '@/components/ui/button'
 import { RANKS } from '@/lib/ranks'
-import { TYPE_BLURBS, TYPE_NAMES } from '@/lib/scoring'
+import { PASS_THRESHOLD, TYPE_BLURBS, TYPE_NAMES } from '@/lib/scoring'
 import type { AssignmentType } from '@/lib/types'
 import { CORE_TYPES, getEnabledTypes, isV4Type } from '@/lib/feature-flags'
 import { guidelineFor } from '@/lib/guidelines'
 import { cn } from '@/lib/utils'
 import {
-  Radar,
   Target,
   GitCompareArrows,
   ShieldCheck,
@@ -25,6 +24,9 @@ import {
   AudioLines,
   ArrowDown,
   ArrowRight,
+  BookOpen,
+  PenLine,
+  Timer,
 } from 'lucide-react'
 
 const TYPE_ICONS: Record<AssignmentType, React.ElementType> = {
@@ -39,6 +41,46 @@ const TYPE_ICONS: Record<AssignmentType, React.ElementType> = {
 }
 
 const TYPE_DESC = TYPE_BLURBS
+
+const STEPS = [
+  {
+    n: '01',
+    title: 'Study',
+    icon: BookOpen,
+    body: 'Learn the rating rules. Full vendor guidelines sit in the app, with the original figures.',
+  },
+  {
+    n: '02',
+    title: 'Practice',
+    icon: PenLine,
+    body: 'Work examples with no clock. After each call you see why it was right, partial, or wrong.',
+  },
+  {
+    n: '03',
+    title: 'Test',
+    icon: Timer,
+    body: `Sit a timed packet of one task type. The pass mark is ${PASS_THRESHOLD}%. Ranks follow the score.`,
+  },
+]
+
+const PROOF = [
+  {
+    title: 'Written reasons, graded',
+    body: 'A rating is not only a click. When the task asks why, the explanation is scored too.',
+  },
+  {
+    title: 'The real rating grids',
+    body: 'Maps, search quality, and transcription use the same scales live annotation jobs grade you on.',
+  },
+  {
+    title: 'Field-by-field scoring',
+    body: 'Pins, page quality, and transcripts score each field. Close-but-wrong does not get a free pass.',
+  },
+  {
+    title: 'A hard pass line',
+    body: `Timed tests require ${PASS_THRESHOLD}%. XP and ranks come from the work, not from showing up.`,
+  },
+]
 
 export function LandingHero() {
   const { agent, hydrated } = useAgent()
@@ -55,30 +97,38 @@ export function LandingHero() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <NeuralNoise className="opacity-25" />
+    <div className="relative min-h-screen overflow-x-hidden">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[34rem] overflow-hidden sm:h-[40rem]">
+        <Image
+          src="/landing/desk.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[center_32%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/55 via-background/82 to-background" />
+      </div>
       <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background"
+        aria-hidden
+        className="pointer-events-none absolute top-0 bottom-0 w-px bg-primary/20"
+        style={{ left: 'max(1.25rem, calc(50% - 22rem))' }}
       />
 
-      <section className="relative mx-auto flex max-w-3xl flex-col items-center px-4 pb-12 pt-16 text-center">
-        <div className="flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3 py-1">
-          <Radar size={14} className="text-primary" />
-          <span className="font-sans text-xs font-medium text-muted-foreground">
+      <section className="relative mx-auto flex w-full max-w-3xl flex-col items-center px-4 pb-12 pt-16 text-center">
+        <div className="flex items-center gap-2 border-y border-border px-3 py-1">
+          <span className="font-heading italic text-primary">¶</span>
+          <span className="text-xs font-medium tracking-wide text-muted-foreground">
             Datanerds Annotation
           </span>
         </div>
 
-        <h1 className="mt-6 text-balance font-sans text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
-          Build your eye for
-          <br />
-          <span className="text-primary text-glow-primary">
-            better AI.
-          </span>
+        <h1 className="mt-6 max-w-[16ch] text-balance font-heading text-[2.15rem] font-medium leading-[1.15] text-foreground sm:max-w-none sm:text-5xl">
+          Build your eye for{' '}
+          <em className="italic text-primary">better AI.</em>
         </h1>
 
-        <p className="mt-5 max-w-xl text-pretty leading-relaxed text-muted-foreground">
+        <p className="mt-5 w-full min-w-0 max-w-prose px-1 text-center leading-relaxed text-muted-foreground">
           Practice making thoughtful calls on AI responses, search results, maps, and audio.
           Learn at your own pace, get useful feedback, and watch your confidence grow.
         </p>
@@ -112,11 +162,11 @@ export function LandingHero() {
         )}
       </section>
 
-      <section className="relative mx-auto max-w-4xl px-4 pb-12">
+      <section className="relative mx-auto w-full max-w-4xl px-4 pb-12">
           <p className="mb-4 text-center font-sans text-sm font-medium text-muted-foreground">
           Choose a skill to practice
         </p>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2">
           {core.map((t) => (
             <TypeCard key={t} type={t} />
           ))}
@@ -159,6 +209,47 @@ export function LandingHero() {
           </div>
         </section>
       )}
+
+      <section className="relative mx-auto max-w-4xl px-4 pb-16">
+        <p className="mb-2 text-center text-sm font-medium text-primary">How it works</p>
+        <h2 className="mb-8 text-center font-heading text-3xl font-medium tracking-tight">
+          Study. Practice. Then sit the test.
+        </h2>
+        <ol className="grid gap-4 sm:grid-cols-3">
+          {STEPS.map((step) => {
+            const Icon = step.icon
+            return (
+              <li key={step.n} className="agency-card agency-card-accent p-5">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs text-muted-foreground">{step.n}</span>
+                  <Icon className="size-4 text-primary" />
+                </div>
+                <h3 className="mt-3 font-heading text-xl font-medium">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+              </li>
+            )
+          })}
+        </ol>
+      </section>
+
+      <section className="relative mx-auto max-w-4xl px-4 pb-16">
+        <p className="mb-2 text-center text-sm font-medium text-primary">Built to hold up</p>
+        <h2 className="mb-3 text-center font-heading text-3xl font-medium tracking-tight">
+          Training with a pass line, not a vibe.
+        </h2>
+        <p className="mx-auto mb-8 max-w-2xl text-center text-sm leading-relaxed text-muted-foreground">
+          This is a certification drill, not a quiz app. Scoring, guidelines, and timed tests
+          are built the way the live work is judged.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {PROOF.map((item) => (
+            <div key={item.title} className="agency-card p-5">
+              <h3 className="font-heading text-lg font-medium">{item.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="relative mx-auto max-w-4xl px-4 pb-24">
         <p className="mb-4 text-center text-sm font-medium text-muted-foreground">
@@ -204,7 +295,7 @@ function TypeCard({ type, featured = false }: { type: AssignmentType; featured?:
   return (
     <div
       className={cn(
-        'agency-card p-5',
+        'agency-card w-full min-w-0 p-5',
         featured ? 'border-primary/30 bg-background/40' : 'agency-card-accent',
       )}
     >

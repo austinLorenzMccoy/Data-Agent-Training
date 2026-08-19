@@ -28,7 +28,7 @@ export function RankBadge({
           color: rank.color,
           borderColor: `${rank.color}66`,
           background: `${rank.color}1a`,
-          boxShadow: `0 0 18px ${rank.color}33`,
+          boxShadow: 'none',
         }}
         aria-hidden="true"
       >

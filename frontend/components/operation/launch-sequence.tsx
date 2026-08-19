@@ -44,7 +44,6 @@ export function LaunchSequence({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
-      <div className="scanlines pointer-events-none absolute inset-0 opacity-30" />
       <div className="w-full max-w-lg px-6">
         <AnimatePresence mode="wait">
           {count === null ? (
@@ -60,7 +59,7 @@ export function LaunchSequence({
                   {assignmentCount} questions · {Math.round(durationSec / 60)} min · one task type
                 </p>
               </div>
-              <div className="space-y-1 font-mono text-sm text-success">
+              <div className="space-y-1 font-mono text-sm text-foreground">
                 {BOOT_LINES.slice(0, line).map((l, i) => (
                   <motion.div
                     key={l}
@@ -84,11 +83,11 @@ export function LaunchSequence({
               className="text-center"
             >
               {count > 0 ? (
-                <span className="font-mono text-8xl font-bold text-accent tabular-nums">
+                <span className="font-heading text-8xl font-medium text-foreground tabular-nums">
                   {count}
                 </span>
               ) : (
-                <span className="text-5xl font-bold text-success">
+                <span className="font-heading text-5xl italic text-primary">
                   Go
                 </span>
               )}
