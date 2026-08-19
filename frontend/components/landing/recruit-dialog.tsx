@@ -44,39 +44,38 @@ export function RecruitDialog({
         >
           <X size={18} />
         </button>
-        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary">
-          Agency Intake Form
+        <p className="text-[12px] font-medium text-primary">
+          Display name
         </p>
         <h2
           id="recruit-title"
-          className="mt-2 font-mono text-xl font-bold uppercase tracking-wide"
+          className="mt-2 text-xl font-bold tracking-tight"
         >
-          Establish Your Cover Identity
+          Choose a name
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Choose an alias. It is the only name the Agency will know you by — your
-          real identity stays classified. Your rank, XP, and operation history
-          are stored locally on this device.
+          This is how you’ll appear on the leaderboard. Progress is saved on this
+          device.
         </p>
         <form onSubmit={submit} className="mt-5 space-y-3">
           <label htmlFor="alias" className="sr-only">
-            Agent alias
+            Display name
           </label>
           <input
             id="alias"
             value={alias}
             onChange={(e) => setAlias(e.target.value)}
-            placeholder="e.g. NIGHTJAR"
+            placeholder="e.g. nightjar"
             maxLength={16}
             autoFocus
-            className="w-full rounded-md border border-border bg-background px-3 py-2.5 font-mono text-sm uppercase tracking-wider text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-primary"
+            className="w-full rounded-md border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-primary"
           />
           <Button
             type="submit"
             disabled={alias.trim().length < 2}
-            className="w-full bg-primary font-mono uppercase tracking-wider text-primary-foreground hover:bg-primary/90"
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            Begin Recruitment
+            Start practicing
           </Button>
         </form>
       </div>

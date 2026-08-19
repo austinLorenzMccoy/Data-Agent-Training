@@ -34,7 +34,7 @@ export function FeedbackPanel({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        'rounded-lg border p-4 font-mono text-sm',
+        'rounded-lg border p-4 text-sm',
         correct
           ? 'border-success/40 bg-success/5'
           : partial
@@ -44,20 +44,20 @@ export function FeedbackPanel({
     >
       <div
         className={cn(
-          'flex items-center gap-2 font-bold uppercase tracking-wider',
+          'flex items-center gap-2 font-semibold',
           correct ? 'text-success' : partial ? 'text-xp' : 'text-destructive',
         )}
       >
         {correct ? <Check className="size-4" /> : <X className="size-4" />}
         {correct
-          ? 'Correct Classification'
+          ? 'Correct'
           : partial
             ? `Partial credit — ${Math.round((displayRatio ?? 0) * 100)}%`
-            : 'Misclassified'}
+            : 'Not quite'}
       </div>
 
       <p className="mt-3 leading-relaxed text-foreground/80">
-        <span className="font-bold text-foreground">Analyst note: </span>
+        <span className="font-semibold text-foreground">Why: </span>
         {question.explanation}
       </p>
 
@@ -70,7 +70,7 @@ export function FeedbackPanel({
             >
               <span className="text-muted-foreground">{d.field}</span>
               <span className={d.credit === 1 ? 'text-success' : d.credit > 0 ? 'text-xp' : 'text-destructive'}>
-                you {d.agent} · gold {d.correct}
+                you {d.agent} · correct {d.correct}
                 {d.credit === 1 ? ' ✓' : d.credit === 0.5 ? ' ~' : ' ✗'}
               </span>
             </div>
@@ -88,8 +88,8 @@ export function FeedbackPanel({
         <div className="mt-3 border-t border-border/60 pt-3">
           <div className="flex items-center gap-2 text-accent">
             <Lightbulb className="size-4" />
-            <span className="font-bold uppercase tracking-wider">
-              Justification Review — {justificationScore}/2
+            <span className="font-semibold">
+              Your explanation — {justificationScore}/2
             </span>
           </div>
           {justificationFeedback && (

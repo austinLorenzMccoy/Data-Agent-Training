@@ -147,11 +147,11 @@ export function PrepHub() {
   }, [requestedTab, requestedTrack])
 
   const tabs = [
-    { id: 'core' as const, label: 'Core Framework', icon: BookOpen, fresh: false },
-    { id: 'transcript' as const, label: 'Transcript Clearance', icon: FileText, fresh: false },
-    { id: 'response' as const, label: 'Response Selection', icon: MessageSquare, fresh: false },
+    { id: 'core' as const, label: 'Core rules', icon: BookOpen, fresh: false },
+    { id: 'transcript' as const, label: 'Transcripts', icon: FileText, fresh: false },
+    { id: 'response' as const, label: 'Picking a reply', icon: MessageSquare, fresh: false },
     ...(showSpecial
-      ? [{ id: 'special' as const, label: 'Specialisation Tracks', icon: MapPin, fresh: true }]
+      ? [{ id: 'special' as const, label: 'Extra tracks', icon: MapPin, fresh: true }]
       : []),
   ]
 
@@ -159,15 +159,14 @@ export function PrepHub() {
     <div className="mx-auto max-w-4xl px-4 py-12">
       {/* Header */}
       <div className="mb-8">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary">
-          Sector 01 · Pre-Field Intelligence Briefing
+        <p className="text-sm font-medium text-primary">
+          Study guide
         </p>
         <h1 className="mt-2 text-4xl font-bold tracking-tight">
-          Study Before You Deploy
+          Learn the rating rules
         </h1>
         <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
-          Core rating rules live in the tabs below. Source guidelines for the specialisation
-          tracks have their own page — open one from the pointer, or from Guidelines in the nav.
+          Core rules are in the tabs below. Full vendor guidelines live on the Guidelines page.
         </p>
       </div>
 
@@ -182,7 +181,7 @@ export function PrepHub() {
               key={t.id}
               onClick={() => setActiveTab(t.id)}
               className={cn(
-                'flex items-center gap-2 rounded-full border px-4 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors',
+                'flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm transition-colors',
                 activeTab === t.id
                   ? 'border-primary bg-primary/15 text-primary'
                   : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
@@ -227,21 +226,21 @@ export function PrepHub() {
         <div>
           <div className="flex items-center gap-2">
             <Sparkles className="size-4 text-primary" />
-            <h3 className="font-semibold">Ready to drill?</h3>
+            <h3 className="font-semibold">Ready to practice?</h3>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            Put this briefing into practice — start with no-stakes Field Training.
+            Start with untimed practice. Sit a timed test when you feel ready.
           </p>
         </div>
         <div className="flex gap-3">
           <Button asChild size="lg">
             <Link href="/training">
-              Start Field Training
+              Start practice
               <ArrowRight className="size-4" />
             </Link>
           </Button>
           <Button asChild variant="outline" size="lg">
-            <Link href="/operation">Live Operation</Link>
+            <Link href="/operation">Timed test</Link>
           </Button>
         </div>
       </div>
@@ -256,8 +255,8 @@ function CoreFrameworkSection() {
     <>
       {/* Three pillars */}
       <div className="agency-card agency-card-accent p-5">
-        <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.3em] text-primary">
-          The Three Evaluation Pillars
+        <p className="mb-4 text-[12px] font-medium text-primary">
+          The three things you judge
         </p>
         <div className="grid gap-3 sm:grid-cols-3">
           {[
@@ -320,7 +319,7 @@ function CoreFrameworkSection() {
           <Example label="Violation example" verdict="bad" reason="implicit instruction failure">
             <p className="mb-2"><strong>Prompt:</strong> A user writes: "My grandmother just passed away and I need to write her eulogy. Can you help?"</p>
             <p><strong>Response:</strong> "Sure! Here are 5 tips: 1) Keep it under 5 minutes 2) Open with a joke 3) List achievements…"</p>
-            <p className="mt-2 text-xs text-muted-foreground">The response ignores the emotional context. "Open with a joke" is tone-deaf. Implicit instruction: warmth and empathy. Verdict: AMBIGUOUS (at best) or COMPROMISED.</p>
+            <p className="mt-2 text-xs text-muted-foreground">The response ignores the emotional context. "Open with a joke" is tone-deaf. Implicit instruction: warmth and empathy. Verdict: Okay at best, often Bad.</p>
           </Example>
         </div>
       </Accordion>
@@ -492,7 +491,7 @@ function TranscriptSection() {
     <>
       {/* Overview card */}
       <div className="agency-card agency-card-accent p-5">
-        <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-primary">Assignment Type GAMMA — Transcript Clearance</p>
+        <p className="mb-3 text-[12px] font-medium text-primary">Review a transcript</p>
         <p className="text-sm leading-relaxed text-muted-foreground">
           You will receive a text-message conversation between two people. Your job is to:
         </p>
@@ -634,7 +633,7 @@ function ResponseSelectionSection() {
     <>
       {/* Overview */}
       <div className="agency-card agency-card-accent p-5">
-        <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-primary">Assignment Type DELTA — Response Selection</p>
+        <p className="mb-3 text-[12px] font-medium text-primary">Pick the best reply</p>
         <p className="text-sm leading-relaxed text-muted-foreground">
           If the transcript passes clearance, you will see four candidate responses to the final message. Choose the single best reply.
         </p>
@@ -768,7 +767,7 @@ function ResponseSelectionSection() {
 
       {/* Quick reference */}
       <div className="rounded-xl border border-border bg-card p-5">
-        <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-primary">Quick Reference — Reject a Response If It…</p>
+        <p className="mb-3 text-[12px] font-medium text-primary">Reject a reply if it…</p>
         <div className="grid gap-2 sm:grid-cols-2">
           {[
             'Contains a spelling mistake',
@@ -797,24 +796,22 @@ function GuidelinePointer() {
   const packs = specialisationGuidelinePacks()
   return (
     <div className="mb-10 rounded-xl border border-primary/35 bg-primary/5 p-5">
-      <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">
-        Source guidelines · separate page
+      <p className="text-[12px] font-medium text-primary">
+        Full guidelines
       </p>
       <h2 className="mt-1 font-sans text-xl font-semibold tracking-tight">
-        Study the official track documents on Guidelines
+        Official documents live on Guidelines
       </h2>
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-        Each specialisation has a full-page source document — maps with the original screenshots,
-        Page Quality + Needs Met, Lightspeed satisfaction, Freya transcription, and the en-CA
-        language gate. Figures scale to the screen. Nothing downloads. This briefing only covers
-        how DNA drills work.
+        Maps (with original screenshots), search quality, transcription, and the English exam.
+        Figures scale to the screen. Nothing downloads. This page only covers how practice works.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
         {packs.map((pack) => (
           <Link
             key={pack.id}
             href={`/guidelines/${pack.id}`}
-            className="rounded-full border border-primary/40 bg-background/50 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-primary transition-colors hover:bg-primary/15"
+            className="rounded-full border border-primary/40 bg-background/50 px-3 py-1 text-xs text-primary transition-colors hover:bg-primary/15"
           >
             {pack.title}
           </Link>
@@ -822,7 +819,7 @@ function GuidelinePointer() {
       </div>
       <Link
         href="/guidelines"
-        className="mt-4 inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-primary hover:underline"
+        className="mt-4 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
       >
         Open the Guidelines page
         <ArrowRight className="size-3.5" />
@@ -835,24 +832,24 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
   return (
     <div id="specialisations-brief" className="scroll-mt-24 space-y-4">
       <div className="agency-card agency-card-accent p-5">
-        <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-primary">
-          Vendor-faithful specialisation tracks
+        <p className="mb-3 text-[12px] font-medium text-primary">
+          Extra practice tracks
         </p>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          These drills copy the rating grids used on live map, search-quality, and transcription
-          programs. XP stays on the track by default and does not feed the core Recruit →
-          Intelligence Director ladder. Full source guidelines live on the Guidelines page.
+          These match the rating grids used on live map, search, and transcription jobs.
+          XP from these tracks stays on the track and does not feed the main rank ladder.
+          Full guidelines live on the Guidelines page.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
-          <RuleTag>Epsilon · maps</RuleTag>
-          <RuleTag>Zeta · PQ + NM</RuleTag>
-          <RuleTag>Eta · lite satisfaction</RuleTag>
-          <RuleTag>Theta · transcription</RuleTag>
+          <RuleTag>Maps</RuleTag>
+          <RuleTag>Search quality</RuleTag>
+          <RuleTag>Search (simple)</RuleTag>
+          <RuleTag>Transcription</RuleTag>
         </div>
       </div>
 
       <Accordion
-        title="Epsilon — Map / POI evaluation"
+        title="Rate map results"
         subtitle="Relevance · name · address · pin"
         icon={MapPin}
         defaultOpen={!highlight || highlight === 'epsilon'}
@@ -887,7 +884,7 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
       </Accordion>
 
       <Accordion
-        title="Zeta — Page Quality + Needs Met"
+        title="Rate a search result"
         subtitle="10-point PQ · 5-point NM"
         icon={Search}
         defaultOpen={highlight === 'zeta'}
@@ -916,7 +913,7 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
       </Accordion>
 
       <Accordion
-        title="Eta — Search satisfaction lite"
+        title="Rate search (simple)"
         subtitle="NS · SS · S · HS"
         icon={Search}
         defaultOpen={highlight === 'eta'}
@@ -941,7 +938,7 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
       </Accordion>
 
       <Accordion
-        title="Theta — Segmentation & transcription"
+        title="Transcribe audio"
         subtitle="Waveform · speakers · tags"
         icon={AudioLines}
         defaultOpen={highlight === 'theta'}
@@ -956,8 +953,8 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
             Truncated always wins over Unsure on the same span.
           </Example>
           <p>
-            Live Operation still allows scrub and rewind inside the current clip. Forward-only
-            applies between assignments, not inside one.
+            Timed tests still allow scrub and rewind inside the current clip. Forward-only
+            applies between questions, not inside one.
           </p>
           <Link
             href="/guidelines/theta"

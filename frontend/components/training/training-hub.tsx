@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useAgent } from '@/components/providers/agent-provider'
 import { getQuestionsByType } from '@/lib/questions'
 import type { AssignmentType, Question } from '@/lib/types'
-import { TYPE_LABELS, TYPE_NAMES, XP, isSelectionCorrect, hasJustification, selectionScore } from '@/lib/scoring'
+import { TYPE_BLURBS, TYPE_NAMES, XP, isSelectionCorrect, hasJustification, selectionScore } from '@/lib/scoring'
 import { gradeJustification } from '@/lib/grade-client'
 import { AssignmentRenderer, type SubmittedAnswer } from '@/components/assignments/assignment-renderer'
 import { FeedbackPanel } from '@/components/assignments/feedback-panel'
@@ -15,20 +15,19 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowRight, Crosshair, GitCompare, ShieldCheck, ListChecks, Lock, MapPin, Search, AudioLines } from 'lucide-react'
 import { CORE_TYPES, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM, getEnabledTypes, getProficiencyGatedTypes, isV4Type } from '@/lib/feature-flags'
-import { trackForType } from '@/lib/tracks'
 import { guidelineFor } from '@/lib/guidelines'
 import { hasPassedProficiency } from '@/lib/proficiency'
 import { useRouter } from 'next/navigation'
 
-const TYPE_META: Record<AssignmentType, { icon: typeof Crosshair; blurb: string }> = {
-  alpha: { icon: Crosshair, blurb: 'Rate a single AI response: clear, ambiguous, or compromised.' },
-  beta: { icon: GitCompare, blurb: 'Compare two responses and identify the superior intelligence.' },
-  gamma: { icon: ShieldCheck, blurb: 'Clear or flag transcripts for contamination and leakage.' },
-  delta: { icon: ListChecks, blurb: 'Select the single best response from multiple candidates.' },
-  epsilon: { icon: MapPin, blurb: 'Rate map POIs for relevance, name, address, and pin accuracy.' },
-  zeta: { icon: Search, blurb: 'Page Quality + Needs Met on the full search-quality scale.' },
-  eta: { icon: Search, blurb: 'Lite four-point search satisfaction — the on-ramp to Zeta.' },
-  theta: { icon: AudioLines, blurb: 'Segment, label speakers, transcribe, and tag an audio clip.' },
+const TYPE_ICONS: Record<AssignmentType, typeof Crosshair> = {
+  alpha: Crosshair,
+  beta: GitCompare,
+  gamma: ShieldCheck,
+  delta: ListChecks,
+  epsilon: MapPin,
+  zeta: Search,
+  eta: Search,
+  theta: AudioLines,
 }
 
 export function TrainingHub() {
@@ -67,21 +66,21 @@ export function TrainingHub() {
 
   return (
     <div className="relative">
-      <NeuralNoise className="opacity-40" />
+      <NeuralNoise className="opacity-20" />
       <div className="relative mx-auto max-w-5xl px-4 py-12">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">
-          Sector 02 · Low-Stakes Drills
+        <p className="font-sans text-sm font-medium text-accent">
+          Practice at your own pace
         </p>
         <h1 className="mt-2 text-pretty font-sans text-4xl font-bold tracking-tight">
-          Field Training
+          Practice
         </h1>
         <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
-          Sharpen your instincts without the clock. Core drills feed the main rank ladder.
-          The four specialisation tracks below are vendor-faithful expansions.
+          Build confidence without a timer. Try a few examples, see why an answer works,
+          and choose what you would like to practice next.
         </p>
 
-        <p className="mb-3 mt-8 font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-          Core disciplines
+        <p className="mb-3 mt-8 font-sans text-sm font-medium text-muted-foreground">
+          Practice areas
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           {core.map((type) => (
@@ -98,12 +97,12 @@ export function TrainingHub() {
           <div className="mt-10 rounded-xl border border-primary/35 bg-primary/5 p-5">
             <div className="mb-4 flex items-end justify-between gap-3">
               <div>
-                <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-primary">
-                  Now briefing · expansion
+                <p className="text-[12px] font-medium text-primary">
+                  Extra practice
                 </p>
-                <h2 className="mt-1 font-sans text-xl font-semibold">Specialisation tracks</h2>
+                <h2 className="mt-1 font-sans text-xl font-semibold">Maps, search, and audio</h2>
               </div>
-              <span className="rounded-full border border-primary/50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
+              <span className="rounded-full border border-primary/50 px-2 py-0.5 font-sans text-[10px] font-bold text-primary">
                 New
               </span>
             </div>
@@ -129,14 +128,14 @@ export function TrainingHub() {
               ) : (
                 <Lock className="size-4 text-muted-foreground" />
               )}
-              <h3 className="font-sans font-semibold">Ready for live duty?</h3>
+              <h3 className="font-sans font-semibold">Ready for a timed test?</h3>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Pick one track, then sit a timed packet of that type only. No feedback until debrief.
+              Pick one task type. The clock is on, and you won’t see answers until the end.
             </p>
           </div>
           <Button asChild size="lg">
-            <Link href="/operation">Deploy to Operation</Link>
+            <Link href="/operation">Start a timed test</Link>
           </Button>
         </div>
       </div>
@@ -155,9 +154,7 @@ function DrillCard({
   onStart: () => void
   featured?: boolean
 }) {
-  const meta = TYPE_META[type]
-  const Icon = meta.icon
-  const track = trackForType(type)
+  const Icon = TYPE_ICONS[type]
   const pack = featured ? guidelineFor(type) : undefined
   return (
     <div
@@ -172,41 +169,33 @@ function DrillCard({
         </div>
         <div className="flex items-center gap-2">
           {featured && (
-            <span className="rounded-full border border-primary/50 px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider text-primary">
+            <span className="rounded-full border border-primary/50 px-1.5 py-0.5 text-[10px] font-medium text-primary">
               New
             </span>
           )}
-          <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            {TYPE_LABELS[type]}
-          </span>
         </div>
       </div>
       <h3 className="mt-4 font-sans text-lg font-semibold">{TYPE_NAMES[type]}</h3>
-      {track && (
-        <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-foreground/60">
-          {track.label}
-        </p>
-      )}
-      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{meta.blurb}</p>
+      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{TYPE_BLURBS[type]}</p>
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
         <button
           type="button"
           onClick={onStart}
-          className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wider"
+          className="inline-flex items-center gap-2 text-sm"
         >
           {done ? (
-            <span className="text-success">Cleared · +{XP.TRAINING_MODULE} XP earned</span>
+            <span className="text-success">Done · +{XP.TRAINING_MODULE} XP</span>
           ) : (
-            <span className="text-primary">Begin drill</span>
+            <span className="text-primary">Start practice</span>
           )}
           <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
         </button>
         {pack && (
           <Link
             href={`/guidelines/${type}`}
-            className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary"
+            className="text-xs text-muted-foreground hover:text-primary"
           >
-            Study guideline
+            Read the guideline
           </Link>
         )}
       </div>
@@ -276,11 +265,11 @@ function TrainingSession({
       <div className="flex items-center justify-between">
         <button
           onClick={onExit}
-          className="font-mono text-xs uppercase tracking-wider text-muted-foreground hover:text-foreground"
+          className="font-sans text-xs font-medium text-muted-foreground hover:text-foreground"
         >
-          {'<'} Back to training
+          {'<'} Back to practice
         </button>
-        <span className="font-mono text-xs uppercase tracking-wider text-accent">
+          <span className="font-sans text-xs font-medium text-accent">
           {TYPE_NAMES[type]} · {Math.min(index + 1, pool.length)}/{pool.length}
         </span>
       </div>
@@ -301,12 +290,12 @@ function TrainingSession({
             className="mt-10 rounded-xl border border-success/40 bg-success/5 p-8 text-center"
           >
             <ShieldCheck className="mx-auto size-10 text-success" />
-            <h2 className="mt-4 font-sans text-2xl font-bold">Drill Cleared</h2>
+            <h2 className="mt-4 font-sans text-2xl font-bold">Practice complete</h2>
             <p className="mt-2 text-muted-foreground">
-              {TYPE_NAMES[type]} discipline logged. +{XP.TRAINING_MODULE} XP credited to your file.
+              You finished {TYPE_NAMES[type]} practice and earned +{XP.TRAINING_MODULE} XP.
             </p>
             <Button className="mt-6" onClick={onExit}>
-              Return to Training
+              Back to practice
             </Button>
           </motion.div>
         ) : question ? (
@@ -332,8 +321,8 @@ function TrainingSession({
               }
             />
             {grading && (
-              <p className="font-mono text-xs uppercase tracking-wider text-accent">
-                Agency AI reviewing justification...
+              <p className="text-sm text-muted-foreground">
+                Checking your explanation...
               </p>
             )}
             {result && !grading && (
@@ -347,7 +336,7 @@ function TrainingSession({
                   justificationFeedback={result.justificationFeedback}
                 />
                 <Button onClick={next} className="w-full" size="lg">
-                  {index + 1 >= pool.length ? 'Complete Drill' : 'Next Assignment'}
+                  {index + 1 >= pool.length ? 'Finish practice' : 'Next question'}
                   <ArrowRight className="size-4" />
                 </Button>
               </>

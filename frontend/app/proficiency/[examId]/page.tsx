@@ -63,7 +63,7 @@ export default function ProficiencyPage() {
         <div className="mx-auto max-w-xl px-4 py-24 text-center">
           <h1 className="font-mono text-2xl font-bold">Exam not found</h1>
           <Button asChild className="mt-6">
-            <Link href="/training">Return to training</Link>
+            <Link href="/training">Back to practice</Link>
           </Button>
         </div>
       </main>
@@ -100,8 +100,8 @@ export default function ProficiencyPage() {
     <main className="relative min-h-screen">
       <NeuralNoise className="opacity-30" />
       <div className="relative mx-auto max-w-2xl px-4 py-12">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary">
-          Language Proficiency Gate
+        <p className="text-sm font-medium text-primary">
+          English exam
         </p>
         <h1 className="mt-2 font-sans text-3xl font-bold">{exam.label}</h1>
 
@@ -119,21 +119,20 @@ export default function ProficiencyPage() {
         {FEATURE_PROFICIENCY_GATE && phase === 'brief' && (
           <div className="mt-8 rounded-xl border border-border bg-card p-6">
             <p className="leading-relaxed text-muted-foreground">
-              This is a one-shot, timed exam — {exam.questions.length} questions,{' '}
-              {Math.round(exam.timeLimitSec / 60)} minutes, pass mark {exam.passScore}%. There is
-              no Field Training equivalent and no resume if you leave the page. Passing is
-              permanent. Core Alpha–Delta drills stay open either way; an org can require this
-              exam before English-heavy specialisation tracks such as transcription.
+              This is a timed English exam — {exam.questions.length} questions,{' '}
+              {Math.round(exam.timeLimitSec / 60)} minutes, pass mark {exam.passScore}%. You only
+              get one attempt, and leaving the page ends it. Passing is saved. You can still
+              practice the core tasks either way; some transcription jobs require this exam first.
             </p>
             <p className="mt-3 text-sm text-muted-foreground">
-              Study the question patterns on the briefing first — the answer key is not shown here.
+              Study the question types first — answers are not shown during the exam.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button size="lg" onClick={start}>
                 Begin exam
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link href="/guidelines/proficiency">Study the gate briefing</Link>
+                <Link href="/guidelines/proficiency">Study the exam guide</Link>
               </Button>
             </div>
           </div>
@@ -195,12 +194,12 @@ export default function ProficiencyPage() {
             {alreadyPassed || result?.passed ? (
               <>
                 <CheckCircle2 className="mx-auto size-10 text-success" />
-                <h2 className="mt-4 text-2xl font-bold">Clearance granted</h2>
+                <h2 className="mt-4 text-2xl font-bold">You passed</h2>
                 <p className="mt-2 text-muted-foreground">
                   {typeof result?.score === 'number'
                     ? `Score ${result.score}%. `
                     : ''}
-                  This credential does not need to be retaken.
+                  You do not need to retake this exam.
                 </p>
               </>
             ) : (
@@ -208,8 +207,8 @@ export default function ProficiencyPage() {
                 <Shield className="mx-auto size-10 text-danger" />
                 <h2 className="mt-4 text-2xl font-bold">Below pass mark</h2>
                 <p className="mt-2 text-muted-foreground">
-                  Score {result?.score ?? 0}%. Ungated tracks remain open. You may retake to unlock
-                  gated specialisations.
+                  Score {result?.score ?? 0}%. Core practice stays open. Retake to unlock
+                  transcription and other English-heavy tracks.
                 </p>
                 <Button className="mt-4" variant="outline" onClick={start}>
                   Retake exam

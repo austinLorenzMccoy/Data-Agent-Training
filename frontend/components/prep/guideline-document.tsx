@@ -11,14 +11,14 @@ export function GuidelineDocument({ pack }: { pack: GuidelinePack }) {
     <div className="mx-auto max-w-4xl px-4 py-8">
       <Link
         href="/guidelines"
-        className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground hover:text-primary"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary"
       >
         <ArrowLeft className="size-3.5" />
-        All tracks
+        All guidelines
       </Link>
 
       <header className="mt-5 mb-8">
-        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-primary">
+        <p className="text-[12px] font-medium text-primary">
           {pack.eyebrow}
         </p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight">{pack.title}</h1>

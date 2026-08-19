@@ -17,7 +17,7 @@ function StatCard({ icon: Icon, label, value, color }: { icon: React.ElementType
     <div className="rounded-xl border border-border bg-card p-4">
       <div className="mb-2 flex items-center gap-2">
         <Icon className="size-4" style={{ color }} />
-        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{label}</p>
+        <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
       </div>
       <p className="font-mono text-2xl font-bold" style={{ color }}>{value}</p>
     </div>
@@ -36,12 +36,12 @@ function OperationEntry({ op, index }: { op: OperationResult; index: number }) {
       </div>
       <div className="flex-1 pb-3">
         <div className="flex items-center justify-between gap-2">
-          <p className="font-mono text-xs font-bold uppercase tracking-wider">{op.operationName}</p>
+          <p className="text-xs font-semibold">{op.operationName}</p>
           <span className="font-mono text-[10px] text-muted-foreground">{date}</span>
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-3 font-mono text-[11px] text-muted-foreground">
           <span style={{ color: op.passed ? 'var(--success)' : 'var(--danger)' }}>
-            IQ {op.iqScore}%
+            Score {op.iqScore}%
           </span>
           <span>+{op.xpEarned.toLocaleString()} XP</span>
           <span>{op.totalAssignments} assignments</span>
@@ -59,7 +59,7 @@ export default function DossierPage() {
     return (
       <main className="relative min-h-screen">
         <div className="flex min-h-[60vh] items-center justify-center">
-          <p className="font-mono text-xs uppercase tracking-widest text-muted-foreground">Loading dossier...</p>
+          <p className="text-sm text-muted-foreground">Loading progress...</p>
         </div>
       </main>
     )
@@ -70,10 +70,10 @@ export default function DossierPage() {
       <main className="relative min-h-screen">
         <div className="mx-auto flex max-w-xl flex-col items-center px-4 py-32 text-center">
           <Shield className="size-12 text-muted-foreground" />
-          <h1 className="mt-4 font-mono text-2xl font-bold uppercase tracking-tight">No Dossier Found</h1>
-          <p className="mt-3 text-muted-foreground">You haven't enlisted yet. Return to HQ and register as a Data Agent.</p>
+          <h1 className="mt-4 text-2xl font-bold tracking-tight">No progress yet</h1>
+          <p className="mt-3 text-muted-foreground">Pick a display name to start practicing.</p>
           <Button asChild className="mt-6">
-            <Link href="/">Return to HQ</Link>
+            <Link href="/">Get started</Link>
           </Button>
         </div>
       </main>
@@ -101,12 +101,12 @@ export default function DossierPage() {
               {initials}
             </div>
             <div>
-              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Agent Dossier · Classified</p>
-              <h1 className="mt-0.5 font-mono text-3xl font-bold uppercase tracking-wide" style={{ color: rank.color }}>
+              <p className="text-[12px] font-medium text-muted-foreground">Your progress</p>
+              <h1 className="mt-0.5 text-3xl font-bold tracking-tight" style={{ color: rank.color }}>
                 {agent.alias}
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                Enlisted {new Date(agent.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                Joined {new Date(agent.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
               </p>
             </div>
           </div>
@@ -122,21 +122,21 @@ export default function DossierPage() {
         <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard icon={Zap} label="Total XP" value={agent.xp.toLocaleString()} color="var(--xp)" />
           <StatCard icon={Target} label="Assignments" value={agent.totalAssignments.toLocaleString()} color="var(--primary)" />
-          <StatCard icon={CheckCircle2} label="Avg IQ-Score" value={agent.history.length ? `${avgIq}%` : '—'} color="var(--success)" />
+          <StatCard icon={CheckCircle2} label="Avg score" value={agent.history.length ? `${avgIq}%` : '—'} color="var(--success)" />
           <StatCard icon={Flame} label="Best Streak" value={agent.bestStreak} color="#ff5c5c" />
         </div>
 
         {/* Training completed */}
         <div className="mb-8 rounded-xl border border-border bg-card p-5">
-          <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Field Training Progress</p>
-          <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground/80">Core</p>
+          <p className="mb-3 text-[12px] font-medium text-muted-foreground">Practice progress</p>
+          <p className="mb-2 text-[12px] text-muted-foreground/80">Core</p>
           <div className="grid gap-2 sm:grid-cols-4">
             {CORE_TYPES.map((t) => {
               const done = agent.completedTraining.includes(t)
               return (
                 <div key={t} className={cn('flex items-center gap-2 rounded-lg border px-3 py-2.5', done ? 'border-success/30 bg-success/5' : 'border-border')}>
                   {done ? <CheckCircle2 className="size-3.5 text-success" /> : <Lock className="size-3.5 text-muted-foreground" />}
-                  <span className={cn('font-mono text-xs uppercase tracking-wider', done ? 'text-success' : 'text-muted-foreground')}>
+                  <span className={cn('text-xs', done ? 'text-success' : 'text-muted-foreground')}>
                     {TYPE_NAMES[t]}
                   </span>
                 </div>
@@ -145,14 +145,14 @@ export default function DossierPage() {
           </div>
           {getEnabledTypes().some(isV4Type) && (
             <>
-              <p className="mb-2 mt-5 font-mono text-[10px] uppercase tracking-widest text-primary">Specialisation · New</p>
+              <p className="mb-2 mt-5 text-[12px] font-medium text-primary">Extra practice</p>
               <div className="grid gap-2 sm:grid-cols-4">
                 {getEnabledTypes().filter(isV4Type).map((t) => {
                   const done = agent.completedTraining.includes(t)
                   return (
                     <div key={t} className={cn('flex items-center gap-2 rounded-lg border px-3 py-2.5', done ? 'border-success/30 bg-success/5' : 'border-primary/25')}>
                       {done ? <CheckCircle2 className="size-3.5 text-success" /> : <Lock className="size-3.5 text-muted-foreground" />}
-                      <span className={cn('font-mono text-xs uppercase tracking-wider', done ? 'text-success' : 'text-muted-foreground')}>
+                      <span className={cn('text-xs', done ? 'text-success' : 'text-muted-foreground')}>
                         {TYPE_NAMES[t]}
                       </span>
                     </div>
@@ -166,7 +166,7 @@ export default function DossierPage() {
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Badge Wall */}
           <div>
-            <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Badge Collection</p>
+            <p className="mb-3 text-[12px] font-medium text-muted-foreground">Badges</p>
             <div className="grid grid-cols-4 gap-2">
               {ALL_BADGES.map((badge) => {
                 const isEarned = badge.earned(agent)
@@ -210,16 +210,16 @@ export default function DossierPage() {
 
           {/* Operation History */}
           <div>
-            <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-              Operation Log ({agent.history.length})
+            <p className="mb-3 text-[12px] font-medium text-muted-foreground">
+              Test history ({agent.history.length})
             </p>
             {agent.history.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-12 text-center">
                 <Clock className="size-8 text-muted-foreground/40" />
-                <p className="mt-3 text-sm text-muted-foreground">No operations logged yet.</p>
+                <p className="mt-3 text-sm text-muted-foreground">No timed tests yet.</p>
                 <Button asChild size="sm" className="mt-4">
                   <Link href="/operation">
-                    Deploy to Operation <ArrowRight className="size-3" />
+                    Start a timed test <ArrowRight className="size-3" />
                   </Link>
                 </Button>
               </div>

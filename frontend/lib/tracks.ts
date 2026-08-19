@@ -11,31 +11,31 @@ export interface SpecialisationTrack {
 export const TRACKS: SpecialisationTrack[] = [
   {
     id: 'map_evaluator',
-    label: 'Map Evaluation Specialist',
+    label: 'Map results',
     focusType: 'epsilon',
     xpRequired: 3000,
-    blurb: 'Local search / POI relevance, name, address, and pin accuracy.',
+    blurb: 'Rate each place for relevance, name, address, and pin.',
   },
   {
     id: 'search_quality_rater',
-    label: 'Search Quality Rater',
+    label: 'Search quality',
     focusType: 'zeta',
     xpRequired: 5000,
-    blurb: 'Page Quality and Needs Met ratings on the full TELUS-style scale.',
+    blurb: 'Rate the page quality and how well it answers the search.',
   },
   {
     id: 'search_quality_rater_lite',
-    label: 'Search Quality Associate',
+    label: 'Search (simple)',
     focusType: 'eta',
     xpRequired: 2000,
-    blurb: 'Simplified four-point search satisfaction — the on-ramp to Zeta.',
+    blurb: 'A simpler four-point scale for how satisfying a result is.',
   },
   {
     id: 'transcription_specialist',
-    label: 'Transcription Specialist',
+    label: 'Transcription',
     focusType: 'theta',
     xpRequired: 4000,
-    blurb: 'Speaker segmentation, verbatim transcription, and span tagging.',
+    blurb: 'Cut speakers apart, type what they said, and tag anything unclear.',
   },
 ]
 

@@ -59,10 +59,10 @@ export default function RankingsPage() {
       <div className="mx-auto max-w-3xl px-4 py-12">
 
         <div className="mb-8">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary">Sector 05 · Global Intelligence</p>
-          <h1 className="mt-2 text-4xl font-bold tracking-tight">Agency Rankings</h1>
+          <p className="text-sm font-medium text-primary">Leaderboard</p>
+          <h1 className="mt-2 text-4xl font-bold tracking-tight">Rankings</h1>
           <p className="mt-3 text-muted-foreground">
-            Top agents ranked by total XP on the core ladder. Specialisation-track XP stays on those tracks. Opt in from your dossier to appear here.
+            Ranked by XP from the core tasks. Extra-track XP stays on those tracks. Opt in from Progress to appear here.
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export default function RankingsPage() {
           <button
             onClick={() => setFilterRank(null)}
             className={cn(
-              'flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-wider transition-all',
+              'flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-all',
               filterRank === null
                 ? 'border-primary bg-primary/15 text-primary'
                 : 'border-border text-muted-foreground hover:border-muted-foreground/50'
@@ -85,7 +85,7 @@ export default function RankingsPage() {
               key={r.id}
               onClick={() => setFilterRank(i + 1)}
               className={cn(
-                'flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-wider transition-all',
+                'flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-all',
                 filterRank === i + 1
                   ? 'border-primary bg-primary/15 text-primary'
                   : 'border-border text-muted-foreground hover:border-muted-foreground/50'
@@ -103,16 +103,16 @@ export default function RankingsPage() {
           {/* Header */}
           <div className="flex items-center gap-3 border-b border-border px-5 py-3">
             <Trophy className="size-4 text-xp" />
-            <p className="font-mono text-xs font-bold uppercase tracking-widest text-muted-foreground">
-              Global Rankings
+            <p className="text-xs font-semibold text-muted-foreground">
+              All ranks
             </p>
           </div>
 
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 className="size-6 animate-spin text-primary" />
-              <span className="ml-3 font-mono text-xs uppercase tracking-wider text-muted-foreground">
-                Loading intel...
+              <span className="ml-3 text-sm text-muted-foreground">
+                Loading rankings...
               </span>
             </div>
           ) : error ? (
@@ -122,9 +122,9 @@ export default function RankingsPage() {
           ) : entries.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <Shield className="size-10 text-muted-foreground/30" />
-              <p className="mt-4 font-mono text-sm text-muted-foreground">No agents on the board yet.</p>
+              <p className="mt-4 text-sm text-muted-foreground">No one on the board yet.</p>
               <p className="mt-1 text-xs text-muted-foreground/70">
-                Complete operations and opt in from your dossier to claim your position.
+                Finish a timed test and opt in from Progress to appear here.
               </p>
             </div>
           ) : (
@@ -153,7 +153,7 @@ export default function RankingsPage() {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <p className="font-mono text-sm font-bold uppercase tracking-wider">{entry.alias}</p>
+                      <p className="text-sm font-semibold">{entry.alias}</p>
                       <p className="font-mono text-[10px] uppercase tracking-wider" style={{ color: entry.rank_colour }}>
                         {entry.rank_label}
                       </p>
@@ -195,14 +195,14 @@ export default function RankingsPage() {
                       {Math.round(agent.history.reduce((s, h) => s + h.iqScore, 0) / agent.history.length)}%
                     </p>
                   ) : (
-                    <p className="font-mono text-xs text-muted-foreground">No ops yet</p>
+                    <p className="text-xs text-muted-foreground">No tests yet</p>
                   )}
                   <p className="font-mono text-[10px] text-muted-foreground">{agent.xp.toLocaleString()} XP</p>
                 </div>
               </div>
               {!agentOnBoard && (
                 <p className="mt-2 text-center font-mono text-[10px] text-muted-foreground">
-                  Opt in via your <Link href="/dossier" className="text-primary underline underline-offset-2">Dossier</Link> to appear on the board.
+                  Opt in from <Link href="/dossier" className="text-primary underline underline-offset-2">Progress</Link> to appear on the board.
                 </p>
               )}
             </div>
@@ -213,9 +213,9 @@ export default function RankingsPage() {
         {!agent && (
           <div className="mt-6 flex items-center justify-center gap-3">
             <Crown className="size-4 text-xp" />
-            <p className="text-sm text-muted-foreground">Enlist and complete operations to claim your position.</p>
+            <p className="text-sm text-muted-foreground">Get started and finish a timed test to appear here.</p>
             <Button asChild size="sm">
-              <Link href="/">Enlist</Link>
+              <Link href="/">Get started</Link>
             </Button>
           </div>
         )}

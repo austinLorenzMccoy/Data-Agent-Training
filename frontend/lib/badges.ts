@@ -25,7 +25,7 @@ export const ACHIEVEMENT_BADGES: BadgeDef[] = [
   {
     id: 'first-op',
     name: 'FIRST BLOOD',
-    description: 'Completed your first Live Operation.',
+    description: 'Finished your first timed test.',
     color: '#7c6fff',
     requirement: 'Complete 1 operation',
     earned: (a) => a.history.length >= 1,
@@ -33,17 +33,17 @@ export const ACHIEVEMENT_BADGES: BadgeDef[] = [
   {
     id: 'clearance',
     name: 'CLEARED',
-    description: 'Earned Clearance on an operation (IQ ≥ 70%).',
+    description: 'Passed a timed test with a score of 70% or higher.',
     color: '#00e5a0',
-    requirement: 'Pass an operation',
+    requirement: 'Pass a timed test',
     earned: (a) => a.history.some((h) => h.passed),
   },
   {
     id: 'perfect',
     name: 'FLAWLESS',
-    description: 'Achieved a perfect 100% IQ-Score.',
+    description: 'Scored 100% on a timed test.',
     color: '#ffd24a',
-    requirement: 'Score 100% on an operation',
+    requirement: 'Score 100% on a timed test',
     earned: (a) => a.history.some((h) => h.iqScore === 100),
   },
   {
@@ -65,17 +65,17 @@ export const ACHIEVEMENT_BADGES: BadgeDef[] = [
   {
     id: 'veteran',
     name: 'VETERAN',
-    description: 'Completed 5 Live Operations.',
+    description: 'Finished 5 timed tests.',
     color: '#5b9bff',
-    requirement: 'Complete 5 operations',
+    requirement: 'Finish 5 timed tests',
     earned: (a) => a.history.length >= 5,
   },
   {
     id: 'trained',
     name: 'FIELD READY',
-    description: 'Completed all four Field Training modules.',
+    description: 'Finished all four core practice modules.',
     color: '#00e5a0',
-    requirement: 'Finish all training modules',
+    requirement: 'Finish all practice modules',
     earned: (a) => a.completedTraining.length >= 4,
   },
   {
@@ -89,9 +89,9 @@ export const ACHIEVEMENT_BADGES: BadgeDef[] = [
   {
     id: 'consistent',
     name: 'RELIABLE',
-    description: 'Maintained a 90%+ average IQ-Score over 3+ operations.',
+    description: 'Kept a 90%+ average score over 3 or more timed tests.',
     color: '#ffd24a',
-    requirement: 'Avg IQ ≥ 90% over 3 ops',
+    requirement: 'Average 90%+ over 3 tests',
     earned: (a) => {
       if (a.history.length < 3) return false
       const avg =

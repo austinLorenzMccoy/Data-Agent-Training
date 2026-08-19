@@ -17,9 +17,9 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Datanerds Annotation · codename DNA',
+  title: 'Datanerds Annotation',
   description:
-    'An intelligence-agency training programme for Data Agents. Evaluate AI intelligence, earn XP, climb the rank ladder, and get your Clearance Badge.',
+    'Practice rating AI responses, maps, search results, and transcripts. Earn XP and climb the ranks.',
   generator: 'v0.app',
 }
 

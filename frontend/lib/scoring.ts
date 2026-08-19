@@ -24,6 +24,7 @@ export const XP = {
 export const SPEED_BONUS_MS = 30_000
 export const PASS_THRESHOLD = 70
 
+/** Internal codes. Do not lead the UI with these. */
 export const TYPE_LABELS: Record<AssignmentType, string> = {
   alpha: 'ALPHA',
   beta: 'BETA',
@@ -36,14 +37,25 @@ export const TYPE_LABELS: Record<AssignmentType, string> = {
 }
 
 export const TYPE_NAMES: Record<AssignmentType, string> = {
-  alpha: 'Response Rating',
-  beta: 'Comparative Analysis',
-  gamma: 'Transcript Clearance',
-  delta: 'Response Selection',
-  epsilon: 'Map Evaluation',
-  zeta: 'Search Quality',
-  eta: 'Search Quality Lite',
-  theta: 'Transcription',
+  alpha: 'Rate a response',
+  beta: 'Compare two responses',
+  gamma: 'Review a transcript',
+  delta: 'Pick the best reply',
+  epsilon: 'Rate map results',
+  zeta: 'Rate a search result',
+  eta: 'Rate search (simple)',
+  theta: 'Transcribe audio',
+}
+
+export const TYPE_BLURBS: Record<AssignmentType, string> = {
+  alpha: 'Is this AI response good, okay, or bad? Write a short reason.',
+  beta: 'Rate each response, then pick the better one.',
+  gamma: 'Pass the transcript or flag what is wrong with it.',
+  delta: 'Choose the best reply from four options.',
+  epsilon: 'Rate each place for relevance, name, address, and pin.',
+  zeta: 'Rate the page quality and how well it answers the search.',
+  eta: 'A simpler four-point scale for how satisfying a result is.',
+  theta: 'Cut the audio into speakers, type what they said, and tag anything unclear.',
 }
 
 export const ALL_ASSIGNMENT_TYPES: AssignmentType[] = [

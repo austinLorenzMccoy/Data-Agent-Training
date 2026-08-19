@@ -37,7 +37,7 @@ function Slider<T extends string>({
   return (
     <div className="mb-5">
       <div className="mb-2 flex items-baseline justify-between gap-3">
-        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{label}</p>
+        <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
         <p className="font-mono text-xs font-bold text-primary">
           {value ? (labels?.[value] ?? value) : 'Select a rating'}
         </p>
@@ -252,9 +252,9 @@ export function ZetaAssignment({
       <Button
         onClick={handleSubmit}
         disabled={!canSubmit}
-        className="mt-5 w-full bg-primary font-mono uppercase tracking-wider text-primary-foreground hover:bg-primary/90"
+        className="mt-5 w-full bg-primary text-primary-foreground hover:bg-primary/90"
       >
-        Submit Assessment
+        Submit
       </Button>
     </AssignmentCard>
   )

@@ -17,12 +17,12 @@ export function XpProgress({
   return (
     <div className={cn('w-full', className)}>
       {!compact && (
-        <div className="mb-1.5 flex items-center justify-between font-mono text-[11px] uppercase tracking-wider">
-          <span style={{ color: current.color }}>{current.name}</span>
+        <div className="mb-1.5 flex items-center justify-between text-[12px]">
+          <span className="font-medium" style={{ color: current.color }}>{current.name}</span>
           {next ? (
             <span className="text-muted-foreground">{next.name}</span>
           ) : (
-            <span className="text-xp">MAX CLEARANCE</span>
+            <span className="text-xp">Top rank</span>
           )}
         </div>
       )}

@@ -1,54 +1,56 @@
 import type { RankTier } from './types'
 
+export type { RankTier }
+
 export const RANKS: RankTier[] = [
   {
     id: 'recruit',
-    name: 'RECRUIT',
+    name: 'Recruit',
     xpRequired: 0,
     color: '#7a7266',      // warm stone — entry level
-    description: 'No prior annotation experience. Learning the basics.',
+    description: 'Just starting. Learning how to rate a response.',
   },
   {
     id: 'operative',
-    name: 'OPERATIVE',
+    name: 'Operative',
     xpRequired: 500,
     color: '#6a9ecf',      // steel blue
-    description: 'Understands rating dimensions. Ready for solo assignments.',
+    description: 'Knows the rating scale. Ready to practice alone.',
   },
   {
     id: 'field-agent',
-    name: 'FIELD AGENT',
+    name: 'Field Agent',
     xpRequired: 1500,
     color: '#5aab7a',      // sage green (matches success)
-    description: 'Handles pairwise comparisons with accuracy.',
+    description: 'Comfortable comparing two responses.',
   },
   {
     id: 'specialist',
-    name: 'SPECIALIST',
+    name: 'Specialist',
     xpRequired: 3500,
     color: '#c07ab8',      // muted mauve — distinct from the warm palette
-    description: 'Masters transcript evaluation. Catches subtle errors.',
+    description: 'Catches problems in transcripts.',
   },
   {
     id: 'analyst',
-    name: 'ANALYST',
+    name: 'Analyst',
     xpRequired: 7000,
     color: '#c8973a',      // gold — matches primary
-    description: 'Consistently high accuracy across all task types.',
+    description: 'High accuracy across every task type.',
   },
   {
     id: 'senior-analyst',
-    name: 'SENIOR ANALYST',
+    name: 'Senior Analyst',
     xpRequired: 12000,
     color: '#e8a84a',      // bright amber
-    description: 'Elite-level accuracy. Can train others.',
+    description: 'Consistently precise. Ready to coach others.',
   },
   {
     id: 'director',
-    name: 'INTELLIGENCE DIRECTOR',
+    name: 'Director',
     xpRequired: 20000,
     color: '#f0d060',      // pale gold/champagne — top tier
-    description: 'Legendary. Top 1% of all agents globally.',
+    description: 'Highest rank. Rarely reached.',
   },
 ]
 

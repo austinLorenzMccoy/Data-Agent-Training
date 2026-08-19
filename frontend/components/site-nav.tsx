@@ -10,11 +10,11 @@ import { LogOut, Radar } from 'lucide-react'
 import { FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM } from '@/lib/feature-flags'
 
 const LINKS = [
-  { href: '/prep', label: 'Briefing' },
+  { href: '/prep', label: 'Study' },
   { href: '/guidelines', label: 'Guidelines' },
-  { href: '/training', label: 'Training' },
-  { href: '/operation', label: 'Operation' },
-  { href: '/dossier', label: 'Dossier' },
+  { href: '/training', label: 'Practice' },
+  { href: '/operation', label: 'Test' },
+  { href: '/dossier', label: 'Progress' },
   { href: '/rankings', label: 'Rankings' },
 ]
 
@@ -30,7 +30,7 @@ export function SiteNav() {
   const links = [
     ...LINKS,
     ...(FEATURE_PROFICIENCY_GATE
-      ? [{ href: `/proficiency/${REQUIRED_PROFICIENCY_EXAM || 'en-CA'}`, label: 'Proficiency' }]
+      ? [{ href: `/proficiency/${REQUIRED_PROFICIENCY_EXAM || 'en-CA'}`, label: 'English' }]
       : []),
   ]
 
@@ -54,8 +54,8 @@ export function SiteNav() {
       <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4">
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <Radar size={18} className="text-primary" />
-          <span className="font-mono text-sm font-bold uppercase tracking-widest">
-            DNA<span className="text-primary">.</span>
+          <span className="text-sm font-semibold tracking-tight">
+            Datanerds
           </span>
         </Link>
 
@@ -67,7 +67,7 @@ export function SiteNav() {
                 key={l.href}
                 href={l.href}
                 className={cn(
-                  'shrink-0 rounded-md px-2.5 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors',
+                  'shrink-0 rounded-md px-2.5 py-1.5 font-sans text-xs font-medium transition-colors',
                   active
                     ? 'bg-secondary text-foreground'
                     : 'text-muted-foreground hover:text-foreground',
@@ -86,7 +86,7 @@ export function SiteNav() {
               className="flex items-center gap-2 rounded-md border border-border px-2.5 py-1"
             >
               <span
-                className="font-mono text-xs font-bold uppercase tracking-wider"
+                className="font-sans text-xs font-bold"
                 style={{ color: rank.color }}
               >
                 {agent.alias}
@@ -98,7 +98,7 @@ export function SiteNav() {
           ) : user ? (
             <Link
               href="/dossier"
-              className="rounded-md border border-border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground"
+              className="rounded-md border border-border px-2.5 py-1 font-sans text-[10px] text-muted-foreground"
             >
               {user.email?.split('@')[0]}
             </Link>
@@ -109,7 +109,7 @@ export function SiteNav() {
               type="button"
               onClick={logout}
               disabled={signingOut}
-              className="inline-flex items-center gap-1.5 rounded-md border border-danger/40 bg-danger/10 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-danger transition-colors hover:bg-danger/20 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md border border-danger/40 bg-danger/10 px-2.5 py-1 font-sans text-[10px] font-bold text-danger transition-colors hover:bg-danger/20 disabled:opacity-50"
             >
               <LogOut className="size-3" />
               {signingOut ? 'Out…' : 'Log out'}
@@ -117,7 +117,7 @@ export function SiteNav() {
           ) : (
             <Link
               href="/login"
-              className="rounded-md border border-border px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-muted-foreground hover:text-foreground"
+              className="rounded-md border border-border px-2.5 py-1 font-sans text-[10px] text-muted-foreground hover:text-foreground"
             >
               Sign in
             </Link>
@@ -132,7 +132,7 @@ export function SiteNav() {
               key={l.href}
               href={l.href}
               className={cn(
-                'shrink-0 rounded-md px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider',
+                'shrink-0 rounded-md px-2.5 py-1 font-sans text-[10px] font-medium',
                 active ? 'bg-secondary text-foreground' : 'text-muted-foreground',
               )}
             >

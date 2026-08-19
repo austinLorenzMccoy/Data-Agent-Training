@@ -4,9 +4,9 @@ import type { AlphaRating } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 const OPTIONS: { value: AlphaRating; label: string; sub: string; tone: string }[] = [
-  { value: 'CLEAR', label: 'CLEAR', sub: 'Good — accurate & compliant', tone: 'success' },
-  { value: 'AMBIGUOUS', label: 'AMBIGUOUS', sub: 'Okay — partial issues', tone: 'xp' },
-  { value: 'COMPROMISED', label: 'COMPROMISED', sub: 'Bad — fails review', tone: 'danger' },
+  { value: 'CLEAR', label: 'Good', sub: 'Accurate and follows the brief', tone: 'success' },
+  { value: 'AMBIGUOUS', label: 'Okay', sub: 'Partly useful, some issues', tone: 'xp' },
+  { value: 'COMPROMISED', label: 'Bad', sub: 'Wrong or fails the request', tone: 'danger' },
 ]
 
 export function RatingSelect({
@@ -45,7 +45,7 @@ export function RatingSelect({
             }
           >
             <span
-              className="block font-mono text-xs font-bold uppercase tracking-wider"
+              className="block text-sm font-semibold"
               style={{ color: selected ? color : undefined }}
             >
               {o.label}

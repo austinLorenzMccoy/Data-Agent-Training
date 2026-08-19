@@ -2,9 +2,9 @@ import type { Difficulty } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
 const MAP: Record<Difficulty, { label: string; className: string }> = {
-  easy: { label: 'UNCLASSIFIED', className: 'text-success border-success/40' },
-  medium: { label: 'RESTRICTED', className: 'text-xp border-xp/40' },
-  hard: { label: 'CLASSIFIED', className: 'text-danger border-danger/40' },
+  easy: { label: 'Easy', className: 'text-success border-success/40' },
+  medium: { label: 'Medium', className: 'text-xp border-xp/40' },
+  hard: { label: 'Hard', className: 'text-danger border-danger/40' },
 }
 
 export function ClassificationStamp({
@@ -18,7 +18,7 @@ export function ClassificationStamp({
   return (
     <span
       className={cn(
-        'inline-block rotate-3 rounded-sm border-2 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-widest',
+        'inline-block rounded-md border px-2 py-0.5 text-[11px] font-medium',
         tone,
         className,
       )}

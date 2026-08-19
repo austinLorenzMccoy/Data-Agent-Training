@@ -109,12 +109,12 @@ function CoreAssignment({
       {/* ALPHA */}
       {question.type === 'alpha' && (
         <>
-          <PromptBlock label="Prompt Given to Subject">{question.prompt}</PromptBlock>
-          <PromptBlock label="Intelligence Report (Response)">
+          <PromptBlock label="User prompt">{question.prompt}</PromptBlock>
+          <PromptBlock label="AI response">
             {question.responseA}
           </PromptBlock>
-          <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            Your Assessment
+          <p className="mb-2 text-[11px] font-medium text-muted-foreground">
+            Your rating
           </p>
           <RatingSelect value={alphaRating} onChange={setAlphaRating} disabled={disabled} />
         </>
@@ -123,19 +123,19 @@ function CoreAssignment({
       {/* BETA */}
       {question.type === 'beta' && (
         <>
-          <PromptBlock label="Prompt Given to Subject">{question.prompt}</PromptBlock>
+          <PromptBlock label="User prompt">{question.prompt}</PromptBlock>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <PromptBlock label="Field Report A">{question.responseA}</PromptBlock>
+              <PromptBlock label="Response A">{question.responseA}</PromptBlock>
               <RatingSelect value={betaA} onChange={setBetaA} disabled={disabled} idPrefix="a" />
             </div>
             <div>
-              <PromptBlock label="Field Report B">{question.responseB}</PromptBlock>
+              <PromptBlock label="Response B">{question.responseB}</PromptBlock>
               <RatingSelect value={betaB} onChange={setBetaB} disabled={disabled} idPrefix="b" />
             </div>
           </div>
-          <p className="mb-2 mt-4 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            Which is the superior intelligence output?
+          <p className="mb-2 mt-4 text-[11px] font-medium text-muted-foreground">
+            Which response is better?
           </p>
           <div className="grid grid-cols-2 gap-2">
             {(['A', 'B'] as const).map((p) => (
@@ -145,13 +145,13 @@ function CoreAssignment({
                 disabled={disabled}
                 onClick={() => setBetaPick(p)}
                 className={cn(
-                  'rounded-md border px-3 py-2.5 font-mono text-sm font-bold uppercase tracking-wider transition-all',
+                  'rounded-md border px-3 py-2.5 text-sm font-semibold transition-all',
                   betaPick === p
                     ? 'border-primary bg-primary/15 text-primary'
                     : 'border-border hover:border-muted-foreground/50',
                 )}
               >
-                Report {p}
+                Response {p}
               </button>
             ))}
           </div>
@@ -161,11 +161,11 @@ function CoreAssignment({
       {/* GAMMA */}
       {question.type === 'gamma' && (
         <>
-          <PromptBlock label="Intercepted Transcript">
+          <PromptBlock label="Transcript">
             <span className="whitespace-pre-wrap">{question.transcript}</span>
           </PromptBlock>
-          <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            Clearance Decision
+          <p className="mb-2 text-[11px] font-medium text-muted-foreground">
+            Your decision
           </p>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -176,32 +176,32 @@ function CoreAssignment({
                 setGammaFlags([])
               }}
               className={cn(
-                'rounded-md border px-3 py-2.5 font-mono text-sm font-bold uppercase tracking-wider transition-all',
+                'rounded-md border px-3 py-2.5 text-sm font-semibold transition-all',
                 gammaDecision === 'CLEAR'
                   ? 'border-success bg-success/15 text-success'
                   : 'border-border hover:border-muted-foreground/50',
               )}
             >
-              Clear (Pass)
+              Looks good
             </button>
             <button
               type="button"
               disabled={disabled}
               onClick={() => setGammaDecision('FLAGGED')}
               className={cn(
-                'rounded-md border px-3 py-2.5 font-mono text-sm font-bold uppercase tracking-wider transition-all',
+                'rounded-md border px-3 py-2.5 text-sm font-semibold transition-all',
                 gammaDecision === 'FLAGGED'
                   ? 'border-danger bg-danger/15 text-danger'
                   : 'border-border hover:border-muted-foreground/50',
               )}
             >
-              Flagged (Reject)
+              Flag problems
             </button>
           </div>
           {gammaDecision === 'FLAGGED' && (
             <div className="mt-4">
-              <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                Select all applicable flags
+              <p className="mb-2 text-[11px] font-medium text-muted-foreground">
+                What is wrong? Select all that apply
               </p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {FLAG_REASONS.map((f) => {
@@ -240,9 +240,9 @@ function CoreAssignment({
       {/* DELTA */}
       {question.type === 'delta' && (
         <>
-          <PromptBlock label="Final Message in Transcript">{question.prompt}</PromptBlock>
-          <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            Select the optimal reply
+          <PromptBlock label="Last message">{question.prompt}</PromptBlock>
+          <p className="mb-2 text-[11px] font-medium text-muted-foreground">
+            Pick the best reply
           </p>
           <div className="space-y-2">
             {question.responses?.map((r, i) => (
@@ -273,9 +273,9 @@ function CoreAssignment({
         <div className="mt-4">
           <label
             htmlFor="justification"
-            className="mb-1.5 block font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
+            className="mb-1.5 block text-[11px] font-medium text-muted-foreground"
           >
-            Justification — 2-3 sentences (graded)
+            Why? Two or three sentences
           </label>
           <textarea
             id="justification"
@@ -283,7 +283,7 @@ function CoreAssignment({
             onChange={(e) => setJustification(e.target.value)}
             disabled={disabled}
             rows={3}
-            placeholder="Explain your reasoning. Cite the specific flaw or strength that drove your call."
+            placeholder="Point to the specific strength or flaw."
             className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-sm leading-relaxed outline-none placeholder:text-muted-foreground/50 focus:border-primary"
           />
         </div>
@@ -292,9 +292,9 @@ function CoreAssignment({
       <Button
         onClick={handleSubmit}
         disabled={!canSubmit()}
-        className="mt-5 w-full bg-primary font-mono uppercase tracking-wider text-primary-foreground hover:bg-primary/90"
+        className="mt-5 w-full bg-primary text-primary-foreground hover:bg-primary/90"
       >
-        Submit Assessment
+        Submit
       </Button>
     </AssignmentCard>
   )

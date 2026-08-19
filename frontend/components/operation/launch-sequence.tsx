@@ -4,11 +4,10 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 
 const BOOT_LINES = [
-  'Establishing secure uplink...',
-  'Decrypting assignment packet...',
-  'Verifying agent clearance...',
-  'Synchronising mission clock...',
-  'Channel secured.',
+  'Loading your test...',
+  'Picking questions...',
+  'Starting the timer...',
+  'Ready.',
 ]
 
 export function LaunchSequence({
@@ -51,14 +50,14 @@ export function LaunchSequence({
           {count === null ? (
             <motion.div key="boot" exit={{ opacity: 0 }} className="space-y-6">
               <div>
-                <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">
-                  Incoming Transmission
+                <p className="text-sm font-medium text-primary">
+                  Getting ready
                 </p>
-                <h2 className="mt-2 font-mono text-2xl font-bold text-foreground">
+                <h2 className="mt-2 text-2xl font-bold text-foreground">
                   {operationName}
                 </h2>
-                <p className="mt-1 font-mono text-xs text-muted-foreground">
-                  {assignmentCount} ASSIGNMENTS · ONE TRACK · {Math.round(durationSec / 60)} MIN WINDOW
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {assignmentCount} questions · {Math.round(durationSec / 60)} min · one task type
                 </p>
               </div>
               <div className="space-y-1 font-mono text-sm text-success">
@@ -89,8 +88,8 @@ export function LaunchSequence({
                   {count}
                 </span>
               ) : (
-                <span className="font-mono text-5xl font-bold uppercase tracking-widest text-success">
-                  Deploy
+                <span className="text-5xl font-bold text-success">
+                  Go
                 </span>
               )}
             </motion.div>

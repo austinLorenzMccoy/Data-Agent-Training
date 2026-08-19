@@ -12,10 +12,10 @@ export function LoginForm() {
     <div className="flex flex-col items-center gap-6 p-8">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-foreground mb-2">
-          Agent Authentication Required
+          Sign in
         </h1>
         <p className="text-muted-foreground text-sm">
-          Sign in to run Field Training, Live Operations, and the new specialisation tracks.
+          Sign in to save practice and test scores.
         </p>
       </div>
 
@@ -43,7 +43,7 @@ export function LoginForm() {
           <path fill="currentColor" opacity="0.5" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/>
           <path fill="currentColor" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/>
         </svg>
-        {isLoading ? 'Authenticating...' : 'Continue with Google'}
+        {isLoading ? 'Signing in...' : 'Continue with Google'}
       </button>
 
       <p className="text-muted-foreground text-xs text-center max-w-xs">

@@ -1,8 +1,8 @@
 import { OperationController } from '@/components/operation/operation-controller'
 
 export const metadata = {
-  title: 'Live Operation — Datanerds Annotation',
-  description: 'Pick a track, then sit a timed Live Operation of that assignment type only.',
+  title: 'Timed test — Datanerds Annotation',
+  description: 'Pick one task type, then sit a timed test of that type only.',
 }
 
 export default function OperationPage() {

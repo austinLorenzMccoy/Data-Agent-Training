@@ -37,13 +37,13 @@ export function RankBadge({
       {showName && (
         <div className="min-w-0">
           <p
-            className="truncate font-mono text-sm font-bold uppercase tracking-wider"
+            className="truncate text-sm font-semibold"
             style={{ color: rank.color }}
           >
             {rank.name}
           </p>
-          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            Clearance Level
+          <p className="text-[11px] text-muted-foreground">
+            Rank
           </p>
         </div>
       )}

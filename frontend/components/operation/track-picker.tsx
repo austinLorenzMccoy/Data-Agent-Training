@@ -1,8 +1,7 @@
 'use client'
 
 import { CORE_TYPES, getEnabledTypes, isV4Type } from '@/lib/feature-flags'
-import { TYPE_LABELS, TYPE_NAMES } from '@/lib/scoring'
-import { trackForType } from '@/lib/tracks'
+import { TYPE_BLURBS, TYPE_NAMES } from '@/lib/scoring'
 import { getQuestionsByType } from '@/lib/questions'
 import type { AssignmentType } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -40,17 +39,16 @@ export function TrackPicker({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12">
-      <p className="font-mono text-xs uppercase tracking-[0.3em] text-primary">
-        Sector 03 · Select your packet
+      <p className="font-sans text-sm font-medium text-primary">
+        Timed test · one task type
       </p>
-      <h1 className="mt-2 font-sans text-4xl font-bold tracking-tight">Live Operation</h1>
+      <h1 className="mt-2 font-sans text-4xl font-bold tracking-tight">Timed test</h1>
       <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
-        Choose one track. The timed test is only that assignment type — map evaluation stays map
-        evaluation, transcription stays transcription.
+        Pick one type. You’ll only see that kind of task until time is up.
       </p>
 
-      <p className="mb-3 mt-8 font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-        Core disciplines
+      <p className="mb-3 mt-8 font-sans text-sm font-medium text-muted-foreground">
+        Core tasks
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
         {core.map((type) => (
@@ -62,12 +60,12 @@ export function TrackPicker({
         <div className="mt-10 rounded-xl border border-primary/35 bg-primary/5 p-5">
           <div className="mb-4 flex items-end justify-between gap-3">
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-primary">
-                Specialisation tracks
+              <p className="text-[12px] font-medium text-primary">
+                Extra practice
               </p>
-              <h2 className="mt-1 font-sans text-xl font-semibold">Vendor-faithful packets</h2>
+              <h2 className="mt-1 font-sans text-xl font-semibold">Maps, search, and audio</h2>
             </div>
-            <span className="rounded-full border border-primary/50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-primary">
+            <span className="rounded-full border border-primary/50 px-2 py-0.5 font-sans text-[10px] font-bold text-primary">
               New
             </span>
           </div>
@@ -94,7 +92,6 @@ function TrackButton({
   locked?: boolean
 }) {
   const Icon = ICONS[type]
-  const track = trackForType(type)
   const count = getQuestionsByType(type).length
   return (
     <button
@@ -106,22 +103,13 @@ function TrackButton({
         featured ? 'border-primary/30 bg-background/50' : 'border-border bg-card',
       )}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <Icon className="size-5" />
-        </div>
-        <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-          {TYPE_LABELS[type]}
-        </span>
+      <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <Icon className="size-5" />
       </div>
       <h3 className="mt-3 font-sans text-lg font-semibold">{TYPE_NAMES[type]}</h3>
-      {track && (
-        <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-foreground/60">
-          {track.label}
-        </p>
-      )}
-      <p className="mt-2 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
-        {locked ? 'Proficiency gate required' : `${count} assignment${count === 1 ? '' : 's'} · this track only`}
+      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{TYPE_BLURBS[type]}</p>
+      <p className="mt-2 text-xs text-muted-foreground">
+        {locked ? 'English exam required first' : `${count} question${count === 1 ? '' : 's'} · this type only`}
       </p>
     </button>
   )

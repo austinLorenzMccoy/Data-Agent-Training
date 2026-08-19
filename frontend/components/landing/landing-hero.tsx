@@ -8,10 +8,9 @@ import { RecruitDialog } from '@/components/landing/recruit-dialog'
 import { useAgent } from '@/components/providers/agent-provider'
 import { Button } from '@/components/ui/button'
 import { RANKS } from '@/lib/ranks'
-import { TYPE_LABELS, TYPE_NAMES } from '@/lib/scoring'
+import { TYPE_BLURBS, TYPE_NAMES } from '@/lib/scoring'
 import type { AssignmentType } from '@/lib/types'
 import { CORE_TYPES, getEnabledTypes, isV4Type } from '@/lib/feature-flags'
-import { trackForType } from '@/lib/tracks'
 import { guidelineFor } from '@/lib/guidelines'
 import { cn } from '@/lib/utils'
 import {
@@ -39,16 +38,7 @@ const TYPE_ICONS: Record<AssignmentType, React.ElementType> = {
   theta: AudioLines,
 }
 
-const TYPE_DESC: Record<AssignmentType, string> = {
-  alpha: 'Rate a single AI response: CLEAR, AMBIGUOUS, or COMPROMISED — and justify it.',
-  beta: 'Two field reports on one target. Rate each, then pick the more reliable.',
-  gamma: 'Screen an intercepted transcript and flag every anomaly you find.',
-  delta: 'Choose the optimal reply for an undercover operative from four candidates.',
-  epsilon: 'Rate map POIs: relevance, name, address, pin, and a closed-business flag.',
-  zeta: 'Page Quality (10-point) and Needs Met (5-point) on a frozen page snapshot.',
-  eta: 'A four-point search-satisfaction scale — the lite on-ramp to Zeta.',
-  theta: 'Segment speech, label speakers, transcribe verbatim, and tag spans.',
-}
+const TYPE_DESC = TYPE_BLURBS
 
 export function LandingHero() {
   const { agent, hydrated } = useAgent()
@@ -66,7 +56,7 @@ export function LandingHero() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <NeuralNoise className="opacity-60" />
+      <NeuralNoise className="opacity-25" />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/40 via-background/70 to-background"
@@ -75,58 +65,56 @@ export function LandingHero() {
       <section className="relative mx-auto flex max-w-3xl flex-col items-center px-4 pb-12 pt-16 text-center">
         <div className="flex items-center gap-2 rounded-full border border-border bg-surface/60 px-3 py-1">
           <Radar size={14} className="text-primary" />
-          <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-            Datanerds Annotation · codename DNA
+          <span className="font-sans text-xs font-medium text-muted-foreground">
+            Datanerds Annotation
           </span>
         </div>
 
-        <h1 className="mt-6 text-balance font-mono text-4xl font-bold uppercase leading-tight tracking-tight text-foreground sm:text-5xl">
-          This is not a quiz.
+        <h1 className="mt-6 text-balance font-sans text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl">
+          Build your eye for
           <br />
           <span className="text-primary text-glow-primary">
-            It is your recruitment.
+            better AI.
           </span>
         </h1>
 
         <p className="mt-5 max-w-xl text-pretty leading-relaxed text-muted-foreground">
-          You are a Data Agent. Your mission: evaluate AI-generated intelligence
-          for accuracy, instruction compliance, and quality. Every task is a
-          field operation. Every correct call earns XP. Every threshold crossed
-          unlocks a new clearance rank.
+          Practice making thoughtful calls on AI responses, search results, maps, and audio.
+          Learn at your own pace, get useful feedback, and watch your confidence grow.
         </p>
 
         <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
           <Button
             onClick={primaryAction}
             size="lg"
-            className="bg-primary font-mono uppercase tracking-wider text-primary-foreground hover:bg-primary/90"
+            className="bg-primary font-sans font-semibold text-primary-foreground hover:bg-primary/90"
           >
-            {enrolled ? `Resume as ${agent!.alias}` : 'Enlist as a Data Agent'}
+            {enrolled ? `Continue as ${agent!.alias}` : 'Start practicing'}
           </Button>
           <Button
             asChild
             size="lg"
             variant="outline"
-            className="border-border bg-transparent font-mono uppercase tracking-wider hover:bg-secondary"
+            className="border-border bg-transparent font-sans font-semibold hover:bg-secondary"
           >
-            <Link href="/prep#guidelines-brief">Read the Briefing</Link>
+            <Link href="/prep#guidelines-brief">Read the study guide</Link>
           </Button>
         </div>
 
         {special.length > 0 && (
           <a
             href="#specialisations"
-            className="mt-10 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-primary transition-colors hover:bg-primary/15"
+            className="mt-10 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-2 text-[13px] text-primary transition-colors hover:bg-primary/15"
           >
-            New briefing · {special.length} specialisation tracks
+            New · maps, search, and audio
             <ArrowDown size={14} />
           </a>
         )}
       </section>
 
       <section className="relative mx-auto max-w-4xl px-4 pb-12">
-        <p className="mb-4 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-          Core disciplines
+          <p className="mb-4 text-center font-sans text-sm font-medium text-muted-foreground">
+          Choose a skill to practice
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           {core.map((t) => (
@@ -144,21 +132,20 @@ export function LandingHero() {
             />
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-primary">
-                  Now briefing · expansion
+                <p className="text-[12px] font-medium text-primary">
+                  Extra practice
                 </p>
                 <h2 className="mt-1 font-sans text-2xl font-bold tracking-tight">
-                  Specialisation tracks
+                  Maps, search, and audio
                 </h2>
                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                  Vendor-faithful drills — maps, search quality, and transcription.
-                  Each track has an expandable source guideline on the briefing.
-                  These sit beside the core ladder, not inside the eight identical cards.
+                  Maps, search quality, and transcription. Same rating scales used
+                  on live projects. Each one has a full guideline you can read first.
                 </p>
               </div>
-              <Button asChild variant="outline" className="shrink-0 font-mono text-xs uppercase tracking-wider">
+              <Button asChild variant="outline" className="shrink-0">
                 <Link href="/training">
-                  Open Field Training
+                  Open practice
                   <ArrowRight className="size-3.5" />
                 </Link>
               </Button>
@@ -174,8 +161,8 @@ export function LandingHero() {
       )}
 
       <section className="relative mx-auto max-w-4xl px-4 pb-24">
-        <p className="mb-4 text-center font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-          The Clearance Ladder
+        <p className="mb-4 text-center text-sm font-medium text-muted-foreground">
+          How you rank up
         </p>
         <div className="agency-card overflow-hidden">
           <ul className="divide-y divide-border">
@@ -190,7 +177,7 @@ export function LandingHero() {
                   </span>
                   <Shield size={16} style={{ color: r.color }} />
                   <span
-                    className="font-mono text-sm font-bold uppercase tracking-wide"
+                    className="text-sm font-semibold"
                     style={{ color: r.color }}
                   >
                     {r.name}
@@ -212,7 +199,6 @@ export function LandingHero() {
 
 function TypeCard({ type, featured = false }: { type: AssignmentType; featured?: boolean }) {
   const Icon = TYPE_ICONS[type]
-  const track = trackForType(type)
   const pack = featured ? guidelineFor(type) : undefined
 
   return (
@@ -228,10 +214,7 @@ function TypeCard({ type, featured = false }: { type: AssignmentType; featured?:
             <Icon size={20} />
           </div>
           <div>
-            <p className="font-mono text-xs uppercase tracking-widest text-primary">
-              Type {TYPE_LABELS[type]}
-            </p>
-            <h3 className="font-mono text-sm font-bold uppercase tracking-wide">
+            <h3 className="font-sans text-sm font-semibold">
               {TYPE_NAMES[type]}
             </h3>
           </div>
@@ -242,20 +225,15 @@ function TypeCard({ type, featured = false }: { type: AssignmentType; featured?:
           </span>
         )}
       </div>
-      {track && (
-        <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-foreground/70">
-          {track.label}
-        </p>
-      )}
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
         {TYPE_DESC[type]}
       </p>
       {pack && (
         <Link
           href={`/guidelines/${type}`}
-          className="mt-3 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-primary hover:underline"
+          className="mt-3 inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
         >
-          Study source guideline
+          Read the guideline
           <ArrowRight size={12} />
         </Link>
       )}

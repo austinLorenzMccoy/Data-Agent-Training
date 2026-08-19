@@ -31,7 +31,7 @@ export interface GuidelinePack {
 const MAPS: GuidelinePack = {
   id: 'epsilon',
   type: 'epsilon',
-  eyebrow: 'Epsilon · source dossier',
+  eyebrow: 'Maps guideline',
   title: 'Maps Search Evaluation',
   source: 'TryRating Maps Search Evaluation Guidelines · March 2025 · 278 pages',
   why: 'Full TryRating Maps Search Evaluation guideline, with the original screenshots. Scroll the document — figures scale to the screen.',
@@ -42,7 +42,7 @@ const MAPS: GuidelinePack = {
 const SEARCH_PQ: GuidelinePack = {
   id: 'zeta',
   type: 'zeta',
-  eyebrow: 'Zeta · source dossier',
+  eyebrow: 'Search quality guideline',
   title: 'Page Quality + Needs Met',
   source: 'General Guidelines (content reviewer) · Feb 2026 · 47 pages',
   why: 'This is the TELUS-style two-slider system. Expand a chapter below and study the scales, flags, and worked pairs in place.',
@@ -117,7 +117,7 @@ const SEARCH_PQ: GuidelinePack = {
 const LIGHTSPEED: GuidelinePack = {
   id: 'eta',
   type: 'eta',
-  eyebrow: 'Eta · source dossier',
+  eyebrow: 'Search (simple) guideline',
   title: 'Search satisfaction (lite)',
   source: 'Project Lightspeed / Milky Way Search Quality Rating Guidelines',
   why: 'Same snapshot shell as Zeta, one four-point scale. Expand the principles, flags, and examiner traps below.',
@@ -179,7 +179,7 @@ const LIGHTSPEED: GuidelinePack = {
 const FREYA: GuidelinePack = {
   id: 'theta',
   type: 'theta',
-  eyebrow: 'Theta · source dossier',
+  eyebrow: 'Transcription guideline',
   title: 'Longform segmentation & transcription',
   source: 'Freya Certification Study Guide + Live Transcription EDC exam (22 Q, 90%)',
   why: 'Workflow first, then the exam traps. Expand a chapter and study the 7-step process, tags, and the 22 certification answers in place.',
@@ -266,7 +266,7 @@ const FREYA: GuidelinePack = {
 
 const PROFICIENCY: GuidelinePack = {
   id: 'proficiency',
-  eyebrow: 'Language gate · source dossier',
+  eyebrow: 'English exam guide',
   title: 'en-CA Language Proficiency',
   source: 'English Canada Language Proficiency Certification · 50-question compilation',
   why: 'This is the gate in front of Theta, not a rating track. Expand the patterns below. The live exam is timed and one-shot — the answer key is not on the exam page.',

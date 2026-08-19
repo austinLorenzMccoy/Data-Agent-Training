@@ -20,16 +20,7 @@ const MAX_TRACK_QUESTIONS = 12
 const MINUTES_PER_ASSIGNMENT = 2.5
 const MIN_OPERATION_MIN = 10
 
-const OPERATION_NAMES = [
-  { adjectives: ['PHANTOM', 'SILENT', 'NEURAL', 'SIGNAL', 'DARK', 'ECHO', 'SWIFT', 'COVERT'], nouns: ['GHOST', 'VECTOR', 'PRISM', 'CIPHER', 'NODE', 'ATLAS', 'NEXUS', 'CROWN'] }
-]
 
-function randomOperationName(): string {
-  const { adjectives, nouns } = OPERATION_NAMES[0]
-  const adj = adjectives[Math.floor(Math.random() * adjectives.length)]
-  const noun = nouns[Math.floor(Math.random() * nouns.length)]
-  return `OPERATION ${adj} ${noun}`
-}
 
 export function OperationController() {
   const router = useRouter()
@@ -72,7 +63,7 @@ export function OperationController() {
     setTotalXp(0)
     setDurationSec(minutes * 60)
     setTimeLeft(minutes * 60)
-    setOperationName(`${randomOperationName()} · ${TYPE_NAMES[type].toUpperCase()}`)
+    setOperationName(TYPE_NAMES[type])
     setState('launching')
   }
 
@@ -216,7 +207,7 @@ export function OperationController() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <p className="text-muted-foreground">Loading operation...</p>
+          <p className="text-muted-foreground">Loading test...</p>
         </div>
       </div>
     )
@@ -230,7 +221,7 @@ export function OperationController() {
         timeLeft={timeLeft}
         streak={streak}
         xp={totalXp}
-        trackLabel={track ? TYPE_NAMES[track].toUpperCase() : undefined}
+        trackLabel={track ? TYPE_NAMES[track] : undefined}
       />
 
       <AnimatePresence mode="wait">
@@ -258,19 +249,19 @@ export function OperationController() {
         >
           <div className="rounded-lg border border-border bg-surface p-8 text-center">
             <h3 className="text-lg font-bold text-foreground">
-              {currentIndex >= questions.length ? 'Submitting Report...' : 'Time Expired'}
+              {currentIndex >= questions.length ? 'Submitting...' : 'Time’s up'}
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
               {currentIndex >= questions.length
-                ? 'Processing your intelligence assessment...'
-                : 'Your operation time has expired. Submitting your report...'}
+                ? 'Scoring your answers...'
+                : 'We’ll score what you finished.'}
             </p>
             <Button
               onClick={handleSubmitOperation}
               className="mt-6 bg-accent hover:bg-accent/90"
               disabled={grading}
             >
-              {grading ? 'Processing...' : 'Continue to Debrief'}
+              {grading ? 'Scoring...' : 'See results'}
             </Button>
           </div>
         </motion.div>

@@ -1,7 +1,7 @@
 'use client'
 
 import type { Question } from '@/lib/types'
-import { TYPE_LABELS, TYPE_NAMES } from '@/lib/scoring'
+import { TYPE_NAMES } from '@/lib/scoring'
 import { ClassificationStamp } from '@/components/classification-stamp'
 import { cn } from '@/lib/utils'
 
@@ -25,10 +25,7 @@ export function AssignmentCard({
     >
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-primary">
-            Assignment Type {TYPE_LABELS[question.type]}
-          </p>
-          <h2 className="mt-1 font-mono text-base font-bold uppercase tracking-wide">
+          <h2 className="text-lg font-semibold tracking-tight">
             {TYPE_NAMES[question.type]}
           </h2>
         </div>
@@ -36,8 +33,8 @@ export function AssignmentCard({
       </div>
 
       <div className="mb-4 rounded-md border border-border bg-background/50 p-3">
-        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-          Operation Context
+        <p className="text-[11px] font-medium text-muted-foreground">
+          Situation
         </p>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
           {question.operationContext}
@@ -52,10 +49,10 @@ export function AssignmentCard({
 export function PromptBlock({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="mb-4">
-      <p className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+      <p className="mb-1.5 text-[11px] font-medium text-muted-foreground">
         {label}
       </p>
-      <div className="rounded-md border border-border bg-surface-raised/40 p-3 font-mono text-sm leading-relaxed text-foreground">
+      <div className="rounded-md border border-border bg-surface-raised/40 p-3 text-sm leading-relaxed text-foreground">
         {children}
       </div>
     </div>

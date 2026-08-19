@@ -17,13 +17,12 @@ export function GuidelineTrackList() {
   return (
     <div id="guidelines-brief" className="scroll-mt-24 space-y-3">
       <div className="agency-card agency-card-accent p-5">
-        <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.3em] text-primary">
-          Specialisation guidelines
+        <p className="mb-2 text-[12px] font-medium text-primary">
+          Extra-track guidelines
         </p>
-        <h2 className="font-sans text-xl font-semibold tracking-tight">Pick a track</h2>
+        <h2 className="font-sans text-xl font-semibold tracking-tight">Pick a guideline</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Each track opens its source guideline as a full-page document. Figures scale to the
-          screen. Nothing downloads.
+          Each one opens as a full-page document. Figures scale to the screen. Nothing downloads.
         </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -48,7 +47,7 @@ function TrackCard({ pack }: { pack: GuidelinePack }) {
         </div>
         <ArrowRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
       </div>
-      <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.22em] text-primary">
+      <p className="mt-4 text-[12px] font-medium text-primary">
         {pack.eyebrow}
       </p>
       <h3 className="mt-1 font-sans text-lg font-semibold leading-tight">{pack.title}</h3>

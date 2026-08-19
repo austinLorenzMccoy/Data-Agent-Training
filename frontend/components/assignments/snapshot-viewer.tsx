@@ -4,15 +4,15 @@ import { cn } from '@/lib/utils'
 
 export function SnapshotViewer({
   url,
-  label = 'Landing page snapshot',
+  label = 'Page snapshot',
 }: {
   url?: string
   label?: string
 }) {
   if (!url) {
     return (
-      <div className="mb-4 rounded-md border border-border bg-surface-raised/40 p-6 text-center font-mono text-xs text-muted-foreground">
-        No snapshot attached to this assignment.
+      <div className="mb-4 rounded-md border border-border bg-surface-raised/40 p-6 text-center text-sm text-muted-foreground">
+        No page snapshot for this question.
       </div>
     )
   }
@@ -21,7 +21,7 @@ export function SnapshotViewer({
 
   return (
     <div className="mb-4">
-      <p className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+      <p className="mb-1.5 text-[11px] font-medium text-muted-foreground">
         {label}
       </p>
       <div className={cn('overflow-hidden rounded-md border border-border bg-background')}>

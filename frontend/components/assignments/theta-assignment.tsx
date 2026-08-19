@@ -185,8 +185,8 @@ export function ThetaAssignment({
 
   return (
     <AssignmentCard question={question} flashState={flashState}>
-      <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-        Waveform · drag to segment · scrub/rewind stays on in Live Operation
+      <p className="mb-2 text-[11px] font-medium text-muted-foreground">
+        Drag on the waveform to cut segments. You can rewind inside this clip.
       </p>
       <div className="mb-3 rounded-md border border-border bg-background/60 p-2">
         <div ref={waveRef} className="min-h-24" />
@@ -406,9 +406,9 @@ export function ThetaAssignment({
       <Button
         onClick={handleSubmit}
         disabled={!canSubmit}
-        className="mt-5 w-full bg-primary font-mono uppercase tracking-wider text-primary-foreground hover:bg-primary/90"
+        className="mt-5 w-full bg-primary text-primary-foreground hover:bg-primary/90"
       >
-        Submit Assessment
+        Submit
       </Button>
     </AssignmentCard>
   )

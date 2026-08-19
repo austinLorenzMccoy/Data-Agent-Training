@@ -54,7 +54,7 @@ function OptionRow<T extends string>({
 }) {
   return (
     <div className="mb-3">
-      <p className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+      <p className="mb-1.5 text-[11px] font-medium text-muted-foreground">
         {label}
       </p>
       <div className="flex flex-wrap gap-1.5">
@@ -281,9 +281,9 @@ export function EpsilonAssignment({
       <Button
         onClick={handleSubmit}
         disabled={!canSubmit}
-        className="mt-5 w-full bg-primary font-mono uppercase tracking-wider text-primary-foreground hover:bg-primary/90"
+        className="mt-5 w-full bg-primary text-primary-foreground hover:bg-primary/90"
       >
-        Submit Assessment
+        Submit
       </Button>
     </AssignmentCard>
   )
