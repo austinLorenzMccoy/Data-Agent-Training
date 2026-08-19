@@ -130,9 +130,30 @@ function MarkdownBody({ markdown }: { markdown: string }) {
       continue
     }
 
+    if (/^>\s?/.test(line)) {
+      const quoted: string[] = []
+      while (i < lines.length && /^>\s?/.test(lines[i])) {
+        quoted.push(lines[i].replace(/^>\s?/, ''))
+        i += 1
+      }
+      nodes.push(
+        <blockquote
+          key={key++}
+          className="my-3 border-l-2 border-primary/40 pl-3 text-sm leading-relaxed text-foreground/90"
+        >
+          {inline(quoted.join(' '))}
+        </blockquote>,
+      )
+      continue
+    }
+
     const para = [line]
     i += 1
-    while (i < lines.length && lines[i].trim() && !/^(#{2,4}\s|[-*]\s|\d+\.\s|!\[)/.test(lines[i])) {
+    while (
+      i < lines.length &&
+      lines[i].trim() &&
+      !/^(#{2,4}\s|[-*]\s|\d+\.\s|!\[|>\s?)/.test(lines[i])
+    ) {
       para.push(lines[i])
       i += 1
     }

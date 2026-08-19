@@ -11,6 +11,7 @@ import pqDoc from '@/lib/pq-guideline-doc.json'
 import lightspeedDoc from '@/lib/lightspeed-guideline-doc.json'
 import freyaDoc from '@/lib/freya-guideline-doc.json'
 import proficiencyDoc from '@/lib/proficiency-guideline-doc.json'
+import dataannotationDoc from '@/lib/dataannotation-guideline-doc.json'
 import { cn } from '@/lib/utils'
 
 const MARKDOWN_DOCS = {
@@ -18,6 +19,7 @@ const MARKDOWN_DOCS = {
   lightspeed: lightspeedDoc,
   freya: freyaDoc,
   proficiency: proficiencyDoc,
+  dataannotation: dataannotationDoc,
 } as const
 
 export function GuidelineDocument({ pack }: { pack: GuidelinePack }) {

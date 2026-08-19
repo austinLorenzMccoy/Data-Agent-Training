@@ -1,127 +1,174 @@
-# Datanerds Annotation · codename DNA
+# Datanerds Annotation
 
-**Data Agent Training & Certification Platform**
+Training and certification for people who rate AI output. Study the real vendor guidelines, practice the same rating grids, then sit a timed test.
 
-> An intelligence-agency themed, gamified annotation training platform where candidates earn ranks, XP, and badges by mastering AI response evaluation.
+**Live:** [data-agent-training.vercel.app](https://data-agent-training.vercel.app)
 
 [![Live](https://img.shields.io/badge/Live-data--agent--training.vercel.app-00E5A0?style=for-the-badge&logo=vercel&logoColor=white)](https://data-agent-training.vercel.app)
 [![Next.js](https://img.shields.io/badge/Next.js-16.2-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-2.0-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-[![Groq](https://img.shields.io/badge/Groq-AI%20Grading-F55036?style=for-the-badge&logo=data:image/svg+xml;base64,&logoColor=white)](https://groq.com/)
+[![Groq](https://img.shields.io/badge/Groq-AI%20Grading-F55036?style=for-the-badge)](https://groq.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.2-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 
 ---
 
-## What Is This?
+## What this is
 
-Datanerds Annotation is **not a quiz** — it's an intelligence agency training programme. Candidates are *Data Agents* recruited to evaluate AI-generated intelligence for accuracy, instruction compliance, and quality. Every task is a *field operation*. Every correct answer earns *XP*. Every milestone unlocks a new *rank*.
+Not a trivia quiz. You learn the rating rules used on live annotation jobs, work examples with no clock, then sit a timed packet of one task type. Written reasons are scored, not only the click.
 
-**Live at:** [data-agent-training.vercel.app](https://data-agent-training.vercel.app)
+Ranks, XP, and badges follow the work. The live site is a copy-desk training floor, not an intelligence-agency skin.
+
+---
+
+## Source materials
+
+Guidelines in `docs/` come from real vendor programmes. They are **not** interchangeable.
+
+Markdown is the working copy. Original `.docx` / `.pdf` files are kept next to them. Re-convert with:
+
+```bash
+python3 docs/scripts/convert-to-markdown.py
+```
+
+### DataAnnotation.tech
+
+These files are the DataAnnotation.tech qualification corpus. In the app they live at **`/guidelines/dataannotation`**, not on the English page.
+
+| File | What it is |
+|---|---|
+| `docs/DataAnnotation Full Assessment.md` | Starter assessment (research, comparison, writing, rubrics, profile) |
+| `docs/Task1 Full Evaluation.md` | Evaluating Responses from AI Assistants v19 — restaurant review |
+| `docs/Task2 Noodle Evaluation.md` | Task 2 — poem about noodles |
+| `docs/Task3 MonetaryPolicy Evaluation.md` | Task 3 — explain monetary policy |
+| `docs/Task4 TextClassification Evaluation.md` | Task 4 — classify a speech excerpt |
+| `docs/Task5 SabrinaCarpenter Evaluation.md` | Task 5 — filmography fact check |
+| `docs/Task6 CreativeWriting Evaluation.md` | Task 6 — four-line poem with a hard constraint |
+| `docs/Task7 WoW Evaluation.md` | Task 7 — Wrath Classic mount fact check |
+| `docs/guidelines/tryrating_map_guideline_with_images.md` | Maps Search Evaluation (March 2025). In-app: `/guidelines/epsilon` |
+
+The rating scale is **Good / Okay / Bad**, then which response is better, then a justification that names truthfulness, instruction following, or helpfulness. Any truthfulness or instruction miss is automatically Bad.
+
+The maps guideline is the same vendor, but it is a 278-page illustrated document, so it stays on its own page.
+
+**English is not this pack.** `/proficiency/en-CA` (nav: **English**) is the en-CA language exam. It stays a language gate in front of transcription. Do not fold DataAnnotation.tech into it.
+
+### Other vendor guidelines
+
+| File | In-app |
+|---|---|
+| `docs/guidelines/content-reviewer.md` | Search quality — Page Quality + Needs Met (`/guidelines/zeta`) |
+| `docs/guidelines/Lightspeed_Search_Quality_Rating_Guidelines.md` | Search (simple) (`/guidelines/eta`) |
+| `docs/guidelines/Freya_Certification_Study_Guide.md` + `Freya_Exam_QA_Compilation.md` | Transcription (`/guidelines/theta`) |
+| `docs/guidelines/en-CA_Language_Proficiency_Exam_QA.md` | English exam guide (`/guidelines/proficiency`) |
+| `docs/try_rating_text_response_evaluation.md` | Core “rate a response / compare two” work (practice types Alpha–Delta) |
+
+Product specs: `docs/Datanerds_Annotation_PRD_v2.md`, `docs/Datanerds_Annotation_PRD_v4.md`, `docs/Datanerds_Backend_Implementation.md`.
 
 ---
 
 ## Features
 
-- 🎯 **8 Assignment Types** — Core Alpha–Delta plus vendor-faithful Epsilon (maps), Zeta/Eta (search quality), and Theta (transcription) behind feature flags
-- 🤖 **AI-Powered Grading** — Free-text justifications graded by Groq (llama-3.3-70b-versatile)
-- 🏆 **7-Tier Rank System** — Recruit → Operative → Field Agent → Specialist → Analyst → Senior Analyst → Intelligence Director
-- ⚡ **XP & Streak System** — Earn XP per correct answer, streak bonuses at 3/5/10 consecutive, speed bonuses
-- 🔐 **Google OAuth** — Sign in with Google via Supabase Auth
-- 📊 **Live Leaderboard** — Opt-in global rankings pulled from Supabase
-- 🎖️ **Badge Collection** — 11 earnable badges with rank-up, achievement, and streak categories
-- 📋 **Agent Dossier** — Full profile with stats, operation history, and badge wall
-- 📚 **Field Training** — Practice mode with interactive study guide and worked examples (no timer)
-- ⏱️ **Live Operations** — 25 randomized assignments, 40-minute timer, forward-only navigation
-
----
-
-## Repository Structure
-
-```
-data-agent-training-platform/
-├── frontend/              # Next.js 16 App Router application
-│   ├── app/               # Pages + API routes
-│   ├── components/        # UI components (assignments, operation, training, etc.)
-│   ├── contexts/          # AuthContext, AgentContext (Supabase)
-│   ├── lib/               # Scoring, questions, ranks, badges, grading, DB client
-│   └── .env.local         # Local environment variables (not committed)
-├── backend/               # Supabase database layer
-│   ├── supabase/migrations/  # SQL migrations (run in order; 016–020 are v4)
-│   ├── lib/               # Server-side DB helpers
-│   └── types/             # Database TypeScript types
-└── docs/                  # PRD, evaluation rubrics, assessment guides
-```
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Framework | Next.js 16 App Router + TypeScript |
-| Styling | Tailwind CSS 4 |
-| Animations | Framer Motion (via `motion` package) |
-| AI Grading | Vercel AI SDK + `@ai-sdk/groq` (llama-3.3-70b-versatile) |
-| Auth | Supabase Google OAuth |
-| Database | Supabase PostgreSQL + RLS + DB triggers |
-| Charts | Recharts (radar chart for category breakdown) |
-| Icons | Lucide React |
-| Deployment | Vercel |
+- **Eight assignment types** — Rate a response, compare two, review a transcript, pick the best reply, plus maps, search quality, search (simple), and transcription
+- **Full guidelines in the app** — including the DataAnnotation.tech pack and the illustrated maps document. Nothing downloads
+- **AI-graded justifications** — Groq (`llama-3.3-70b-versatile`) scores written reasons
+- **Practice and timed tests** — no clock on practice; tests are one task type, timed, with a debrief
+- **English proficiency gate** — optional one-shot en-CA exam before transcription
+- **Ranks, XP, badges** — seven ranks, streak and speed bonuses, 11 badges
+- **Google sign-in** — Supabase Auth
+- **Leaderboard** — opt-in rankings from Supabase
 
 ---
 
 ## Pages
 
-| Route | Description |
+| Route | Nav | What it is |
+|---|---|---|
+| `/` | — | Landing |
+| `/prep` | Study | How practice works + jumps into guidelines |
+| `/guidelines` | Guidelines | Full source documents |
+| `/guidelines/dataannotation` | — | DataAnnotation.tech pack (starter + Tasks 1–7) |
+| `/guidelines/epsilon` | — | Maps (DataAnnotation.tech / TryRating) |
+| `/guidelines/zeta` | — | Page Quality + Needs Met |
+| `/guidelines/eta` | — | Search (simple) |
+| `/guidelines/theta` | — | Transcription |
+| `/guidelines/proficiency` | — | English exam study guide |
+| `/training` | Practice | Untimed practice, one type at a time |
+| `/operation` | Test | Timed packet, then `/operation/debrief` |
+| `/dossier` | Progress | Profile, stats, badges, history |
+| `/rankings` | Rankings | Leaderboard |
+| `/proficiency/en-CA` | English | Language exam (not DataAnnotation.tech) |
+| `/login` | — | Google sign-in |
+
+---
+
+## Assignment types
+
+| Type | What you do |
 |---|---|
-| `/` | Landing — Agency HQ with enlistment flow |
-| `/prep` | Briefing — Interactive annotation study guide with worked examples |
-| `/training` | Field Training — Practice mode, no timer, earn XP |
-| `/operation` | Live Operation — 25 assignments, 40-min timer, streaks & XP |
-| `/dossier` | Agent Dossier — Profile, stats, badge wall, operation history |
-| `/rankings` | Agency Rankings — Live leaderboard from Supabase |
-| `/login` | Google OAuth sign-in |
-| `/proficiency/[examId]` | Language proficiency gate (one-shot timed exam) |
+| **Rate a response** | Good / Okay / Bad + a written reason |
+| **Compare two responses** | Rate each, then pick the better one |
+| **Review a transcript** | Pass it or flag what is wrong |
+| **Pick the best reply** | Choose among four |
+| **Rate map results** | Relevance, name, address, pin |
+| **Rate a search result** | Page Quality (10-point) + Needs Met (5-point) |
+| **Rate search (simple)** | Four-point satisfaction |
+| **Transcribe audio** | Segment, speakers, verbatim transcript, tags |
+
+Written reasons on the first two types are **AI-graded**. Maps / search / transcription are field-by-field. Audio playback on transcription is real WAV files in `frontend/public/audio/`.
+
+v4 tracks are **on** unless a flag is `false`. To hide one: `NEXT_PUBLIC_TRACK_THETA=false`.
+
+Optional language gate: `NEXT_PUBLIC_REQUIRED_PROFICIENCY_EXAM=en-CA` requires `/proficiency/en-CA` before transcription (default gated type).
 
 ---
 
-## Assignment Types
+## Rank system
 
-| Type | Codename | What the Agent Does |
-|---|---|---|
-| **Alpha** | Response Rating | Rate a single AI response: CLEAR / AMBIGUOUS / COMPROMISED + justification |
-| **Beta** | Comparative Analysis | Rate two responses independently, select the superior one + justification |
-| **Gamma** | Transcript Clearance | Flag transcript contamination across 8 rejection categories |
-| **Delta** | Response Selection | Choose the optimal response from 4 candidates |
-| **Epsilon** | Map Evaluation | Rate POIs: navigational, relevance, name/address/pin accuracy |
-| **Zeta** | Search Quality | Page Quality (10-point) + Needs Met (5-point) on a frozen snapshot |
-| **Eta** | Search Quality Lite | Four-point satisfaction scale (shares Zeta's shell) |
-| **Theta** | Transcription | Segment a waveform, label speakers, transcribe, tag spans |
-
-Alpha and Beta justifications are **AI-graded** by Groq in real-time (score 0/1/2 + feedback). Epsilon/Zeta/Eta are deterministic. Theta uses IoU + edit-distance + tag F1.
-
-v4 tracks are **on** unless a flag is set to `false`. To hide one, set e.g. `NEXT_PUBLIC_TRACK_THETA=false`.
-
-Optional language gate: set `NEXT_PUBLIC_REQUIRED_PROFICIENCY_EXAM=en-CA` to require `/proficiency/en-CA` before Theta (default gated type).
+| Rank | XP |
+|---|---|
+| Recruit | 0 |
+| Operative | 500 |
+| Field Agent | 1,500 |
+| Specialist | 3,500 |
+| Analyst | 7,000 |
+| Senior Analyst | 12,000 |
+| Intelligence Director | 20,000 |
 
 ---
 
-## Rank System
+## Repository
 
-| Rank | XP Required | Colour |
-|---|---|---|
-| Recruit | 0 | Warm stone |
-| Operative | 500 | Steel blue |
-| Field Agent | 1,500 | Sage green |
-| Specialist | 3,500 | Muted mauve |
-| Analyst | 7,000 | Gold |
-| Senior Analyst | 12,000 | Amber |
-| Intelligence Director | 20,000 | Champagne gold |
+```
+data-agent-training-platform/
+├── frontend/                 # Next.js 16 App Router
+│   ├── app/                  # Pages + API routes
+│   ├── components/
+│   ├── lib/                  # Scoring, questions, guideline JSON
+│   └── public/guidelines/    # Figures for illustrated documents
+├── backend/supabase/         # Migrations, RLS, triggers
+└── docs/                     # Vendor guidelines + PRDs (see Source materials)
+```
 
 ---
 
-## Local Development
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 App Router + TypeScript |
+| Styling | Tailwind CSS 4 |
+| Motion | Framer Motion (`motion`) |
+| AI grading | Vercel AI SDK + `@ai-sdk/groq` |
+| Auth | Supabase Google OAuth |
+| Database | Supabase PostgreSQL + RLS + triggers |
+| Charts | Recharts |
+| Audio | WaveSurfer.js + HTML5 `<audio>` |
+| Deploy | Vercel |
+
+---
+
+## Local development
 
 ### Prerequisites
 
@@ -135,18 +182,15 @@ cd frontend
 pnpm install
 ```
 
-Create `frontend/.env.local` from the example:
+Create `frontend/.env.local`:
 
 ```env
-# Supabase — get from dashboard → Settings → API
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
-# Groq AI grading — https://console.groq.com
 GROQ_API_KEY=gsk_...
 
-# App config
 NEXT_PUBLIC_SITE_URL=https://data-agent-training.vercel.app
 NEXT_PUBLIC_PASS_SCORE=70
 NEXT_PUBLIC_QUESTION_COUNT=25
@@ -157,82 +201,50 @@ NEXT_PUBLIC_TIME_LIMIT=40
 pnpm dev   # → http://localhost:3000
 ```
 
-> The app works without Supabase/Groq credentials — auth is disabled and grading falls back to a heuristic word-count analyzer.
+The app runs without Supabase or Groq: auth is off and justification grading falls back to a heuristic.
 
 ---
 
-## Database Setup (Supabase)
+## Database (Supabase)
 
-Run the migration files in `backend/supabase/migrations/` **in order** via the Supabase SQL Editor:
+Run `backend/supabase/migrations/` **in order** in the SQL Editor:
 
 | # | File | Purpose |
 |---|---|---|
-| 001 | `extensions.sql` | Enable `uuid-ossp` |
-| 002 | `rank_tiers.sql` | Rank reference table + seed 7 ranks |
-| 003 | `agents.sql` | Agent profiles (linked to `auth.users`) |
-| 004 | `operations.sql` | Operation results history |
-| 005 | `badges.sql` | Badge definitions (11) + agent_badges junction |
-| 006 | `leaderboard_view.sql` | Leaderboard view (opt-in agents only) |
-| 007 | `rls_policies.sql` | Row Level Security — agents can only access own data |
-| 008 | `triggers.sql` | Auto XP totals, rank recalculation, badge awards, new user profile creation |
-| 016 | `tracks.sql` | Specialisation tracks + agent_tracks XP |
-| 017 | `widen_question_types.sql` | Questions table (or widen type check) for Epsilon–Theta |
-| 019 | `theta_transcription.sql` | Nullable `questions.audio_asset_url` |
-| 020 | `language_proficiency.sql` | Proficiency exams, results, optional org requirement |
-| 021 | `keep_alive_cron.sql` | Daily `pg_cron` heartbeat (`dna-keep-alive`) |
+| 001 | `extensions.sql` | `uuid-ossp` |
+| 002 | `rank_tiers.sql` | Seven ranks |
+| 003 | `agents.sql` | Profiles linked to `auth.users` |
+| 004 | `operations.sql` | Test history |
+| 005 | `badges.sql` | Badge definitions |
+| 006 | `leaderboard_view.sql` | Opt-in leaderboard |
+| 007 | `rls_policies.sql` | Row-level security |
+| 008 | `triggers.sql` | XP, rank, badges, new-user profile |
+| 016 | `tracks.sql` | Specialisation tracks |
+| 017 | `widen_question_types.sql` | Epsilon–Theta question types |
+| 019 | `theta_transcription.sql` | `questions.audio_asset_url` |
+| 020 | `language_proficiency.sql` | Proficiency exams |
+| 021 | `keep_alive_cron.sql` | Daily heartbeat |
 
-Free-tier projects pause after a week of no traffic. After deploy, Vercel hits `GET /api/keep-alive` every day at 12:00 UTC (and a GitHub Action does the same). That inbound REST call is what keeps the project awake. Run `021` in the SQL Editor as well so `pg_cron` is scheduled inside the database.
-
-DB triggers handle all XP/rank/badge calculations automatically — the app just inserts an operation row.
+Free-tier projects pause after a week of no traffic. After deploy, Vercel hits `GET /api/keep-alive` daily at 12:00 UTC (and a GitHub Action does the same). Run `021` so `pg_cron` is scheduled inside the database.
 
 ---
 
-## Auth Setup (Google OAuth)
+## Auth (Google OAuth)
 
-1. **Google Cloud Console** → APIs & Services → Credentials → OAuth client ID (Web)
-   - Authorized JavaScript origins:
-     - `https://your-project.supabase.co`
-     - `https://data-agent-training.vercel.app`
-   - Authorized redirect URIs:
-     - `https://your-project.supabase.co/auth/v1/callback`
-     - `https://data-agent-training.vercel.app/auth/callback`
-
-2. **Supabase** → Authentication → Providers → Google → Enable → paste Client ID + Secret
-
-3. **Supabase** → Authentication → URL Configuration:
-   - Site URL: `https://data-agent-training.vercel.app`
-   - Redirect URLs: `https://data-agent-training.vercel.app/auth/callback`
+1. **Google Cloud Console** → OAuth client ID (Web)
+   - Origins: `https://your-project.supabase.co`, `https://data-agent-training.vercel.app`
+   - Redirects: `https://your-project.supabase.co/auth/v1/callback`, `https://data-agent-training.vercel.app/auth/callback`
+2. **Supabase** → Authentication → Providers → Google → Client ID + Secret
+3. **Supabase** → URL Configuration: Site URL and redirect = `https://data-agent-training.vercel.app/auth/callback`
 
 ---
 
-## Deployment (Vercel)
-
-The app is deployed at [data-agent-training.vercel.app](https://data-agent-training.vercel.app).
+## Deploy (Vercel)
 
 1. Push to GitHub
-2. Import at [vercel.com](https://vercel.com) → set **Root Directory** to `frontend`
-3. Add all environment variables under Settings → Environment Variables
-4. Deploy — the `/api/grade` route runs as a serverless function
-
----
-
-## Data Architecture
-
-```
-Browser
-  └─ AgentContext (React)
-       ├─ localStorage (instant read/write cache)
-       └─ Supabase JS Client
-            ├─ Auth (Google OAuth)
-            ├─ agents table (XP, rank, profile)
-            ├─ operations table (history)
-            ├─ agent_badges table
-            └─ leaderboard view (opt-in rankings)
-
-API Routes (serverless)
-  ├─ POST /api/grade → Groq AI SDK → llama-3.3-70b-versatile
-  └─ GET  /api/leaderboard → Supabase leaderboard view
-```
+2. Import at [vercel.com](https://vercel.com) → **Root Directory** `frontend`
+3. Add environment variables
+4. Deploy — `/api/grade` runs as a serverless function
 
 ---
 

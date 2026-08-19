@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, AudioLines, BookOpen, MapPin, Search } from 'lucide-react'
+import { ArrowRight, AudioLines, BookOpen, ClipboardCheck, MapPin, Search } from 'lucide-react'
 import { specialisationGuidelinePacks, type GuidelinePack } from '@/lib/guidelines'
 
 const ICONS: Record<string, typeof MapPin> = {
@@ -10,6 +10,7 @@ const ICONS: Record<string, typeof MapPin> = {
   eta: Search,
   theta: AudioLines,
   proficiency: BookOpen,
+  dataannotation: ClipboardCheck,
 }
 
 export function GuidelineTrackList() {

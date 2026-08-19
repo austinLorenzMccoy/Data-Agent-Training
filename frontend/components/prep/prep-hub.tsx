@@ -23,6 +23,7 @@ import {
   MapPin,
   Search,
   AudioLines,
+  ClipboardCheck,
 } from 'lucide-react'
 import { getEnabledTypes, isV4Type } from '@/lib/feature-flags'
 import { Button } from '@/components/ui/button'
@@ -806,8 +807,8 @@ function GuidelinePointer() {
             Open the official documents
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Maps, search quality, transcription, and the English exam. Figures scale on screen.
-            Nothing downloads. This page only covers how practice works.
+            DataAnnotation.tech, maps, search quality, transcription, and the English exam.
+            Figures scale on screen. Nothing downloads. This page only covers how practice works.
           </p>
         </div>
         <Button asChild size="lg" className="h-11 w-full shrink-0 text-base sm:w-auto">
@@ -987,6 +988,36 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
           <Button asChild variant="outline" size="sm" className="mt-1">
             <Link href="/guidelines/proficiency">
               Open the English exam guide
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </Button>
+        </div>
+      </Accordion>
+
+      <Accordion
+        title="DataAnnotation.tech"
+        subtitle="Good · Okay · Bad · which is better"
+        icon={ClipboardCheck}
+        defaultOpen={highlight === 'dataannotation'}
+      >
+        <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
+          <p>
+            A separate vendor pack — not the English exam. Rate each AI response Good, Okay, or
+            Bad, pick the better one, and write a reason that names the real failure:
+            truthfulness, instruction following, or helpfulness. Any truthfulness or instruction
+            miss is automatically Bad.
+          </p>
+          <Example label="Invented detail" verdict="bad" reason="truthfulness">
+            The user said the dessert was delicious. A reply that invents “apple pie” and calls it
+            disgusting is Bad even if the rest of the review is well written.
+          </Example>
+          <p>
+            The starter assessment and worked Tasks 1–7 live on the guideline page. Maps for this
+            vendor is the illustrated Maps document.
+          </p>
+          <Button asChild variant="outline" size="sm" className="mt-1">
+            <Link href="/guidelines/dataannotation">
+              Open the DataAnnotation.tech pack
               <ArrowRight className="size-3.5" />
             </Link>
           </Button>

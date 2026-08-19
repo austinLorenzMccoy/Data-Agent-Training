@@ -1,6 +1,6 @@
 import type { AssignmentType } from './types'
 
-export type GuidelinePackId = AssignmentType | 'proficiency'
+export type GuidelinePackId = AssignmentType | 'proficiency' | 'dataannotation'
 
 export interface StudyRow {
   label?: string
@@ -25,7 +25,7 @@ export interface GuidelinePack {
   why: string
   chapters: StudyChapter[]
   /** Full source document renderer. */
-  illustrated?: 'maps' | 'pq' | 'lightspeed' | 'freya' | 'proficiency'
+  illustrated?: 'maps' | 'pq' | 'lightspeed' | 'freya' | 'proficiency' | 'dataannotation'
 }
 
 const MAPS: GuidelinePack = {
@@ -33,8 +33,8 @@ const MAPS: GuidelinePack = {
   type: 'epsilon',
   eyebrow: 'Maps guideline',
   title: 'Maps Search Evaluation',
-  source: 'TryRating Maps Search Evaluation Guidelines · March 2025 · 278 pages',
-  why: 'Full TryRating Maps Search Evaluation guideline, with the original screenshots. Scroll the document — figures scale to the screen.',
+  source: 'DataAnnotation.tech · Maps Search Evaluation Guidelines · March 2025 · 278 pages',
+  why: 'Full Maps Search Evaluation guideline used on DataAnnotation.tech, with the original screenshots. Scroll the document — figures scale to the screen.',
   illustrated: 'maps',
   chapters: [],
 }
@@ -82,6 +82,16 @@ const PROFICIENCY: GuidelinePack = {
   chapters: [],
 }
 
+const DATAANNOTATION: GuidelinePack = {
+  id: 'dataannotation',
+  eyebrow: 'DataAnnotation.tech',
+  title: 'Evaluating AI responses',
+  source: 'DataAnnotation.tech · Starter assessment + Evaluating Responses from AI Assistants v19',
+  why: 'Good / Okay / Bad, which response is better, and the worked Tasks 1–7. Maps for this vendor is a separate illustrated document.',
+  illustrated: 'dataannotation',
+  chapters: [],
+}
+
 const BY_ID: Record<GuidelinePackId, GuidelinePack | undefined> = {
   alpha: undefined,
   beta: undefined,
@@ -92,6 +102,7 @@ const BY_ID: Record<GuidelinePackId, GuidelinePack | undefined> = {
   eta: LIGHTSPEED,
   theta: FREYA,
   proficiency: PROFICIENCY,
+  dataannotation: DATAANNOTATION,
 }
 
 export function guidelineFor(id: GuidelinePackId): GuidelinePack | undefined {
@@ -99,7 +110,7 @@ export function guidelineFor(id: GuidelinePackId): GuidelinePack | undefined {
 }
 
 export function specialisationGuidelinePacks(): GuidelinePack[] {
-  return [MAPS, SEARCH_PQ, LIGHTSPEED, FREYA, PROFICIENCY]
+  return [DATAANNOTATION, MAPS, SEARCH_PQ, LIGHTSPEED, FREYA, PROFICIENCY]
 }
 
 export function guidelineHrefForType(type: AssignmentType): string {
