@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useAgent } from '@/components/providers/agent-provider'
 import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
-import { LogOut } from 'lucide-react'
+import { LogOut, Menu, X, Home } from 'lucide-react'
 import { FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM } from '@/lib/feature-flags'
 
 const LINKS = [
@@ -26,6 +26,7 @@ export function SiteNav() {
   const { agent, rank, hydrated, reset } = useAgent()
   const { user, signOut } = useAuth()
   const [signingOut, setSigningOut] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   const showSidebar = !!pathname && pathname !== '/' && pathname !== '/login'
 
@@ -55,8 +56,20 @@ export function SiteNav() {
 
   return (
     <>
+      {showSidebar && sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/20 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {showSidebar ? (
-        <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-border bg-surface/95 backdrop-blur-sm md:flex">
+        <aside
+          className={cn(
+            'fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-surface/95 backdrop-blur-sm transition-transform duration-300 md:translate-x-0',
+            !sidebarOpen && '-translate-x-full md:translate-x-0'
+          )}
+        >
           <div className="flex items-center justify-between border-b border-border px-4 py-5">
             <Link href="/" className="flex items-baseline gap-1.5">
               <span className="font-heading text-lg italic leading-none text-foreground">
@@ -64,9 +77,28 @@ export function SiteNav() {
               </span>
               <span className="text-[11px] text-muted-foreground">Annotation</span>
             </Link>
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(false)}
+              className="md:hidden rounded-md p-1 hover:bg-secondary"
+            >
+              <X className="size-4" />
+            </button>
           </div>
 
           <nav className="flex-1 space-y-1 p-3">
+            <Link
+              href="/"
+              className={cn(
+                'flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                pathname === '/'
+                  ? 'bg-secondary text-foreground'
+                  : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground',
+              )}
+            >
+              <Home className="size-4" />
+              Home
+            </Link>
             {links.map((l) => {
               const active = pathname === l.href || pathname?.startsWith(l.href + '/')
               return (
@@ -140,9 +172,17 @@ export function SiteNav() {
       ) : null}
 
       {showSidebar ? (
-        <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-sm md:hidden">
+        <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur-sm">
           <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4">
-            <Link href="/" className="flex items-baseline gap-1.5">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="md:hidden rounded-md p-1 hover:bg-secondary"
+            >
+              <Menu className="size-5" />
+            </button>
+
+            <Link href="/" className="hidden items-baseline gap-1.5 md:flex">
               <span className="font-heading text-lg italic leading-none text-foreground">
                 Datanerds
               </span>
@@ -171,7 +211,19 @@ export function SiteNav() {
             </div>
           </div>
 
-          <nav className="flex gap-1 overflow-x-auto border-t border-border px-4 py-1.5">
+          <nav className="hidden gap-1 border-t border-border px-4 py-1.5 md:flex">
+            <Link
+              href="/"
+              className={cn(
+                'flex items-center gap-1.5 rounded-md px-2.5 py-1 font-sans text-[10px] font-medium',
+                pathname === '/'
+                  ? 'bg-secondary text-foreground'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              <Home className="size-3" />
+              Home
+            </Link>
             {links.map((l) => {
               const active = pathname === l.href || pathname?.startsWith(l.href + '/')
               return (
