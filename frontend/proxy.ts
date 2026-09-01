@@ -1,7 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PROTECTED_ROUTES = ['/operation', '/training', '/dossier', '/rankings', '/proficiency']
 const AUTH_ROUTES = ['/login']
 
 function proficiencyRedirect(request: NextRequest): NextResponse | null {
@@ -56,12 +55,8 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const pathname = request.nextUrl.pathname
 
-  if (!user && PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
-    const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('next', pathname)
-    return NextResponse.redirect(loginUrl)
-  }
-
+  // Practice, tests, progress, and rankings stay usable without Google.
+  // Sign-in is optional and only needed to persist a cloud profile.
   if (user && AUTH_ROUTES.some(route => pathname.startsWith(route))) {
     return NextResponse.redirect(new URL('/', request.url))
   }

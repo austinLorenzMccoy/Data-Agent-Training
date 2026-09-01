@@ -69,7 +69,7 @@ export async function POST(req: Request) {
 
   try {
     const { text } = await generateText({
-      model: groq('llama-3.3-70b-versatile'),
+      model: groq('openai/gpt-oss-20b'),
       system:
         'You are a senior data annotation reviewer at a covert intelligence agency. ' +
         'Grade the agent\'s justification for their classification of an AI response. ' +
@@ -83,8 +83,7 @@ export async function POST(req: Request) {
         `AI RESPONSE:\n${response}\n\n` +
         (rubric ? `RUBRIC:\n${rubric}\n\n` : '') +
         `AGENT JUSTIFICATION:\n${justification}`,
-      maxTokens: 150,
-    })
+    } as Parameters<typeof generateText>[0])
 
     // Parse and validate the JSON response
     const parsed = schema.parse(JSON.parse(text))

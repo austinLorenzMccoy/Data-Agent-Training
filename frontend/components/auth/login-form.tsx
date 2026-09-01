@@ -1,12 +1,19 @@
 'use client'
 
+import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useSearchParams } from 'next/navigation'
+
+function safeNext(raw: string | null): string {
+  if (!raw || !raw.startsWith('/') || raw.startsWith('//')) return '/training'
+  return raw
+}
 
 export function LoginForm() {
   const { signInWithGoogle, isLoading } = useAuth()
   const searchParams = useSearchParams()
   const error = searchParams.get('error')
+  const next = safeNext(searchParams.get('next'))
 
   return (
     <div className="flex flex-col items-center gap-6 p-8">
@@ -46,9 +53,16 @@ export function LoginForm() {
         {isLoading ? 'Signing in...' : 'Continue with Google'}
       </button>
 
+      <Link
+        href={next}
+        className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+      >
+        Continue without signing in
+      </Link>
+
       <p className="text-muted-foreground text-xs text-center max-w-xs">
-        Your profile, XP, and rank are tied to your Google account.
-        Your data is private and only visible to you.
+        Google is optional. Without it, progress stays on this device.
+        Signed-in profiles, XP, and rank are private to you.
       </p>
     </div>
   )

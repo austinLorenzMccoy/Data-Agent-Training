@@ -5,6 +5,7 @@ import { AgentProvider } from '@/components/providers/agent-provider'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { AgentProvider as SupabaseAgentProvider } from '@/contexts/AgentContext'
 import { SiteNav } from '@/components/site-nav'
+import { AppShell } from '@/components/app-shell'
 import './globals.css'
 
 const newsreader = Newsreader({
@@ -48,7 +49,7 @@ export default function RootLayout({
           <SupabaseAgentProvider>
             <AgentProvider>
               <SiteNav />
-              {children}
+              <AppShell>{children}</AppShell>
             </AgentProvider>
           </SupabaseAgentProvider>
         </AuthProvider>

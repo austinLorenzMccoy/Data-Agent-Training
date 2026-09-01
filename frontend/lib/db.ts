@@ -37,14 +37,16 @@ export async function fetchAgentProfile(userId: string): Promise<Agent | null> {
 
 export async function updateAgentAlias(userId: string, alias: string) {
   const supabase = createClient()
-  const { error } = await supabase.from('agents').update({ alias }).eq('id', userId)
+  const updateData = Object.assign({}, { alias })
+  const { error } = await supabase.from('agents').update(updateData as never).eq('id', userId)
   return { error: error?.message ?? null }
 }
 
 export async function updateLeaderboardOptIn(userId: string, optIn: boolean) {
   const supabase = createClient()
+  const updateData = Object.assign({}, { leaderboard_opt_in: optIn })
   const { error } = await supabase
-    .from('agents').update({ leaderboard_opt_in: optIn }).eq('id', userId)
+    .from('agents').update(updateData as never).eq('id', userId)
   return { error: error?.message ?? null }
 }
 
@@ -104,7 +106,7 @@ export async function submitOperation(
   }
 
   const { data, error } = await supabase
-    .from('operations').insert(insert).select().single()
+    .from('operations').insert(insert as never).select().single()
 
   if (error) { console.error('submitOperation:', error.message); return { operation: null, error: error.message } }
   return { operation: data, error: null }
