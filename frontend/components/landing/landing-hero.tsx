@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { RecruitDialog } from '@/components/landing/recruit-dialog'
 import { useAgent } from '@/components/providers/agent-provider'
+import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { RANKS } from '@/lib/ranks'
 import { PASS_THRESHOLD, TYPE_BLURBS, TYPE_NAMES } from '@/lib/scoring'
@@ -84,12 +85,14 @@ const PROOF = [
 
 export function LandingHero() {
   const { agent, hydrated } = useAgent()
+  const { user, signInWithGoogle, isLoading } = useAuth()
   const router = useRouter()
   const [dialogOpen, setDialogOpen] = useState(false)
   const enrolled = hydrated && !!agent
   const enabled = useMemo(() => getEnabledTypes(), [])
   const core = enabled.filter((t) => CORE_TYPES.includes(t))
   const special = enabled.filter(isV4Type)
+  const signedIn = !!user
 
   function primaryAction() {
     if (enrolled) router.push('/training')
@@ -98,6 +101,42 @@ export function LandingHero() {
 
   return (
     <div className="relative min-h-screen overflow-x-hidden">
+      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur-sm">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
+          <Link href="/" className="flex items-baseline gap-1.5">
+            <span className="font-heading text-lg italic leading-none text-foreground">
+              Datanerds
+            </span>
+            <span className="text-[11px] text-muted-foreground">Annotation</span>
+          </Link>
+          
+          <div className="flex items-center gap-2">
+            {signedIn ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-muted-foreground">{user?.email}</span>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="outline"
+                  className="font-sans text-xs"
+                >
+                  <Link href="/training">Dashboard</Link>
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={signInWithGoogle}
+                disabled={isLoading}
+                size="sm"
+                className="font-sans text-xs"
+              >
+                {isLoading ? 'Signing in...' : 'Sign in'}
+              </Button>
+            )}
+          </div>
+        </div>
+      </header>
+
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[34rem] overflow-hidden sm:h-[40rem]">
         <Image
           src="/landing/desk.jpg"
