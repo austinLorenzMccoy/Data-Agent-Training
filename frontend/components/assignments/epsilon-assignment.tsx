@@ -174,6 +174,7 @@ export function EpsilonAssignment({
           const a = results[r.id]
           return (
             <div
+              key={r.id}
               id={`epsilon-result-${r.id}`}
               className={cn(
                 'rounded-lg border bg-background/40 p-4 transition-colors',

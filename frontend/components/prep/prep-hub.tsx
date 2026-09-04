@@ -300,17 +300,17 @@ function CoreFrameworkSection() {
               <p className="mb-2 font-mono text-xs font-bold uppercase tracking-wider text-primary">Explicit</p>
               <p className="text-sm text-muted-foreground">Constraints stated directly in the prompt. No interpretation needed.</p>
               <ul className="mt-3 space-y-1 text-xs text-foreground/80">
-                <li className="flex gap-2"><span className="text-primary">→</span> "Respond in exactly 3 bullet points"</li>
-                <li className="flex gap-2"><span className="text-primary">→</span> "Keep it under 500 words"</li>
-                <li className="flex gap-2"><span className="text-primary">→</span> "Use the formal register"</li>
-                <li className="flex gap-2"><span className="text-primary">→</span> "Include water temperature"</li>
+                <li className="flex gap-2"><span className="text-primary">→</span> &quot;Respond in exactly 3 bullet points&quot;</li>
+                <li className="flex gap-2"><span className="text-primary">→</span> &quot;Keep it under 500 words&quot;</li>
+                <li className="flex gap-2"><span className="text-primary">→</span> &quot;Use the formal register&quot;</li>
+                <li className="flex gap-2"><span className="text-primary">→</span> &quot;Include water temperature&quot;</li>
               </ul>
             </div>
             <div className="rounded-lg border border-xp/30 bg-xp/5 p-4">
               <p className="mb-2 font-mono text-xs font-bold uppercase tracking-wider text-xp">Implicit</p>
               <p className="text-sm text-muted-foreground">Inferred from context — what the user obviously needs even if unstated.</p>
               <ul className="mt-3 space-y-1 text-xs text-foreground/80">
-                <li className="flex gap-2"><span className="text-xp">→</span> "Like I'm five" → no jargon, use analogies</li>
+                <li className="flex gap-2"><span className="text-xp">→</span> &quot;Like I&apos;m five&quot; → no jargon, use analogies</li>
                 <li className="flex gap-2"><span className="text-xp">→</span> Grief context → empathy required, not a listicle</li>
                 <li className="flex gap-2"><span className="text-xp">→</span> Technical audience → depth expected</li>
                 <li className="flex gap-2"><span className="text-xp">→</span> Customer-facing → professional tone</li>
@@ -318,9 +318,9 @@ function CoreFrameworkSection() {
             </div>
           </div>
           <Example label="Violation example" verdict="bad" reason="implicit instruction failure">
-            <p className="mb-2"><strong>Prompt:</strong> A user writes: "My grandmother just passed away and I need to write her eulogy. Can you help?"</p>
-            <p><strong>Response:</strong> "Sure! Here are 5 tips: 1) Keep it under 5 minutes 2) Open with a joke 3) List achievements…"</p>
-            <p className="mt-2 text-xs text-muted-foreground">The response ignores the emotional context. "Open with a joke" is tone-deaf. Implicit instruction: warmth and empathy. Verdict: Okay at best, often Bad.</p>
+            <p className="mb-2"><strong>Prompt:</strong> A user writes: &quot;My grandmother just passed away and I need to write her eulogy. Can you help?&quot;</p>
+            <p><strong>Response:</strong> &quot;Sure! Here are 5 tips: 1) Keep it under 5 minutes 2) Open with a joke 3) List achievements…&quot;</p>
+            <p className="mt-2 text-xs text-muted-foreground">The response ignores the emotional context. &quot;Open with a joke&quot; is tone-deaf. Implicit instruction: warmth and empathy. Verdict: Okay at best, often Bad.</p>
           </Example>
         </div>
       </Accordion>
@@ -333,11 +333,11 @@ function CoreFrameworkSection() {
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             <Example label="Weak justification" verdict="bad">
-              <p>"Response A followed instructions and was truthful. Response B did neither of those things."</p>
+              <p>&quot;Response A followed instructions and was truthful. Response B did neither of those things.&quot;</p>
               <p className="mt-2 text-xs text-muted-foreground">No specifics. Could apply to anything. Zero grader credit.</p>
             </Example>
             <Example label="Strong justification" verdict="good">
-              <p>"Response A is better because it correctly states the capital as Canberra and pre-empts the Sydney misconception. Response B incorrectly says Sydney is the capital, which is a direct truthfulness failure."</p>
+              <p>&quot;Response A is better because it correctly states the capital as Canberra and pre-empts the Sydney misconception. Response B incorrectly says Sydney is the capital, which is a direct truthfulness failure.&quot;</p>
               <p className="mt-2 text-xs text-muted-foreground">Names the specific fact, names the specific failure. Full grader credit.</p>
             </Example>
           </div>

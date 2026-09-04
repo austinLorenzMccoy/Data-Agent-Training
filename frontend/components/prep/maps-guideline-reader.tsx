@@ -1,6 +1,7 @@
 'use client'
 
 import { type ReactNode } from 'react'
+import Image from 'next/image'
 import doc from '@/lib/maps-guideline-doc.json'
 
 type Chapter = { id: string; title: string; markdown: string }
@@ -63,11 +64,15 @@ function MarkdownBody({ markdown }: { markdown: string }) {
       nodes.push(
         <figure key={key++} className="my-3 space-y-2">
           {group.map((g, gi) => (
-            <img
+            <Image
               key={gi}
               src={g.src}
               alt={g.alt}
+              width={0}
+              height={0}
+              sizes="100vw"
               className="h-auto w-full max-w-full rounded-md border border-border bg-white object-contain"
+              style={{ width: '100%', height: 'auto' }}
             />
           ))}
         </figure>,
