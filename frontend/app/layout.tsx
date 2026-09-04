@@ -24,11 +24,33 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ['400', '500', '600'],
 })
 
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://datanerds-ai-training.vercel.app').replace(/\/$/, '')
+const SITE_TITLE = 'Datanerds Annotation'
+const SITE_DESCRIPTION =
+  'Practice rating AI responses, maps, search results, and transcripts. Earn XP and climb the ranks.'
+
 export const metadata: Metadata = {
-  title: 'Datanerds Annotation',
-  description:
-    'Practice rating AI responses, maps, search results, and transcripts. Earn XP and climb the ranks.',
-  generator: 'v0.app',
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_TITLE,
+    images: [{ url: '/landing/desk.jpg', width: 1280, height: 720 }],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ['/landing/desk.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export const viewport = {
