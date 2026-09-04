@@ -89,7 +89,7 @@ export async function POST(req: Request) {
     const parsed = schema.parse(JSON.parse(text))
     return Response.json({ ...parsed, mode: 'ai' })
   } catch (err) {
-    console.log('[v0] grade route AI error, falling back:', (err as Error).message)
+    console.error('grade route: AI grading failed, falling back to heuristic:', (err as Error).message)
     const result = heuristicGrade(justification ?? '')
     return Response.json({ ...result, mode: 'heuristic-fallback' })
   }
