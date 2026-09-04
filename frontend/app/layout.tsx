@@ -6,6 +6,7 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { AgentProvider as SupabaseAgentProvider } from '@/contexts/AgentContext'
 import { SiteNav } from '@/components/site-nav'
 import { AppShell } from '@/components/app-shell'
+import { SidebarProvider } from '@/components/sidebar-context'
 import './globals.css'
 
 const newsreader = Newsreader({
@@ -48,8 +49,10 @@ export default function RootLayout({
         <AuthProvider>
           <SupabaseAgentProvider>
             <AgentProvider>
-              <SiteNav />
-              <AppShell>{children}</AppShell>
+              <SidebarProvider>
+                <SiteNav />
+                <AppShell>{children}</AppShell>
+              </SidebarProvider>
             </AgentProvider>
           </SupabaseAgentProvider>
         </AuthProvider>

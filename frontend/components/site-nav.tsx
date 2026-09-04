@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAgent } from '@/components/providers/agent-provider'
 import { useAuth } from '@/contexts/AuthContext'
-import { cn } from '@/lib/utils'
-import { LogOut, Menu, X, Home } from 'lucide-react'
+import { useSidebar } from '@/components/sidebar-context'
+import { cn, pathHasSidebar } from '@/lib/utils'
+import { LogOut, Menu, PanelLeftClose, X, Home } from 'lucide-react'
 import { FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM } from '@/lib/feature-flags'
 
 const LINKS = [
@@ -26,9 +27,9 @@ export function SiteNav() {
   const { agent, rank, hydrated, reset } = useAgent()
   const { user, signOut } = useAuth()
   const [signingOut, setSigningOut] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const { open: sidebarOpen, setOpen: setSidebarOpen } = useSidebar()
 
-  const showSidebar = !!pathname && pathname !== '/' && pathname !== '/login'
+  const showSidebar = pathHasSidebar(pathname)
 
   if (pathname?.startsWith('/operation/run')) return null
 
@@ -66,8 +67,8 @@ export function SiteNav() {
       {showSidebar ? (
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-surface/95 backdrop-blur-sm transition-transform duration-300 md:translate-x-0',
-            !sidebarOpen && '-translate-x-full md:translate-x-0'
+            'fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-surface/95 backdrop-blur-sm transition-transform duration-300',
+            !sidebarOpen && '-translate-x-full',
           )}
         >
           <div className="flex items-center justify-between border-b border-border px-4 py-5">
@@ -80,9 +81,11 @@ export function SiteNav() {
             <button
               type="button"
               onClick={() => setSidebarOpen(false)}
-              className="md:hidden rounded-md p-1 hover:bg-secondary"
+              aria-label="Collapse sidebar"
+              className="rounded-md p-1 hover:bg-secondary"
             >
-              <X className="size-4" />
+              <PanelLeftClose className="size-4 hidden md:block" />
+              <X className="size-4 md:hidden" />
             </button>
           </div>
 
@@ -177,7 +180,11 @@ export function SiteNav() {
             <button
               type="button"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="md:hidden rounded-md p-1 hover:bg-secondary"
+              aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+              className={cn(
+                'rounded-md p-1 hover:bg-secondary',
+                sidebarOpen && 'md:hidden',
+              )}
             >
               <Menu className="size-5" />
             </button>
