@@ -10,7 +10,7 @@ interface AuthContextValue {
   user: User | null
   session: Session | null
   isLoading: boolean
-  signInWithGoogle: () => Promise<void>
+  signInWithGoogle: (next?: string) => Promise<void>
   signOut: () => Promise<void>
 }
 
@@ -45,17 +45,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signInWithGoogle = useCallback(async () => {
+  const signInWithGoogle = useCallback(async (next?: string) => {
     if (!SUPABASE_READY) return
     const supabase = createClient()
     const origin =
       typeof window !== 'undefined'
         ? window.location.origin
         : (process.env.NEXT_PUBLIC_SITE_URL || '')
+    const redirectTo = new URL('/auth/callback', origin)
+    if (next) redirectTo.searchParams.set('next', next)
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${origin}/auth/callback`,
+        redirectTo: redirectTo.toString(),
         queryParams: { access_type: 'offline', prompt: 'consent' },
       },
     })

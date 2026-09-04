@@ -125,7 +125,7 @@ export function LandingHero() {
               </div>
             ) : (
               <Button
-                onClick={signInWithGoogle}
+                onClick={() => signInWithGoogle('/training')}
                 disabled={isLoading}
                 size="sm"
                 className="font-sans text-xs"

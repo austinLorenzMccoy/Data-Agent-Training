@@ -9,7 +9,7 @@ The following environment variables are already configured in `frontend/.env.loc
 - ✅ `NEXT_PUBLIC_SUPABASE_URL` = `https://lulfjybbiemxogbffqnp.supabase.co`
 - ✅ `NEXT_PUBLIC_SUPABASE_ANON_KEY` = (configured)
 - ✅ `SUPABASE_SERVICE_ROLE_KEY` = (configured)
-- ✅ `NEXT_PUBLIC_SITE_URL` = `http://localhost:3000`
+- ✅ `NEXT_PUBLIC_SITE_URL` = `https://datanerds-ai-training.vercel.app/`
 
 ### 2. Supabase Project Setup
 **Status:** ⚠️ **REQUIRES MANUAL VERIFICATION**
