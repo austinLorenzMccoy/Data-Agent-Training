@@ -10,4 +10,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping production keep-alive
-        run: curl -fsS --retry 3 --retry-delay 5 "https://data-agent-training.vercel.app/api/keep-alive"
+        run: curl -fsS --retry 3 --retry-delay 5 "https://datanerds-ai-training.vercel.app/api/keep-alive"
