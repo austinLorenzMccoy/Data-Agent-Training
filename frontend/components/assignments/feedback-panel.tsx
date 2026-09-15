@@ -4,7 +4,6 @@ import type { Question } from '@/lib/types'
 import { motion } from 'motion/react'
 import { Check, X, Lightbulb } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { isV4Type } from '@/lib/feature-flags'
 import { scoreDomainQuestion } from '@/lib/domain-scoring'
 
 export function FeedbackPanel({
@@ -23,7 +22,7 @@ export function FeedbackPanel({
   ratio?: number
 }) {
   const breakdown =
-    isV4Type(question.type) && selection !== undefined
+    question.payload !== undefined && selection !== undefined
       ? scoreDomainQuestion(question, selection)
       : null
   const displayRatio = ratio ?? breakdown?.ratio

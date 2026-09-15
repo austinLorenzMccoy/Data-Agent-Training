@@ -1,7 +1,7 @@
 import type { AssignmentType } from './types'
 
 export const CORE_TYPES: AssignmentType[] = ['alpha', 'beta', 'gamma', 'delta']
-export const V4_TYPES: AssignmentType[] = ['epsilon', 'zeta', 'eta', 'theta']
+export const V4_TYPES: AssignmentType[] = ['epsilon', 'zeta', 'eta', 'theta', 'iota', 'kappa']
 
 /** Unset means on, so shipped builds show the v4 tracks. Set `false` to hide one. */
 function flag(name: string): boolean {
@@ -15,6 +15,8 @@ export const TRACK_FLAGS = {
   zeta: flag('NEXT_PUBLIC_TRACK_ZETA'),
   eta: flag('NEXT_PUBLIC_TRACK_ETA'),
   theta: flag('NEXT_PUBLIC_TRACK_THETA'),
+  iota: flag('NEXT_PUBLIC_TRACK_IOTA'),
+  kappa: flag('NEXT_PUBLIC_TRACK_KAPPA'),
 } as const
 
 export const FEATURE_PROFICIENCY_GATE = flag('NEXT_PUBLIC_FEATURE_PROFICIENCY_GATE')
@@ -42,6 +44,8 @@ export function isTrackEnabled(type: AssignmentType): boolean {
   if (type === 'zeta') return TRACK_FLAGS.zeta
   if (type === 'eta') return TRACK_FLAGS.eta
   if (type === 'theta') return TRACK_FLAGS.theta
+  if (type === 'iota') return TRACK_FLAGS.iota
+  if (type === 'kappa') return TRACK_FLAGS.kappa
   return false
 }
 

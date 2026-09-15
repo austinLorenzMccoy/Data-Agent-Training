@@ -47,8 +47,10 @@ function CoreAssignment({
   // GAMMA
   const [gammaDecision, setGammaDecision] = useState<'CLEAR' | 'FLAGGED' | null>(null)
   const [gammaFlags, setGammaFlags] = useState<FlagReason[]>([])
-  // DELTA
+  // DELTA / KAPPA
   const [deltaPick, setDeltaPick] = useState<number | null>(null)
+  // IOTA
+  const [iotaPick, setIotaPick] = useState<'A' | 'B' | null>(null)
   // shared justification
   const [justification, setJustification] = useState('')
 
@@ -66,6 +68,7 @@ function CoreAssignment({
       // require a real justification only for alpha/beta
       if (question.type === 'alpha' && !alphaRating) return false
       if (question.type === 'beta' && (!betaA || !betaB || !betaPick)) return false
+      if (question.type === 'iota' && !iotaPick) return false
       return false
     }
     switch (question.type) {
@@ -73,9 +76,12 @@ function CoreAssignment({
         return !!alphaRating
       case 'beta':
         return !!betaA && !!betaB && !!betaPick
+      case 'iota':
+        return !!iotaPick
       case 'gamma':
         return gammaDecision === 'CLEAR' || (gammaDecision === 'FLAGGED' && gammaFlags.length > 0)
       case 'delta':
+      case 'kappa':
         return deltaPick !== null
       default:
         return false
@@ -91,10 +97,14 @@ function CoreAssignment({
       case 'beta':
         selection = betaPick
         break
+      case 'iota':
+        selection = iotaPick
+        break
       case 'gamma':
         selection = { decision: gammaDecision, flags: gammaDecision === 'FLAGGED' ? gammaFlags : [] }
         break
       case 'delta':
+      case 'kappa':
         selection = deltaPick
         break
     }
@@ -147,6 +157,38 @@ function CoreAssignment({
                 className={cn(
                   'rounded-md border px-3 py-2.5 text-sm font-semibold transition-all',
                   betaPick === p
+                    ? 'border-primary bg-primary/15 text-primary'
+                    : 'border-border hover:border-muted-foreground/50',
+                )}
+              >
+                Response {p}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* IOTA */}
+      {question.type === 'iota' && (
+        <>
+          <PromptBlock label="Scenario">{question.prompt}</PromptBlock>
+          <div className="grid gap-4 md:grid-cols-2">
+            <PromptBlock label="Response A">{question.responseA}</PromptBlock>
+            <PromptBlock label="Response B">{question.responseB}</PromptBlock>
+          </div>
+          <p className="mb-2 mt-4 text-[11px] font-medium text-muted-foreground">
+            Which one wins on the stated axis?
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {(['A', 'B'] as const).map((p) => (
+              <button
+                key={p}
+                type="button"
+                disabled={disabled}
+                onClick={() => setIotaPick(p)}
+                className={cn(
+                  'rounded-md border px-3 py-2.5 text-sm font-semibold transition-all',
+                  iotaPick === p
                     ? 'border-primary bg-primary/15 text-primary'
                     : 'border-border hover:border-muted-foreground/50',
                 )}
@@ -237,12 +279,14 @@ function CoreAssignment({
         </>
       )}
 
-      {/* DELTA */}
-      {question.type === 'delta' && (
+      {/* DELTA / KAPPA */}
+      {(question.type === 'delta' || question.type === 'kappa') && (
         <>
-          <PromptBlock label="Last message">{question.prompt}</PromptBlock>
+          <PromptBlock label={question.type === 'kappa' ? 'Scenario' : 'Last message'}>
+            {question.prompt}
+          </PromptBlock>
           <p className="mb-2 text-[11px] font-medium text-muted-foreground">
-            Pick the best reply
+            {question.type === 'kappa' ? 'Pick the correct call' : 'Pick the best reply'}
           </p>
           <div className="space-y-2">
             {question.responses?.map((r, i) => (

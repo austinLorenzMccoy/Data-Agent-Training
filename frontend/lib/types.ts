@@ -11,6 +11,8 @@ export type AssignmentType =
   | 'zeta'
   | 'eta'
   | 'theta'
+  | 'iota'
+  | 'kappa'
 export type Difficulty = 'easy' | 'medium' | 'hard'
 export type AlphaRating = 'CLEAR' | 'AMBIGUOUS' | 'COMPROMISED'
 

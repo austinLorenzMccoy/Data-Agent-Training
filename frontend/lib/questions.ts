@@ -674,12 +674,496 @@ export const QUESTIONS: Question[] = [
   },
 ]
 
+// ============ IOTA — AI Media Comparison (Handshake / Hedgehog) ============
+const IOTA: Question[] = [
+  {
+    id: 'iota_001',
+    type: 'iota',
+    difficulty: 'medium',
+    category: 'identity',
+    operationContext:
+      'Handshake H2H Evals — Identity axis. Prompt: "Change the subject into graduation gowns with two of her friends, together holding a diploma."',
+    prompt: 'Which output preserves the reference subject\'s identity more closely?',
+    responseA:
+      'Response A: the corresponding figure has a longer, narrower face with a heavier jawline, thinner arched brows, dark deep-set eyes, and hair flattened under a cap with no framing waves.',
+    responseB:
+      'Response B: the corresponding figure keeps the reference\'s rounder face with full cheeks and short chin, the same thick straight brows and light blue-green eyes, and the same centre-parted waves framing the face.',
+    correctAnswer: 'B',
+    explanation:
+      'Debrief: B matches the reference on every identity feature that matters — face shape, brow shape, eye color, hairstyle. A reads as a different person wearing the same smile. (Note: A also shows two diploma folders when the prompt says "a diploma" — that is an Instruction Following miss, a separate axis, not part of this call.)',
+    rubric:
+      'Award 2 if the agent names at least two matching identity features (face shape, brows, eyes, or hair) as the deciding evidence. Award 1 if they pick B without citing specific features.',
+    xpValue: 60,
+    tags: ['identity', 'image-comparison'],
+  },
+  {
+    id: 'iota_002',
+    type: 'iota',
+    difficulty: 'hard',
+    category: 'naturalness',
+    operationContext:
+      'Handshake H2H Evals — Live speech-to-speech, warm companion persona.',
+    prompt: 'Which model should win on naturalness?',
+    responseA:
+      'Model A holds the requested warm, companion register throughout and stays responsive to what the user says.',
+    responseB:
+      'Model B drifts into a stiffer, more clinical delivery partway through — the kind of shift that would discourage the user from continuing the conversation.',
+    correctAnswer: 'A',
+    explanation:
+      'Debrief: persona fit and conversational presence are constituents of naturalness under this rubric, not decoration on top of it. A model that abandons the requested register has failed a rated dimension, even if nothing it says is factually wrong.',
+    rubric:
+      'Award 2 if the agent explains that persona fit is part of naturalness, not a separate/optional axis. Award 1 if they pick A without that distinction.',
+    xpValue: 70,
+    tags: ['naturalness', 'live-s2s', 'persona'],
+  },
+  {
+    id: 'iota_003',
+    type: 'iota',
+    difficulty: 'hard',
+    category: 'artifacts',
+    operationContext:
+      'Handshake H2H Evals — AI artifacts axis, two versions of the same congressional-hearing scene.',
+    prompt: 'Which response has fewer AI artifacts?',
+    responseA:
+      'Response A is darker and lower-contrast; its only visible tell is a hand at ~9s where the fingers fuse into an indistinct mass, largely masked by motion blur. Rendered text stays clean throughout.',
+    responseB:
+      'Response B is sharp and well exposed, but a 9-second close-up shows glossy, blotchy specular patches across a subject\'s scalp, cheek, and neck — highlights that match no light source in the room — plus persistent two-frame judder and identity drift on a second subject.',
+    correctAnswer: 'A',
+    explanation:
+      'Debrief: B\'s failure is unmissable precisely because B is sharp and well-lit. The calibration notes flag "missing AI artifacts in a polished image" as the single most frequent grading error — a prettier clip is not automatically the cleaner one.',
+    rubric:
+      'Award 2 if the agent explicitly warns that a sharper/brighter clip can still lose on artifacts. Award 1 if they pick A without that caveat.',
+    xpValue: 70,
+    tags: ['artifacts', 'video-comparison'],
+  },
+  {
+    id: 'iota_004',
+    type: 'iota',
+    difficulty: 'medium',
+    category: 'utility_gate',
+    operationContext:
+      'Handshake H2H Evals — a user asks for help understanding a dense book excerpt.',
+    prompt: 'Which model should win overall?',
+    responseA:
+      'Model A actually helps the user make progress on understanding the passage, even though its delivery is plain.',
+    responseB:
+      'Model B is pleasant and warm in patches, but never clears the basic bar of being useful for the question asked.',
+    correctAnswer: 'A',
+    explanation:
+      'Debrief: naturalness and delivery only become tiebreakers once both responses clear a utility floor. A response that fails to be useful cannot be rescued by sounding good — utility is the gate here, not a tiebreaker.',
+    rubric:
+      'Award 2 if the agent states the utility-floor rule explicitly (useful-first, naturalness only decides after). Award 1 if they pick A without the rule.',
+    xpValue: 60,
+    tags: ['naturalness', 'utility', 'gating-rule'],
+  },
+  {
+    id: 'iota_005',
+    type: 'iota',
+    difficulty: 'medium',
+    category: 'audio_quality',
+    operationContext:
+      'Handshake T2V — two renders of the same "birds on screens" prompt, audio quality and sync axis.',
+    prompt: 'Which video has better audio quality?',
+    responseA: 'Video A\'s audio track is encoded at roughly 68 kbps.',
+    responseB:
+      'Video B\'s audio track is encoded at roughly 2.3 kbps — about a thirtyfold difference from A — though its ambient drone sound is present.',
+    correctAnswer: 'A',
+    explanation:
+      'Debrief: a thirtyfold bitrate gap is almost always audible as compression noise or breakup, even before checking whether B\'s ambient drone stays continuous the way the prompt requires. When the numbers are this far apart, trust your ears second and the gap first.',
+    rubric:
+      'Award 2 if the agent cites the bitrate gap as the deciding evidence and notes it should still be confirmed by ear. Award 1 if they only assert "A sounds better."',
+    xpValue: 55,
+    tags: ['audio', 'video-comparison'],
+  },
+  {
+    id: 'iota_006',
+    type: 'iota',
+    difficulty: 'hard',
+    category: 'instruction_following',
+    operationContext:
+      'Handshake H2H Evals — Instruction Following axis. Script beat: a senator seated behind an elevated bench raises her hand at the end of the clip.',
+    prompt: 'Which response follows the script more closely?',
+    responseA:
+      'Response A places the senator behind the elevated bench above the witnesses, and at the very end of the clip she raises her hand — matching the script\'s final beat.',
+    responseB:
+      'Response B also shows a raised hand at the end, but it belongs to a different person in the scene — the gesture is assigned to the wrong character. It has a more crowded, packed-looking room.',
+    correctAnswer: 'A',
+    explanation:
+      'Debrief: Instruction Following is decided by matching the script beat by beat. B\'s room looks better, but assigning the key closing gesture to the wrong person is a direct miss on the one beat that was being scored — polish on an unscored dimension does not offset it.',
+    rubric:
+      'Award 2 if the agent identifies the misassigned gesture as the specific, decisive miss. Award 1 if they pick A only on general staging quality.',
+    xpValue: 70,
+    tags: ['instruction_following', 'video-comparison'],
+  },
+  {
+    id: 'iota_007',
+    type: 'iota',
+    difficulty: 'easy',
+    category: 'naturalness',
+    operationContext:
+      'Handshake H2H Evals — a casual advice request where both models give usable advice.',
+    prompt: 'Which model should win overall?',
+    responseA:
+      'Model A sounds like a real conversational partner — relaxed, responsive, engaged.',
+    responseB: 'Model B sounds stiff and generated, even though its advice is also usable.',
+    correctAnswer: 'A',
+    explanation:
+      'Debrief: this is the mirror case of a utility-gate question — here both responses already clear the usefulness bar, so naturalness becomes the deciding axis and A wins on delivery.',
+    rubric:
+      'Award 2 if the agent notes that this differs from a utility-gated case because both responses already pass the floor. Award 1 if they just prefer A\'s tone.',
+    xpValue: 45,
+    tags: ['naturalness', 'utility', 'gating-rule'],
+  },
+  {
+    id: 'iota_008',
+    type: 'iota',
+    difficulty: 'medium',
+    category: 'visual_quality',
+    operationContext: 'Handshake T2V — same "birds on screens" prompt, visual quality axis.',
+    prompt: 'Which response has better visual quality?',
+    responseA:
+      'Response A renders at roughly 656×368 and a low bitrate; highlights blow out with chromatic fringing around the main subject, losing interior detail, with visible compression blocking in darker areas.',
+    responseB:
+      'Response B renders at 1920×1080 at a much higher bitrate, holding fine feather-level detail, smooth tonal gradation, and cleanly resolved fine particles in the air, though its whites carry a slight color cast.',
+    correctAnswer: 'B',
+    explanation:
+      'Debrief: resolution, detail retention, and highlight control decide this axis, and B is ahead on all three despite a minor color-cast flaw. Note the flaw for completeness, but it does not outweigh the detail and clipping gap.',
+    rubric:
+      'Award 2 if the agent names at least two concrete visual-quality factors (resolution/detail/highlight clipping). Award 1 if they only say "B looks sharper."',
+    xpValue: 55,
+    tags: ['visual_quality', 'video-comparison'],
+  },
+  {
+    id: 'iota_009',
+    type: 'iota',
+    difficulty: 'hard',
+    category: 'motion_temporal',
+    operationContext:
+      'Handshake H2H Evals — Motion & Temporal Quality axis, same hearing-room scene rendered twice.',
+    prompt: 'Which response is better on motion and temporal quality?',
+    responseA:
+      'Response A plays as one continuous take with no cuts; frame-to-frame change rises and falls smoothly with the camera move and exposure declines gradually with no flicker.',
+    responseB:
+      'Response B carries a persistent two-frame oscillation in frame-to-frame change that survives even in its stillest passages — a fixed pattern rather than genuine motion — and it cuts hard partway through the clip.',
+    correctAnswer: 'A',
+    explanation:
+      'Debrief: a periodic judder that persists when almost nothing in the shot is moving is instability baked into the render, not motion energy — this axis rates temporal stability, and A is the stable one even though B\'s individual frames may look sharper.',
+    rubric:
+      'Award 2 if the agent distinguishes "periodic judder" from genuine motion as the deciding evidence. Award 1 if they pick A without that distinction.',
+    xpValue: 70,
+    tags: ['motion', 'temporal', 'video-comparison'],
+  },
+  {
+    id: 'iota_010',
+    type: 'iota',
+    difficulty: 'medium',
+    category: 'instruction_following',
+    operationContext:
+      'Handshake H2H Evals — a red panda video pair, Instruction Following axis. The prompt scripts a sequence: loses its grip, slides down the branch, catches itself with its claws, climbs back up, settles into a different fork.',
+    prompt: 'Which response wins on instruction following?',
+    responseA:
+      'Response A covers only the opening beat — the panda eats leaves, then walks calmly down the branch with no loss of grip, no slide, no claw-catch, and no climb-back, ending curled asleep. It is the more photographic, softer-lit clip.',
+    responseB:
+      'Response B executes nearly every scripted beat: losing its grip, sliding with visible snow spray, bracing its claws to arrest the slide, climbing back up, and settling into a different fork of the branch.',
+    correctAnswer: 'B',
+    explanation:
+      'Debrief: A is the prettier, more photographic clip, but B is the faithful one — it hits six of the prompt\'s beats that A skips entirely. On this axis, faithfulness to the script decides, not which clip looks nicer.',
+    rubric:
+      'Award 2 if the agent explicitly separates "prettier clip" from "instruction-following winner." Award 1 if they pick B without that distinction.',
+    xpValue: 60,
+    tags: ['instruction_following', 'video-comparison'],
+  },
+]
+
+// ============ KAPPA — Rubric & Annotation Judgment (Handshake / Voyager + Hedgehog) ============
+const KAPPA: Question[] = [
+  {
+    id: 'kappa_001',
+    type: 'kappa',
+    difficulty: 'medium',
+    category: 'rubric_quality',
+    operationContext:
+      'Handshake Voyager — a fellow is writing a gradeable rubric criterion for a prompt about a cooking video.',
+    prompt:
+      'Prompt: "What objects does the woman, who appeared on screen with the caption FOOD CURATOR, touch in the kitchen after the oven was first opened?" Which of the following is a correctly written, self-contained rubric criterion for this prompt?',
+    responses: [
+      'The response specifies that the woman touches the cake stand.',
+      'The response specifies that the woman touches the oven door and then the counter while checking the cake.',
+      'The response identifies every object the woman touches in the kitchen.',
+      'The response concludes that the woman handles the cake carefully.',
+    ],
+    correctAnswer: 0,
+    explanation:
+      'Debrief: option 1 states one fact only, as a concrete observable thing a grader can check without rewatching. Option 2 bundles two separate touches into one line (fails atomic). Option 3 is an instruction, not a checkable fact. Option 4 is a subjective judgment, not gradeable.',
+    xpValue: 50,
+    tags: ['rubric', 'voyager'],
+  },
+  {
+    id: 'kappa_002',
+    type: 'kappa',
+    difficulty: 'medium',
+    category: 'prompt_quality',
+    operationContext: 'Handshake Voyager — a fellow cannot work out how many rubric criteria her prompt needs.',
+    prompt: 'Which of these four prompts is causing that problem?',
+    responses: [
+      'Which of the wearable items modelled on the table are later worn while the woman says her vows?',
+      'What does the scientist do with her hands while she discusses the findings she introduced earlier in the lecture?',
+      'Which of the percussion instruments are the main subject of a camera shot during the passages when no one is singing?',
+      'Which of the ingredients the chef lists at the start does he leave out when he cooks the dish?',
+    ],
+    correctAnswer: 1,
+    explanation:
+      'Debrief: "what does she do with her hands" gives no bounded set of facts, so different fellows write different numbers of criteria. The other three each resolve to a closed set — wearable items, percussion instruments, listed ingredients — which is what makes a prompt "bounded."',
+    xpValue: 55,
+    tags: ['rubric', 'prompt-quality', 'voyager'],
+  },
+  {
+    id: 'kappa_003',
+    type: 'kappa',
+    difficulty: 'medium',
+    category: 'rubric_quality',
+    operationContext:
+      'Handshake Voyager — submitted criterion: "The response specifies that the host mispronounces the guest\'s name and that the guest corrects him later in the interview."',
+    prompt: 'What is the primary problem with this criterion?',
+    responses: [
+      'It is not self-contained, because it does not say where in the video each event occurs.',
+      'It is out of scope, because the prompt did not ask about the host.',
+      'It fuses two separately verifiable facts into one line and should be split into two criteria.',
+      'There is nothing wrong. This is a correctly written criterion.',
+    ],
+    correctAnswer: 2,
+    explanation:
+      'Debrief: anything joined with "and" gets split — the mispronunciation and the correction are two separately checkable facts. Criteria are not required to carry timestamps, so option 1 is a decoy.',
+    xpValue: 55,
+    tags: ['rubric', 'atomic', 'voyager'],
+  },
+  {
+    id: 'kappa_004',
+    type: 'kappa',
+    difficulty: 'medium',
+    category: 'rubric_quality',
+    operationContext:
+      'Handshake Voyager — a fellow\'s rubric lists one positive criterion for each of four percussion instruments that are each the main subject of a shot. A fifth instrument is played but is never the main subject of any shot.',
+    prompt: 'What is the most important thing missing from this rubric?',
+    responses: [
+      'Nothing is missing. The rubric already lists all four correct instruments, so it is complete.',
+      'A negative criterion naming the fifth instrument as a distractor the response should not claim was the shot subject, plus a catch-all for any other instrument.',
+      'A negative criterion stating the response does not mention any non-percussion instrument.',
+      'The rubric should be converted into a short answer, since the instruments can be listed concisely.',
+    ],
+    correctAnswer: 1,
+    explanation:
+      'Debrief: an instrument that is played but never the shot subject is exactly what a model will hallucinate into its answer. Four positives with zero negatives lets that happen and still score full marks — a named distractor beats a generic catch-all.',
+    xpValue: 60,
+    tags: ['rubric', 'negative-criteria', 'voyager'],
+  },
+  {
+    id: 'kappa_005',
+    type: 'kappa',
+    difficulty: 'easy',
+    category: 'prompt_quality',
+    operationContext:
+      'Handshake Voyager — a fellow writes: "While the dog is walking alone down the street, where does he stop?"',
+    prompt: 'Why is this prompt problematic?',
+    responses: [
+      'It is fine as written — "where" clearly identifies a single location.',
+      'The subject is ambiguous and needs a clearer description of the dog.',
+      '"Where" invites several equally defensible labels for the same spot (the bench, the doorstep, the porch).',
+      'The scope is undefined; it needs a start and end timestamp.',
+    ],
+    correctAnswer: 2,
+    explanation:
+      'Debrief: one physical spot can have several correct, differently worded names. The fix is anchoring to a canonical label, not describing the dog (already unique) or adding timestamps (banned in the question text).',
+    xpValue: 45,
+    tags: ['prompt-quality', 'voyager'],
+  },
+  {
+    id: 'kappa_006',
+    type: 'kappa',
+    difficulty: 'hard',
+    category: 'prompt_quality',
+    operationContext: 'Handshake Voyager — the "From X to Y" window structure is banned, even without those exact words.',
+    prompt: 'Which of these four prompts avoids the banned "from X to Y" window structure?',
+    responses: [
+      'Starting when the barista turns on the grinder and ending when she hands over the cup, what does she add to the drink?',
+      'While the barista is making the drink, which of the syrups she lined up on the counter does she actually add?',
+      'After the barista greets the customer but before she calls out his name, what does she do with the milk jug?',
+      'Between the moment the espresso starts pouring and the moment the lid goes on, how does she change her grip on the jug?',
+    ],
+    correctAnswer: 1,
+    explanation:
+      'Debrief: option 2 anchors to one ongoing, named state ("while making the drink"). The other three each bolt a start event to an end event — "starting when / ending when," "after / but before," "between / and" — which is the banned structure regardless of the exact wording used.',
+    xpValue: 65,
+    tags: ['prompt-quality', 'from-x-to-y', 'voyager'],
+  },
+  {
+    id: 'kappa_007',
+    type: 'kappa',
+    difficulty: 'hard',
+    category: 'prompt_quality',
+    operationContext: 'Handshake Voyager — the mute test: the answer must be impossible to reach with the video muted, and both modalities must contribute real evidence.',
+    prompt: 'Which prompt genuinely combines video with audio, rather than letting one modality carry the whole answer?',
+    responses: [
+      'After the speaker says a specific phrase, what does he do next?',
+      'While the crowd cheers throughout the show, which band member leaves the stage?',
+      'In the second song, once the vocals have begun, which percussion instruments are the main subject of a camera shot during the passages when no one is singing?',
+      'From when the support act leaves the stage to when the headliner\'s first song ends, which songs does the crowd sing along to?',
+    ],
+    correctAnswer: 2,
+    explanation:
+      'Debrief: mute it and you cannot tell which passages have no singing, so you cannot know which camera shots count — audio alone will not tell you which instrument the camera is on either. Both modalities carry real, necessary evidence. Option 1 quotes a visible cue so the model can skip the audio; option 2 (crowd cheering) is ambient wallpaper that adds nothing; option 4 is the banned "from X to Y" structure.',
+    xpValue: 70,
+    tags: ['prompt-quality', 'mute-test', 'voyager'],
+  },
+  {
+    id: 'kappa_008',
+    type: 'kappa',
+    difficulty: 'medium',
+    category: 'prompt_quality',
+    operationContext: 'Handshake Voyager — four prompts each anchor to a moment that is genuinely hard to find in a 1h+ video.',
+    prompt: 'Which one still fails, because once you have found the moment, the answer takes no real understanding of the clip?',
+    responses: [
+      'When the chef plates the dish she was preparing while the narrator described the restaurant\'s history, what colour is the plate?',
+      'How does the chef\'s plating technique for that dish differ from her technique on the earlier course?',
+      'What changes about the chef\'s grip on the tongs after the sauce she had been warming boils over?',
+      'Which of the garnishes the chef set aside during prep does she leave off the finished plate?',
+    ],
+    correctAnswer: 0,
+    explanation:
+      'Debrief: hard anchor, lazy payoff — once you pause on the right frame, reading off a plate color takes no understanding. The other three all require tracking a change or a comparison across the clip after the anchor is found, which is what makes the anchor\'s difficulty worth it.',
+    xpValue: 60,
+    tags: ['prompt-quality', 'voyager'],
+  },
+  {
+    id: 'kappa_009',
+    type: 'kappa',
+    difficulty: 'medium',
+    category: 'entity_tagging',
+    operationContext:
+      'Handshake Hedgehog — a rainy-street image is tagged with: person, umbrella, rain, street, city, traffic lights, reflections.',
+    prompt: 'Which rework of these entity tags is correct?',
+    responses: [
+      'Keep all seven tags — more tags means more complete coverage.',
+      'Keep person and umbrella; remove rain, street, city (weather/scene descriptors, not discrete objects), plus traffic lights and reflections (no single identifiable instance — every light is defocused bokeh, and reflections are optical, not objects).',
+      'Remove person and umbrella since they are too generic; keep only the specific background elements.',
+      'Keep traffic lights and reflections since they add detail; remove person and umbrella as too obvious to need tagging.',
+    ],
+    correctAnswer: 1,
+    explanation:
+      'Debrief: a valid entity tag needs to be a discrete, identifiable object with clear boundaries. Weather and scene descriptors are not entities, and "traffic lights" here fails because no individual light in the frame is identifiable — an optical phenomenon like a reflection is not an object at all.',
+    xpValue: 55,
+    tags: ['entity-tagging', 'hedgehog'],
+  },
+  {
+    id: 'kappa_010',
+    type: 'kappa',
+    difficulty: 'medium',
+    category: 'flag_skip',
+    operationContext:
+      'Handshake Hedgehog — a 12-second egocentric kitchen clip: a person carries a bottle across the kitchen and places it in a pantry. From roughly the 8-second mark, the pantry is so dark that most of the frame is near-black and the destination shelf cannot be identified; the walking sections are smeared with heavy motion blur.',
+    prompt: 'Should this video be flagged, skipped, or annotated as normal?',
+    responses: [
+      'Annotate as normal — the opening seconds are well-lit, so the clip is usable overall.',
+      'Skip — the task instructions for this clip are unclear.',
+      'Flag — the footage quality makes the one window containing the actual manipulation unusable for annotation, and no target location or frame-accurate boundary can be set without guessing.',
+      'Annotate as normal, but note the darkness as a minor quality issue in the free-text field.',
+    ],
+    correctAnswer: 2,
+    explanation:
+      'Debrief: this is a media problem, not a labeling one — which is exactly what Flag is for. The unusable stretch coincides with the only real manipulation in the clip, so the footage cannot support the annotation regardless of how good the opening seconds look. Skip would apply if the footage were fine but the task itself were ambiguous — that is not the case here.',
+    xpValue: 60,
+    tags: ['flag-skip', 'hedgehog'],
+  },
+  {
+    id: 'kappa_011',
+    type: 'kappa',
+    difficulty: 'hard',
+    category: 'grounded_captioning',
+    operationContext:
+      'Handshake Hedgehog — original caption: "A San Francisco commuter anxiously waits for a cable car at California and Hyde." The image only shows a person seen from behind, holding an umbrella beside a wet city street with blurred lights.',
+    prompt: 'Which rework removes every unsupported claim?',
+    responses: [
+      'A commuter waits for transportation on a wet city street.',
+      'A person anxiously watches traffic on a wet city street.',
+      'A person seen from behind holds an umbrella beside a wet city street with blurred lights in the background.',
+      'A San Francisco resident stands beside a wet city street.',
+    ],
+    correctAnswer: 2,
+    explanation:
+      'Debrief: "holds" is safe because holding is a visible physical state; "waits," "commuter," "anxiously," "San Francisco," and the intersection name are all claims about purpose, role, emotion, or location that the image cannot support. Option 4 is the sneakiest distractor — its second half is clean, which makes it easy to skim past the location attribution at the front.',
+    xpValue: 65,
+    tags: ['captioning', 'hedgehog'],
+  },
+  {
+    id: 'kappa_012',
+    type: 'kappa',
+    difficulty: 'medium',
+    category: 'critique_rework',
+    operationContext:
+      'Handshake Hedgehog — a critique needs to mark garbled, malformed text on one milk carton. The text block has several stacked defect dots on it already.',
+    prompt: 'What is the correct rework for the stacked dots?',
+    responses: [
+      'Keep all of the dots — more markers means more thorough coverage.',
+      'Collapse them to a single dot at the center of the garbled text block — one dot per garbled block, never one per letter.',
+      'Delete all the dots — the defect is too hard to mark precisely, so it should not be flagged at all.',
+      'Move some of the dots onto nearby, unrelated objects to spread out the critique.',
+    ],
+    correctAnswer: 1,
+    explanation:
+      'Debrief: the rework table consolidates in-focus garbled text with multiple stacked dots into one dot at the center of the block. Keeping all of them treats marker volume as coverage; deleting them throws away a real defect over clumsy marking; and moving dots onto unrelated content manufactures defects on content that may be fine.',
+    xpValue: 55,
+    tags: ['critique-rework', 'hedgehog'],
+  },
+  {
+    id: 'kappa_013',
+    type: 'kappa',
+    difficulty: 'medium',
+    category: 'inpaint_review',
+    operationContext:
+      'Handshake Hedgehog — an inpaint edit was supposed to remove a person from a shot. Inside the edit box, for the first ~3 seconds the person is still visible as a semi-transparent double, with background lettering readable straight through their body, before snapping fully opaque.',
+    prompt: 'Which issue category correctly describes this defect?',
+    responses: [
+      'Holes / missing regions',
+      'Ghosting / trails, plus blur/softness from the same stretch of floor reading noticeably softer inside the edit box than outside it',
+      'Warping / distortion',
+      'Flickering at edges',
+    ],
+    correctAnswer: 1,
+    explanation:
+      'Debrief: a semi-transparent double that background detail reads through is ghosting/trails, not a hole (nothing is blank or cut out) and not warping (geometry stays correct). A single abrupt transition at ~3.2s is one snap, not oscillation, so it is not "flickering." The measurable softness on the same floor surface inside vs. outside the box is a separate, real blur/softness defect worth ticking alongside it.',
+    xpValue: 65,
+    tags: ['inpaint-review', 'hedgehog'],
+  },
+  {
+    id: 'kappa_014',
+    type: 'kappa',
+    difficulty: 'hard',
+    category: 'camera_movement',
+    operationContext:
+      'Handshake Hedgehog — a jogging clip was labelled "pan right." In the footage, runners enter from one side, cross the frame, and exit the other, while the road edge, a utility building, sign posts, and a light pole all hold their positions throughout.',
+    prompt: 'What should the reviewer change this camera-movement label to?',
+    responses: [
+      'Keep "pan right" — the runners moved right, so the label is correct.',
+      'Static elevated wide shot — the background elements (road, building, sign posts) remain fixed, which is what decides camera movement, not where the subject goes.',
+      'Tracking shot — the camera is following the runners.',
+      'Handheld — the runners\' movement creates visible shake.',
+    ],
+    correctAnswer: 1,
+    explanation:
+      'Debrief: camera-movement labels describe what the frame and background do, not where the subject went. In a genuine pan or tracking shot, the background sweeps past a subject that stays roughly centered — here the runners cross and exit while everything else holds position, which is the signature of a static shot. Tracking is ruled out because tracking requires the camera to travel with the subject, and "handheld" is self-defeating — subject movement cannot create camera shake.',
+    xpValue: 70,
+    tags: ['camera-movement', 'hedgehog'],
+  },
+]
+
+const SPECIAL_QUESTIONS: Question[] = [...V4_QUESTIONS, ...IOTA, ...KAPPA]
+
 export function getQuestionBank(extraEnabled?: AssignmentType[]): Question[] {
-  const v4 = V4_QUESTIONS.filter((q) => {
+  const special = SPECIAL_QUESTIONS.filter((q) => {
     if (extraEnabled && extraEnabled.includes(q.type)) return true
     return isTrackEnabled(q.type)
   })
-  return [...QUESTIONS, ...v4]
+  return [...QUESTIONS, ...special]
 }
 
 export function getQuestionsByType(type: Question['type']): Question[] {

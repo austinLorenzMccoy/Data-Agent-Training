@@ -62,6 +62,10 @@ The maps guideline is the same vendor, but it is a 278-page illustrated document
 | `docs/guidelines/Freya_Certification_Study_Guide.md` + `Freya_Exam_QA_Compilation.md` | Transcription (`/guidelines/theta`) |
 | `docs/guidelines/en-CA_Language_Proficiency_Exam_QA.md` | English exam guide (`/guidelines/proficiency`) |
 | `docs/try_rating_text_response_evaluation.md` | Core “rate a response / compare two” work (practice types Alpha–Delta) |
+| `docs/guidelines/handshake/H2H Evals Onboarding.md` + `Project-Hedgehog-Answers-Part1-and-Part2.md` + `latest-hedgehog-20260808-hey.md` | AI media comparison (`/guidelines/iota`) |
+| `docs/guidelines/handshake/voyager-assessment-q-and-a.md` + `Project-Hedgehog-Answers-Part1-and-Part2.md` (Part 2) | Rubric & annotation judgment (`/guidelines/kappa`) |
+
+The rest of `docs/guidelines/handshake/` (IG Entity Tagging, New evals, T2v Assessment Hub, Lizard V2, Project Seal BMS, Project Ivy, R2I Severity Benchmark, S2S Benchmark, Halcyon Reviewer) plus `docs/guidelines/83-lightspeed.md` are converted but not yet wired into the app — several are image-only source PDFs (screenshots, readable via the extracted `media/` figures, not OCR) or too thin on their own for a dedicated track. `83-lightspeed.md` is a scored run-through of the existing Lightspeed exam, not new guideline content.
 
 Product specs: `docs/Datanerds_Annotation_PRD_v2.md`, `docs/Datanerds_Annotation_PRD_v4.md`, `docs/Datanerds_Backend_Implementation.md`.
 
@@ -69,7 +73,7 @@ Product specs: `docs/Datanerds_Annotation_PRD_v2.md`, `docs/Datanerds_Annotation
 
 ## Features
 
-- **Eight assignment types** — Rate a response, compare two, review a transcript, pick the best reply, plus maps, search quality, search (simple), and transcription
+- **Ten assignment types** — Rate a response, compare two, review a transcript, pick the best reply, plus maps, search quality, search (simple), transcription, AI media comparison, and rubric/annotation judgment
 - **Full guidelines in the app** — including the DataAnnotation.tech pack and the illustrated maps document. Nothing downloads
 - **AI-graded justifications** — Groq (`llama-3.3-70b-versatile`) scores written reasons
 - **Practice and timed tests** — no clock on practice; tests are one task type, timed, with a debrief
@@ -92,6 +96,8 @@ Product specs: `docs/Datanerds_Annotation_PRD_v2.md`, `docs/Datanerds_Annotation
 | `/guidelines/zeta` | — | Page Quality + Needs Met |
 | `/guidelines/eta` | — | Search (simple) |
 | `/guidelines/theta` | — | Transcription |
+| `/guidelines/iota` | — | AI media comparison (Handshake / Hedgehog) |
+| `/guidelines/kappa` | — | Rubric & annotation judgment (Handshake / Voyager) |
 | `/guidelines/proficiency` | — | English exam study guide |
 | `/training` | Practice | Untimed practice, one type at a time |
 | `/operation` | Test | Timed packet, then `/operation/debrief` |
@@ -114,10 +120,12 @@ Product specs: `docs/Datanerds_Annotation_PRD_v2.md`, `docs/Datanerds_Annotation
 | **Rate a search result** | Page Quality (10-point) + Needs Met (5-point) |
 | **Rate search (simple)** | Four-point satisfaction |
 | **Transcribe audio** | Segment, speakers, verbatim transcript, tags |
+| **Compare AI media** | Two AI-generated clips/images, pick the winner on the stated axis + a written reason |
+| **Judge the annotation** | Pick the correct rubric/tag/review call from four options |
 
-Written reasons on the first two types are **AI-graded**. Maps / search / transcription are field-by-field. Audio playback on transcription is real WAV files in `frontend/public/audio/`.
+Written reasons on Rate a response, Compare two responses, and Compare AI media are **AI-graded**. Maps / search / transcription are field-by-field. Audio playback on transcription is real WAV files in `frontend/public/audio/`.
 
-v4 tracks are **on** unless a flag is `false`. To hide one: `NEXT_PUBLIC_TRACK_THETA=false`.
+v4 tracks are **on** unless a flag is `false`. To hide one: `NEXT_PUBLIC_TRACK_THETA=false` (also `NEXT_PUBLIC_TRACK_IOTA`, `NEXT_PUBLIC_TRACK_KAPPA`).
 
 Optional language gate: `NEXT_PUBLIC_REQUIRED_PROFICIENCY_EXAM=en-CA` requires `/proficiency/en-CA` before transcription (default gated type).
 

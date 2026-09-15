@@ -23,6 +23,8 @@ import {
   MapPin,
   Search,
   AudioLines,
+  Images,
+  ClipboardCheck,
   ArrowDown,
   ArrowRight,
   BookOpen,
@@ -39,6 +41,8 @@ const TYPE_ICONS: Record<AssignmentType, React.ElementType> = {
   zeta: Search,
   eta: Search,
   theta: AudioLines,
+  iota: Images,
+  kappa: ClipboardCheck,
 }
 
 const TYPE_DESC = TYPE_BLURBS

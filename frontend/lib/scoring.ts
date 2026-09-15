@@ -5,7 +5,6 @@ import type {
   OperationResult,
   Question,
 } from './types'
-import { isV4Type } from './feature-flags'
 import { scoreDomainQuestion } from './domain-scoring'
 
 export const XP = {
@@ -34,6 +33,8 @@ export const TYPE_LABELS: Record<AssignmentType, string> = {
   zeta: 'ZETA',
   eta: 'ETA',
   theta: 'THETA',
+  iota: 'IOTA',
+  kappa: 'KAPPA',
 }
 
 export const TYPE_NAMES: Record<AssignmentType, string> = {
@@ -45,6 +46,8 @@ export const TYPE_NAMES: Record<AssignmentType, string> = {
   zeta: 'Rate a search result',
   eta: 'Rate search (simple)',
   theta: 'Transcribe audio',
+  iota: 'Compare AI media',
+  kappa: 'Judge the annotation',
 }
 
 export const TYPE_BLURBS: Record<AssignmentType, string> = {
@@ -56,6 +59,8 @@ export const TYPE_BLURBS: Record<AssignmentType, string> = {
   zeta: 'Rate the page quality and how well it answers the search.',
   eta: 'A simpler four-point scale for how satisfying a result is.',
   theta: 'Cut the audio into speakers, type what they said, and tag anything unclear.',
+  iota: 'Two AI-generated clips or images, one prompt. Pick the winner on the stated axis and say why.',
+  kappa: 'Pick the correct rubric, tag, or review call from four options and see why the others fail.',
 }
 
 export const ALL_ASSIGNMENT_TYPES: AssignmentType[] = [
@@ -67,6 +72,8 @@ export const ALL_ASSIGNMENT_TYPES: AssignmentType[] = [
   'zeta',
   'eta',
   'theta',
+  'iota',
+  'kappa',
 ]
 
 export function streakBonus(streak: number): number {
@@ -76,9 +83,14 @@ export function streakBonus(streak: number): number {
   return 0
 }
 
-/** 0–1 credit for a selection. v4 domains support partial credit. */
+/** Domain-scored questions (epsilon/zeta/theta) carry a rubric payload; iota/kappa reuse the core shape. */
+function hasDomainPayload(q: Question): boolean {
+  return q.payload !== undefined
+}
+
+/** 0–1 credit for a selection. Payload-bearing domains support partial credit. */
 export function selectionScore(q: Question, selection: unknown): number {
-  if (isV4Type(q.type)) {
+  if (hasDomainPayload(q)) {
     return scoreDomainQuestion(q, selection).ratio
   }
   return isExactSelection(q, selection) ? 1 : 0
@@ -86,7 +98,7 @@ export function selectionScore(q: Question, selection: unknown): number {
 
 // Determine MCQ correctness for a question given the agent's selection.
 export function isSelectionCorrect(q: Question, selection: unknown): boolean {
-  if (isV4Type(q.type)) return selectionScore(q, selection) >= 1
+  if (hasDomainPayload(q)) return selectionScore(q, selection) >= 1
   return isExactSelection(q, selection)
 }
 
@@ -95,8 +107,10 @@ function isExactSelection(q: Question, selection: unknown): boolean {
     case 'alpha':
       return selection === q.correctAnswer
     case 'beta':
+    case 'iota':
       return selection === q.correctAnswer // 'A' | 'B'
     case 'delta':
+    case 'kappa':
       return selection === q.correctAnswer // number index
     case 'gamma': {
       const correct = q.correctAnswer as GammaCorrectAnswer
@@ -117,12 +131,12 @@ function isExactSelection(q: Question, selection: unknown): boolean {
 // Max possible points for a single question (MCQ + justification if applicable)
 export function pointsPossible(q: Question): number {
   const base = q.xpValue
-  const hasJustification = q.type === 'alpha' || q.type === 'beta'
+  const hasJustification = q.type === 'alpha' || q.type === 'beta' || q.type === 'iota'
   return base + (hasJustification ? XP.JUSTIFICATION_FULL : 0)
 }
 
 export function hasJustification(type: AssignmentType): boolean {
-  return type === 'alpha' || type === 'beta'
+  return type === 'alpha' || type === 'beta' || type === 'iota'
 }
 
 // Compute IQ-Score (% of total possible points earned)

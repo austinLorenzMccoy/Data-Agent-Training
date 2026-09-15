@@ -8,8 +8,10 @@ import { cn } from '@/lib/utils'
 import { useAgent } from '@/components/providers/agent-provider'
 import {
   AudioLines,
+  ClipboardCheck,
   Crosshair,
   GitCompare,
+  Images,
   ListChecks,
   MapPin,
   Search,
@@ -25,6 +27,8 @@ const ICONS: Record<AssignmentType, typeof Crosshair> = {
   zeta: Search,
   eta: Search,
   theta: AudioLines,
+  iota: Images,
+  kappa: ClipboardCheck,
 }
 
 export function TrackPicker({

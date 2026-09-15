@@ -37,6 +37,20 @@ export const TRACKS: SpecialisationTrack[] = [
     xpRequired: 4000,
     blurb: 'Cut speakers apart, type what they said, and tag anything unclear.',
   },
+  {
+    id: 'media_comparator',
+    label: 'AI media comparison',
+    focusType: 'iota',
+    xpRequired: 3500,
+    blurb: 'Two AI-generated clips or images, one axis at a time. Pick the winner and say why.',
+  },
+  {
+    id: 'annotation_judge',
+    label: 'Rubric & annotation judgment',
+    focusType: 'kappa',
+    xpRequired: 3500,
+    blurb: 'Write a gradeable rubric line, spot a badly scoped prompt, or make the right review call.',
+  },
 ]
 
 export function trackForType(type: AssignmentType): SpecialisationTrack | undefined {

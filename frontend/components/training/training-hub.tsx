@@ -13,7 +13,7 @@ import { FeedbackPanel } from '@/components/assignments/feedback-panel'
 import { NeuralNoise } from '@/components/neural-noise'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { ArrowRight, Crosshair, GitCompare, ShieldCheck, ListChecks, Lock, MapPin, Search, AudioLines } from 'lucide-react'
+import { ArrowRight, Crosshair, GitCompare, ShieldCheck, ListChecks, Lock, MapPin, Search, AudioLines, Images, ClipboardCheck } from 'lucide-react'
 import { CORE_TYPES, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM, getEnabledTypes, getProficiencyGatedTypes, isV4Type } from '@/lib/feature-flags'
 import { guidelineFor } from '@/lib/guidelines'
 import { hasPassedProficiency } from '@/lib/proficiency'
@@ -28,6 +28,8 @@ const TYPE_ICONS: Record<AssignmentType, typeof Crosshair> = {
   zeta: Search,
   eta: Search,
   theta: AudioLines,
+  iota: Images,
+  kappa: ClipboardCheck,
 }
 
 export function TrainingHub() {
