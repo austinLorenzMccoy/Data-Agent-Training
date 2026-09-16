@@ -115,6 +115,12 @@ export function LandingHero() {
           </Link>
           
           <div className="flex items-center gap-2">
+            <Link
+              href="/pricing"
+              className="hidden font-sans text-xs text-muted-foreground hover:text-foreground sm:block"
+            >
+              Pricing
+            </Link>
             {signedIn ? (
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">{user?.email}</span>
@@ -291,6 +297,25 @@ export function LandingHero() {
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="relative mx-auto max-w-4xl px-4 pb-16">
+        <p className="mb-2 text-center text-sm font-medium text-primary">Clearance levels</p>
+        <h2 className="mb-3 text-center font-heading text-3xl font-medium tracking-tight">
+          Free to start, upgrade when you outgrow it.
+        </h2>
+        <p className="mx-auto mb-8 max-w-2xl text-center text-sm leading-relaxed text-muted-foreground">
+          Recruit Clearance is free forever. Operative and Director raise your daily practice
+          cap and monthly Live Operations, with a 7-day free trial.
+        </p>
+        <div className="flex justify-center">
+          <Button asChild size="lg" className="bg-primary font-sans font-semibold text-primary-foreground hover:bg-primary/90">
+            <Link href="/pricing">
+              See clearance levels
+              <ArrowRight className="size-3.5" />
+            </Link>
+          </Button>
         </div>
       </section>
 

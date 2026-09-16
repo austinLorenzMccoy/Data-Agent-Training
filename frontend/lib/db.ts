@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client'
 import type { Database } from '@/types/database'
+import type { Answer, OperationResult } from '@/lib/types'
 
 type Agent           = Database['public']['Tables']['agents']['Row']
 type AgentBadge      = Database['public']['Tables']['agent_badges']['Row']
@@ -8,20 +9,6 @@ type LeaderboardEntry = Database['public']['Views']['leaderboard']['Row']
 type OperationInsert  = Database['public']['Tables']['operations']['Insert']
 
 export type { Agent, AgentBadge, Operation, LeaderboardEntry }
-
-export interface ScoreResult {
-  totalPoints: number
-  maxPoints: number
-  iqScore: number
-  passed: boolean
-  xpEarned: number
-  byCategory: {
-    alpha:  { earned: number; max: number }
-    beta:   { earned: number; max: number }
-    gamma:  { earned: number; max: number }
-    delta:  { earned: number; max: number }
-  }
-}
 
 export type AnswerLog = Database['public']['Tables']['operations']['Row']['answers'][number]
 
@@ -80,29 +67,23 @@ export async function fetchAgentOperations(
 
 export async function submitOperation(
   agentId: string,
-  operationName: string,
-  scoreResult: ScoreResult,
-  answers: AnswerLog[],
+  result: OperationResult,
+  answers: Answer[],
   timeTakenSeconds: number | null
 ): Promise<{ operation: Operation | null; error: string | null }> {
   const supabase = createClient()
 
   const insert: OperationInsert = {
     agent_id:           agentId,
-    operation_name:     operationName,
-    iq_score:           scoreResult.iqScore,
-    xp_earned:          scoreResult.xpEarned,
+    operation_name:     result.operationName,
+    iq_score:           Math.round(result.iqScore),
+    xp_earned:          result.xpEarned,
     questions_total:    answers.length,
-    questions_correct:  answers.filter(a => a.isCorrect).length,
+    questions_correct:  answers.filter(a => a.correct).length,
     time_taken_seconds: timeTakenSeconds,
-    passed:             scoreResult.passed,
-    category_scores: {
-      alpha: scoreResult.byCategory.alpha.earned / (scoreResult.byCategory.alpha.max || 1) * 100,
-      beta:  scoreResult.byCategory.beta.earned  / (scoreResult.byCategory.beta.max  || 1) * 100,
-      gamma: scoreResult.byCategory.gamma.earned / (scoreResult.byCategory.gamma.max || 1) * 100,
-      delta: scoreResult.byCategory.delta.earned / (scoreResult.byCategory.delta.max || 1) * 100,
-    },
-    answers,
+    passed:             result.passed,
+    category_scores:    result.categoryScores,
+    answers:            answers as unknown as AnswerLog[],
   }
 
   const { data, error } = await supabase

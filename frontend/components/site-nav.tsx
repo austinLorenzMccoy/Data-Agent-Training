@@ -9,6 +9,7 @@ import { useSidebar } from '@/components/sidebar-context'
 import { cn, pathHasSidebar } from '@/lib/utils'
 import { LogOut, Menu, PanelLeftClose, X, Home } from 'lucide-react'
 import { FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM } from '@/lib/feature-flags'
+import { PlanBadge } from '@/components/billing/plan-badge'
 
 const LINKS = [
   { href: '/prep', label: 'Study' },
@@ -17,6 +18,7 @@ const LINKS = [
   { href: '/operation', label: 'Test' },
   { href: '/dossier', label: 'Progress' },
   { href: '/rankings', label: 'Rankings' },
+  { href: '/billing', label: 'Billing' },
 ]
 
 const WORKERS_HUB_URL = process.env.NEXT_PUBLIC_WORKERSHUB_URL?.replace(/\/$/, '') || ''
@@ -130,8 +132,11 @@ export function SiteNav() {
                 <span className="font-sans text-xs font-bold" style={{ color: rank.color }}>
                   {agent.alias}
                 </span>
-                <span className="font-mono text-[10px] text-muted-foreground">
-                  {agent.xp.toLocaleString()} XP
+                <span className="flex items-center gap-1.5">
+                  <span className="font-mono text-[10px] text-muted-foreground">
+                    {agent.xp.toLocaleString()} XP
+                  </span>
+                  <PlanBadge />
                 </span>
               </Link>
             ) : user ? (

@@ -79,8 +79,9 @@ Product specs: `docs/Datanerds_Annotation_PRD_v2.md`, `docs/Datanerds_Annotation
 - **Practice and timed tests** — no clock on practice; tests are one task type, timed, with a debrief
 - **English proficiency gate** — optional one-shot en-CA exam before transcription
 - **Ranks, XP, badges** — seven ranks, streak and speed bonuses, 11 badges
-- **Google sign-in** — Supabase Auth
+- **Google sign-in (required)** — Supabase Auth; every page except the landing page and `/pricing` requires sign-in
 - **Leaderboard** — opt-in rankings from Supabase
+- **Subscription billing** — three Clearance tiers (Free/Operative/Director) via Paystack recurring billing, gating daily practice and monthly test quotas; see [`docs/PAYSTACK_BILLING_GUIDE.md`](docs/PAYSTACK_BILLING_GUIDE.md)
 
 ---
 
@@ -105,6 +106,9 @@ Product specs: `docs/Datanerds_Annotation_PRD_v2.md`, `docs/Datanerds_Annotation
 | `/rankings` | Rankings | Leaderboard |
 | `/proficiency/en-CA` | English | Language exam (not DataAnnotation.tech) |
 | `/login` | — | Google sign-in |
+| `/pricing` | — | Clearance tier comparison + subscribe (public, no sign-in required) |
+| `/billing` | — | Current plan, usage vs. quota, cancel |
+| `/subscriptions/callback` | — | Lands here after the Paystack checkout redirect |
 
 ---
 
@@ -145,6 +149,24 @@ Optional language gate: `NEXT_PUBLIC_REQUIRED_PROFICIENCY_EXAM=en-CA` requires `
 
 ---
 
+## Clearance system (subscription billing)
+
+Separate axis from Rank above — Rank is XP progression, Clearance is what
+you're paying for. Every agent has exactly one Clearance tier, tracked in
+`subscriptions`/`billing_plans` (not `agents`/`rank_tiers`).
+
+| Clearance | Price | Practice questions | Timed tests |
+|---|---|---|---|
+| Recruit (free) | ₦0 | 15 / day | 2 / month |
+| Operative | ₦5,000 / month | 150 / day | 20 / month |
+| Director | ₦10,000 / month | Unlimited | Unlimited |
+
+Paid tiers include a 7-day free trial. Full setup, Paystack dashboard
+steps, and the trial mechanics are in
+[`docs/PAYSTACK_BILLING_GUIDE.md`](docs/PAYSTACK_BILLING_GUIDE.md).
+
+---
+
 ## Repository
 
 ```
@@ -156,6 +178,7 @@ data-agent-training-platform/
 │   └── public/guidelines/    # Figures for illustrated documents
 ├── backend/supabase/         # Migrations, RLS, triggers
 └── docs/                     # Vendor guidelines + PRDs (see Source materials)
+                               # + PAYSTACK_BILLING_GUIDE.md, VERCEL_SUPABASE_SETUP.md
 ```
 
 ---
@@ -168,8 +191,9 @@ data-agent-training-platform/
 | Styling | Tailwind CSS 4 |
 | Motion | Framer Motion (`motion`) |
 | AI grading | Vercel AI SDK + `@ai-sdk/groq` |
-| Auth | Supabase Google OAuth |
+| Auth | Supabase Google OAuth (required for all protected routes) |
 | Database | Supabase PostgreSQL + RLS + triggers |
+| Billing | Paystack recurring billing (subscriptions) |
 | Charts | Recharts |
 | Audio | WaveSurfer.js + HTML5 `<audio>` |
 | Deploy | Vercel |
@@ -203,13 +227,17 @@ NEXT_PUBLIC_SITE_URL=https://data-agent-training.vercel.app
 NEXT_PUBLIC_PASS_SCORE=70
 NEXT_PUBLIC_QUESTION_COUNT=25
 NEXT_PUBLIC_TIME_LIMIT=40
+
+PAYSTACK_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_...
+PAYSTACK_TRIAL_VERIFICATION_AMOUNT_KOBO=10000
 ```
 
 ```bash
 pnpm dev   # → http://localhost:3000
 ```
 
-The app runs without Supabase or Groq: auth is off and justification grading falls back to a heuristic.
+The app runs without Supabase or Groq: auth is off and justification grading falls back to a heuristic. Without `PAYSTACK_SECRET_KEY`, billing routes degrade gracefully (`isPaystackConfigured()` guards every call) but sign-in is still required on protected routes regardless of Paystack config — see [`docs/PAYSTACK_BILLING_GUIDE.md`](docs/PAYSTACK_BILLING_GUIDE.md).
 
 ---
 
@@ -232,8 +260,12 @@ Run `backend/supabase/migrations/` **in order** in the SQL Editor:
 | 019 | `theta_transcription.sql` | `questions.audio_asset_url` |
 | 020 | `language_proficiency.sql` | Proficiency exams |
 | 021 | `keep_alive_cron.sql` | Daily heartbeat |
+| 022 | `billing_tables.sql` | `billing_plans`, `subscriptions`, `usage_counters` |
+| 023 | `billing_rls.sql` | Read-only RLS on billing tables (writes are server-only) |
+| 024 | `billing_triggers.sql` | Auto-opens a free subscription on signup, `increment_usage_counter()` RPC |
+| 025 | `subscription_expiry_cron.sql` | Daily safety-net downgrade for missed webhooks |
 
-Free-tier projects pause after a week of no traffic. After deploy, Vercel hits `GET /api/keep-alive` daily at 12:00 UTC (and a GitHub Action does the same). Run `021` so `pg_cron` is scheduled inside the database.
+Free-tier projects pause after a week of no traffic. After deploy, Vercel hits `GET /api/keep-alive` daily at 12:00 UTC (and a GitHub Action does the same). Run `021` so `pg_cron` is scheduled inside the database. See [`docs/PAYSTACK_BILLING_GUIDE.md`](docs/PAYSTACK_BILLING_GUIDE.md) for the Paystack-dashboard steps (Plan creation, webhook registration) that `022`–`025` depend on.
 
 ---
 

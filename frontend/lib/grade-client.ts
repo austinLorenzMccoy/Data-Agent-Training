@@ -8,6 +8,15 @@ export interface GradePayload {
   decision: string
 }
 
+// Thrown (not swallowed into the heuristic fallback below) so callers can
+// show the upgrade dialog instead of silently grading for free past the
+// daily quota.
+export class QuotaExceededError extends Error {
+  constructor() {
+    super('quota_exceeded')
+  }
+}
+
 export async function gradeJustification(
   question: Question,
   justification: string,
@@ -18,8 +27,9 @@ export async function gradeJustification(
       ? `RESPONSE A:\n${question.responseA}\n\nRESPONSE B:\n${question.responseB}`
       : question.responseA ?? ''
 
+  let res: Response
   try {
-    const res = await fetch('/api/grade', {
+    res = await fetch('/api/grade', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -30,14 +40,22 @@ export async function gradeJustification(
         decision,
       } satisfies GradePayload),
     })
-    if (!res.ok) throw new Error('grade request failed')
-    const data = await res.json()
-    return { score: data.score, feedback: data.feedback }
   } catch {
-    // Minimal client-side fallback
-    const words = justification.trim().split(/\s+/).filter(Boolean).length
-    if (words < 6) return { score: 0, feedback: 'Too brief to evaluate.' }
-    if (words >= 22) return { score: 2, feedback: 'Thorough justification logged.' }
-    return { score: 1, feedback: 'Partial reasoning logged.' }
+    return heuristicFallback(justification)
   }
+
+  if (res.status === 402) throw new QuotaExceededError()
+  if (!res.ok) return heuristicFallback(justification)
+
+  const data = await res.json()
+  return { score: data.score, feedback: data.feedback }
+}
+
+// Minimal client-side fallback for transient failures (Groq down, etc.) —
+// not used for quota exhaustion, which throws instead.
+function heuristicFallback(justification: string): { score: 0 | 1 | 2; feedback: string } {
+  const words = justification.trim().split(/\s+/).filter(Boolean).length
+  if (words < 6) return { score: 0, feedback: 'Too brief to evaluate.' }
+  if (words >= 22) return { score: 2, feedback: 'Thorough justification logged.' }
+  return { score: 1, feedback: 'Partial reasoning logged.' }
 }

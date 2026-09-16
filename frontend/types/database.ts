@@ -149,6 +149,56 @@ export type Database = {
         }
         Update: Partial<Database['public']['Tables']['recruiter_orgs']['Insert']>
       }
+      billing_plans: {
+        Row: {
+          id: number
+          slug: string
+          label: string
+          price_kobo: number
+          paystack_plan_code: string | null
+          interval: string
+          trial_days: number
+          practice_daily_limit: number | null
+          tests_monthly_limit: number | null
+          is_paid: boolean
+          created_at: string
+        }
+        Insert: never
+        Update: never
+      }
+      subscriptions: {
+        Row: {
+          id: string
+          agent_id: string
+          plan_id: number
+          status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete'
+          paystack_customer_code: string | null
+          paystack_subscription_code: string | null
+          paystack_email_token: string | null
+          paystack_authorization_code: string | null
+          current_period_start: string | null
+          current_period_end: string | null
+          trial_ends_at: string | null
+          cancel_at_period_end: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['subscriptions']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Database['public']['Tables']['subscriptions']['Insert']>
+      }
+      usage_counters: {
+        Row: {
+          id: string
+          agent_id: string
+          counter_key: string
+          period_type: 'day' | 'month'
+          period_key: string
+          count: number
+          updated_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['usage_counters']['Row'], 'id' | 'updated_at'>
+        Update: never
+      }
     }
     Views: {
       leaderboard: {
@@ -169,6 +219,16 @@ export type Database = {
     Functions: {
       calculate_rank_tier: {
         Args: { xp: number }
+        Returns: number
+      }
+      increment_usage_counter: {
+        Args: {
+          p_agent_id: string
+          p_counter_key: string
+          p_period_type: 'day' | 'month'
+          p_period_key: string
+          p_increment?: number
+        }
         Returns: number
       }
     }

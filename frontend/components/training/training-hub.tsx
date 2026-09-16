@@ -7,7 +7,8 @@ import { useAgent } from '@/components/providers/agent-provider'
 import { getQuestionsByType } from '@/lib/questions'
 import type { AssignmentType, Question } from '@/lib/types'
 import { TYPE_BLURBS, TYPE_NAMES, XP, isSelectionCorrect, hasJustification, selectionScore } from '@/lib/scoring'
-import { gradeJustification } from '@/lib/grade-client'
+import { gradeJustification, QuotaExceededError } from '@/lib/grade-client'
+import { UpgradeDialog } from '@/components/billing/upgrade-dialog'
 import { AssignmentRenderer, type SubmittedAnswer } from '@/components/assignments/assignment-renderer'
 import { FeedbackPanel } from '@/components/assignments/feedback-panel'
 import { NeuralNoise } from '@/components/neural-noise'
@@ -230,6 +231,7 @@ function TrainingSession({
   const [result, setResult] = useState<Result | null>(null)
   const [grading, setGrading] = useState(false)
   const [completedAll, setCompletedAll] = useState(false)
+  const [quotaBlocked, setQuotaBlocked] = useState(false)
   const question: Question | undefined = pool[index]
 
   async function handleSubmit(answer: SubmittedAnswer) {
@@ -243,15 +245,20 @@ function TrainingSession({
         typeof answer.selection === 'object'
           ? JSON.stringify(answer.selection)
           : String(answer.selection)
-      const graded = await gradeJustification(question, answer.justification, decision)
-      setGrading(false)
-      setResult({
-        correct,
-        ratio,
-        selection: answer.selection,
-        justificationScore: graded.score,
-        justificationFeedback: graded.feedback,
-      })
+      try {
+        const graded = await gradeJustification(question, answer.justification, decision)
+        setResult({
+          correct,
+          ratio,
+          selection: answer.selection,
+          justificationScore: graded.score,
+          justificationFeedback: graded.feedback,
+        })
+      } catch (err) {
+        if (err instanceof QuotaExceededError) setQuotaBlocked(true)
+      } finally {
+        setGrading(false)
+      }
     }
   }
 
@@ -349,6 +356,11 @@ function TrainingSession({
           </motion.div>
         ) : null}
       </AnimatePresence>
+      <UpgradeDialog
+        open={quotaBlocked}
+        onClose={() => setQuotaBlocked(false)}
+        reason="You've used all your AI-graded practice questions for today."
+      />
     </div>
   )
 }

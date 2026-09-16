@@ -8,6 +8,7 @@ import { TrackPicker } from './track-picker'
 import { TYPE_NAMES } from '@/lib/scoring'
 import type { Answer, AssignmentType, Question } from '@/lib/types'
 import { useAgent } from '@/components/providers/agent-provider'
+import { useAuth } from '@/contexts/AuthContext'
 import { LaunchSequence } from './launch-sequence'
 import { OperationHud } from './operation-hud'
 import { AssignmentRenderer, type SubmittedAnswer } from '@/components/assignments/assignment-renderer'
@@ -17,6 +18,8 @@ import { isSelectionCorrect, XP, hasJustification, buildResult, pointsPossible, 
 import { getProficiencyGatedTypes, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM } from '@/lib/feature-flags'
 import { hasPassedProficiency } from '@/lib/proficiency'
 import { buildLastTest, saveLastTest } from '@/lib/last-test'
+import { submitOperation } from '@/lib/db'
+import { UpgradeDialog } from '@/components/billing/upgrade-dialog'
 const MAX_TRACK_QUESTIONS = 12
 const MINUTES_PER_ASSIGNMENT = 2.5
 const MIN_OPERATION_MIN = 10
@@ -26,9 +29,12 @@ const MIN_OPERATION_MIN = 10
 export function OperationController() {
   const router = useRouter()
   const { agent, addXp, logOperation } = useAgent()
+  const { user } = useAuth()
 
   const [state, setState] = useState<'selecting' | 'launching' | 'active' | 'submitting' | 'complete'>('selecting')
   const [track, setTrack] = useState<AssignmentType | null>(null)
+  const [quotaBlocked, setQuotaBlocked] = useState(false)
+  const [checkingQuota, setCheckingQuota] = useState(false)
   const [operationName, setOperationName] = useState('')
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -47,11 +53,26 @@ export function OperationController() {
     !REQUIRED_PROFICIENCY_EXAM ||
     hasPassedProficiency(REQUIRED_PROFICIENCY_EXAM)
 
-  function startTrack(type: AssignmentType) {
+  async function startTrack(type: AssignmentType) {
     if (gated.has(type) && !examPassed) {
       router.push(`/proficiency/${REQUIRED_PROFICIENCY_EXAM}?next=/operation`)
       return
     }
+
+    // Checked before drawing questions, not after submission — a
+    // completed test can't be un-counted against the monthly quota.
+    setCheckingQuota(true)
+    try {
+      const res = await fetch('/api/operations/start', { method: 'POST' })
+      if (res.status === 402) {
+        setQuotaBlocked(true)
+        return
+      }
+      if (!res.ok) return
+    } finally {
+      setCheckingQuota(false)
+    }
+
     const qs = drawTrackOperation(type, MAX_TRACK_QUESTIONS)
     if (qs.length === 0) return
     const minutes = Math.max(MIN_OPERATION_MIN, Math.round(qs.length * MINUTES_PER_ASSIGNMENT))
@@ -184,13 +205,33 @@ export function OperationController() {
     addXp(result.xpEarned)
     saveLastTest(buildLastTest(result, rankedUp, questions, answers))
 
+    // localStorage stays the optimistic UI layer; this is the server-truth
+    // write that quota checks and the cloud profile read from.
+    if (user) {
+      submitOperation(user.id, result, answers, durationSec - timeLeft)
+    }
+
     router.push(
       `/operation/debrief?iqScore=${Math.round(result.iqScore)}&passed=${result.passed}&xp=${result.xpEarned}&rankedUp=${rankedUp}`
     )
   }
 
   if (state === 'selecting') {
-    return <TrackPicker onPick={startTrack} locked={examPassed ? undefined : gated} />
+    return (
+      <>
+        <TrackPicker onPick={startTrack} locked={examPassed ? undefined : gated} />
+        {checkingQuota && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+            <p className="font-mono text-sm text-muted-foreground">Checking clearance...</p>
+          </div>
+        )}
+        <UpgradeDialog
+          open={quotaBlocked}
+          onClose={() => setQuotaBlocked(false)}
+          reason="You've used all your Live Operations for this month."
+        />
+      </>
+    )
   }
 
   if (state === 'launching' && questions.length > 0) {

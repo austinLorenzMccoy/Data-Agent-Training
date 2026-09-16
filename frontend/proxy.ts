@@ -3,6 +3,11 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 const AUTH_ROUTES = ['/login']
 
+// Sign-in is required for these routes — subscription quotas are enforced
+// server-side against a real agents/subscriptions row, which only exists
+// once a user has signed in.
+const PROTECTED_ROUTES = ['/training', '/operation', '/dossier', '/guidelines', '/rankings', '/billing']
+
 function proficiencyRedirect(request: NextRequest): NextResponse | null {
   const gateOn = process.env.NEXT_PUBLIC_FEATURE_PROFICIENCY_GATE === 'true'
   const requiredExam = process.env.NEXT_PUBLIC_REQUIRED_PROFICIENCY_EXAM?.trim()
@@ -55,10 +60,14 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const pathname = request.nextUrl.pathname
 
-  // Practice, tests, progress, and rankings stay usable without Google.
-  // Sign-in is optional and only needed to persist a cloud profile.
   if (user && AUTH_ROUTES.some(route => pathname.startsWith(route))) {
     return NextResponse.redirect(new URL('/', request.url))
+  }
+
+  if (!user && PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
+    const loginUrl = new URL('/login', request.url)
+    loginUrl.searchParams.set('next', pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
   return supabaseResponse

@@ -7,6 +7,7 @@ import { AgentProvider as SupabaseAgentProvider } from '@/contexts/AgentContext'
 import { SiteNav } from '@/components/site-nav'
 import { AppShell } from '@/components/app-shell'
 import { SidebarProvider } from '@/components/sidebar-context'
+import { ImportProgressDialog } from '@/components/billing/import-progress-dialog'
 import './globals.css'
 
 const newsreader = Newsreader({
@@ -74,6 +75,7 @@ export default function RootLayout({
               <SidebarProvider>
                 <SiteNav />
                 <AppShell>{children}</AppShell>
+                <ImportProgressDialog />
               </SidebarProvider>
             </AgentProvider>
           </SupabaseAgentProvider>

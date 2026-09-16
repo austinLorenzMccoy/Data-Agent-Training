@@ -1,6 +1,8 @@
 import { generateText } from 'ai'
 import { createGroq } from '@ai-sdk/groq'
 import { z } from 'zod'
+import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { checkAndConsumeQuota } from '@/lib/entitlements'
 
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
 
@@ -55,6 +57,17 @@ function heuristicGrade(justification: string): { score: 0 | 1 | 2; feedback: st
 }
 
 export async function POST(req: Request) {
+  const supabase = await createServerSupabaseClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return Response.json({ error: 'unauthorized' }, { status: 401 })
+  }
+
+  const quota = await checkAndConsumeQuota(user.id, 'practice')
+  if (!quota.allowed) {
+    return Response.json({ error: 'quota_exceeded', ...quota }, { status: 402 })
+  }
+
   const { prompt, response, justification, rubric, decision } = await req.json()
 
   const hasKey =
