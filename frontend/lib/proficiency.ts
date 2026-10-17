@@ -1,4 +1,5 @@
 import { EN_CA_QUESTIONS } from './proficiency-en-ca'
+import type { IntegrityReport } from './integrity'
 
 export interface ProficiencyChoice {
   id: string
@@ -46,6 +47,7 @@ export interface ProficiencyRecord {
   score: number
   passed: boolean
   completedAt: number
+  integrity?: IntegrityReport
 }
 
 function readStore(): Record<string, ProficiencyRecord> {

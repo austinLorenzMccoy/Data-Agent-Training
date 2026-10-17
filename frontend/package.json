@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test:scoring": "tsx --test lib/domain-scoring.test.ts"
+    "test:scoring": "tsx --test lib/domain-scoring.test.ts lib/integrity.test.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.41",

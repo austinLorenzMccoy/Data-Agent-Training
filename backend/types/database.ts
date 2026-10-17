@@ -34,6 +34,7 @@ export type Database = {
           passed: boolean
           category_scores: Record<string, number>
           answers: AnswerLog[]
+          integrity: Record<string, unknown> | null
           rank_before: number | null
           rank_after: number | null
           created_at: string

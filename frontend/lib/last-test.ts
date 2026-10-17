@@ -1,4 +1,5 @@
 import type { Answer, AssignmentType, OperationResult, Question } from './types'
+import type { IntegrityReport } from './integrity'
 
 export const LAST_TEST_KEY = 'dna.lastTest.v1'
 
@@ -16,6 +17,7 @@ export interface LastTest {
   result: OperationResult
   rankedUp: boolean
   items: LastTestItem[]
+  integrity?: IntegrityReport
 }
 
 export function saveLastTest(data: LastTest) {

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/client'
 import type { Database } from '@/types/database'
 import type { Answer, OperationResult } from '@/lib/types'
+import type { IntegrityReport } from '@/lib/integrity'
 
 type Agent           = Database['public']['Tables']['agents']['Row']
 type AgentBadge      = Database['public']['Tables']['agent_badges']['Row']
@@ -69,7 +70,8 @@ export async function submitOperation(
   agentId: string,
   result: OperationResult,
   answers: Answer[],
-  timeTakenSeconds: number | null
+  timeTakenSeconds: number | null,
+  integrity: IntegrityReport | null = null
 ): Promise<{ operation: Operation | null; error: string | null }> {
   const supabase = createClient()
 
@@ -84,6 +86,7 @@ export async function submitOperation(
     passed:             result.passed,
     category_scores:    result.categoryScores,
     answers:            answers as unknown as AnswerLog[],
+    integrity:          integrity as unknown as Record<string, unknown> | null,
   }
 
   const { data, error } = await supabase

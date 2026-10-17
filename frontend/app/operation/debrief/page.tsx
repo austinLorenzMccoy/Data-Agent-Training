@@ -9,6 +9,7 @@ import { loadLastTest, type LastTest } from '@/lib/last-test'
 import { PASS_THRESHOLD } from '@/lib/scoring'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { IntegrityResult } from '@/components/operation/integrity-banner'
 
 function DebriefBody() {
   const search = useSearchParams()
@@ -59,6 +60,8 @@ function DebriefBody() {
           <p className="mt-1 text-2xl font-semibold">{data?.items.length ?? '—'}</p>
         </div>
       </div>
+
+      {data?.integrity && <IntegrityResult report={data.integrity} className="mt-4" />}
 
       {rankedUp && (
         <p className="mt-4 rounded-md border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">

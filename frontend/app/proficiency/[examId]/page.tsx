@@ -15,6 +15,8 @@ import {
   scoreExam,
 } from '@/lib/proficiency'
 import { cn } from '@/lib/utils'
+import { enterFullscreen, exitFullscreen, useIntegrityMonitor, type IntegrityReport } from '@/lib/integrity'
+import { IntegrityBanner, IntegrityResult } from '@/components/operation/integrity-banner'
 import { CheckCircle2, Lock, Shield } from 'lucide-react'
 
 export default function ProficiencyPage() {
@@ -29,7 +31,10 @@ export default function ProficiencyPage() {
   const [index, setIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [timeLeft, setTimeLeft] = useState(0)
-  const [result, setResult] = useState<{ score: number; passed: boolean } | null>(null)
+  const [result, setResult] = useState<{ score: number; passed: boolean; integrity: IntegrityReport } | null>(null)
+  const integrity = useIntegrityMonitor(phase === 'exam')
+
+  useEffect(() => exitFullscreen, [])
 
   const alreadyPassed = useMemo(() => (exam ? hasPassedProficiency(exam.id) : false), [exam])
 
@@ -76,19 +81,24 @@ export default function ProficiencyPage() {
     setIndex(0)
     setResult(null)
     setTimeLeft(exam.timeLimitSec)
+    integrity.reset()
+    enterFullscreen()
     setPhase('exam')
   }
 
   function finish() {
     if (!exam) return
     const scored = scoreExam(exam, answers)
+    const integrityReport = integrity.report()
+    exitFullscreen()
     saveProficiencyResult({
       examId: exam.id,
       score: scored.score,
       passed: scored.passed,
       completedAt: Date.now(),
+      integrity: integrityReport,
     })
-    setResult(scored)
+    setResult({ ...scored, integrity: integrityReport })
     setPhase('done')
   }
 
@@ -120,8 +130,9 @@ export default function ProficiencyPage() {
           <div className="mt-8 rounded-xl border border-border bg-card p-6">
             <p className="leading-relaxed text-muted-foreground">
               This is a timed English exam — {exam.questions.length} questions,{' '}
-              {Math.round(exam.timeLimitSec / 60)} minutes, pass mark {exam.passScore}%. Leaving
-              the page while the clock is running ends the attempt. If you pass, you do not
+              {Math.round(exam.timeLimitSec / 60)} minutes, pass mark {exam.passScore}%. It runs
+              in fullscreen; leaving the page, switching tabs, or pasting is logged and can mark
+              the attempt unverified. If you pass, you do not
               retake it. If you miss the mark, you can try again. Core practice stays open either
               way; transcription can require this exam first.
             </p>
@@ -187,6 +198,10 @@ export default function ProficiencyPage() {
             >
               {index + 1 >= exam.questions.length ? 'Submit exam' : 'Next question'}
             </Button>
+            <IntegrityBanner
+              needsFullscreen={integrity.fullscreenSupported && !integrity.isFullscreen}
+              warning={integrity.lastWarning}
+            />
           </div>
         )}
 
@@ -216,6 +231,7 @@ export default function ProficiencyPage() {
                 </Button>
               </>
             )}
+            {result && <IntegrityResult report={result.integrity} className="mt-6 text-left" />}
             <Button className="mt-6" onClick={() => router.push(next)}>
               Continue
             </Button>

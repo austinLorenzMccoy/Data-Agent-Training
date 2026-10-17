@@ -20,6 +20,8 @@ import { hasPassedProficiency } from '@/lib/proficiency'
 import { buildLastTest, saveLastTest } from '@/lib/last-test'
 import { submitOperation } from '@/lib/db'
 import { UpgradeDialog } from '@/components/billing/upgrade-dialog'
+import { enterFullscreen, exitFullscreen, useIntegrityMonitor } from '@/lib/integrity'
+import { IntegrityBanner } from './integrity-banner'
 const MAX_TRACK_QUESTIONS = 12
 const MINUTES_PER_ASSIGNMENT = 2.5
 const MIN_OPERATION_MIN = 10
@@ -46,6 +48,9 @@ export function OperationController() {
   const [durationSec, setDurationSec] = useState(0)
   const [flashState, setFlashState] = useState<'correct' | 'wrong' | 'partial' | null>(null)
   const [grading, setGrading] = useState(false)
+  const integrity = useIntegrityMonitor(state === 'launching' || state === 'active')
+
+  useEffect(() => exitFullscreen, [])
 
   const gated = new Set(getProficiencyGatedTypes())
   const examPassed =
@@ -59,22 +64,33 @@ export function OperationController() {
       return
     }
 
+    // Must run inside the click handler — browsers refuse fullscreen
+    // without a user gesture, and the quota fetch below would outlive it.
+    enterFullscreen()
+
     // Checked before drawing questions, not after submission — a
     // completed test can't be un-counted against the monthly quota.
     setCheckingQuota(true)
     try {
       const res = await fetch('/api/operations/start', { method: 'POST' })
       if (res.status === 402) {
+        exitFullscreen()
         setQuotaBlocked(true)
         return
       }
-      if (!res.ok) return
+      if (!res.ok) {
+        exitFullscreen()
+        return
+      }
     } finally {
       setCheckingQuota(false)
     }
 
     const qs = drawTrackOperation(type, MAX_TRACK_QUESTIONS)
-    if (qs.length === 0) return
+    if (qs.length === 0) {
+      exitFullscreen()
+      return
+    }
     const minutes = Math.max(MIN_OPERATION_MIN, Math.round(qs.length * MINUTES_PER_ASSIGNMENT))
     setTrack(type)
     setQuestions(qs)
@@ -86,6 +102,7 @@ export function OperationController() {
     setDurationSec(minutes * 60)
     setTimeLeft(minutes * 60)
     setOperationName(TYPE_NAMES[type])
+    integrity.reset()
     setState('launching')
   }
 
@@ -190,6 +207,9 @@ export function OperationController() {
   }
 
   function handleSubmitOperation() {
+    const integrityReport = integrity.report()
+    exitFullscreen()
+
     // Build full result
     const result = buildResult(
       `op_${Date.now()}`,
@@ -203,12 +223,12 @@ export function OperationController() {
     const { rankedUp } = logOperation(result)
 
     addXp(result.xpEarned)
-    saveLastTest(buildLastTest(result, rankedUp, questions, answers))
+    saveLastTest({ ...buildLastTest(result, rankedUp, questions, answers), integrity: integrityReport })
 
     // localStorage stays the optimistic UI layer; this is the server-truth
     // write that quota checks and the cloud profile read from.
     if (user) {
-      submitOperation(user.id, result, answers, durationSec - timeLeft)
+      submitOperation(user.id, result, answers, durationSec - timeLeft, integrityReport)
     }
 
     router.push(
@@ -307,6 +327,13 @@ export function OperationController() {
             </Button>
           </div>
         </motion.div>
+      )}
+
+      {state === 'active' && (
+        <IntegrityBanner
+          needsFullscreen={integrity.fullscreenSupported && !integrity.isFullscreen}
+          warning={integrity.lastWarning}
+        />
       )}
     </div>
   )
