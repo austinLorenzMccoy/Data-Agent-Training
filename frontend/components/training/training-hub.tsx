@@ -119,7 +119,7 @@ export function TrainingHub() {
               <h3 className="font-sans font-semibold">Ready for a timed test?</h3>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Finish practice for a type, then sit that timed test. No answers until the end.
+              Practice a type, then sit that timed test. No answers until the end.
             </p>
           </div>
           <Button asChild size="lg">

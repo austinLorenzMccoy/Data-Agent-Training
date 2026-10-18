@@ -97,7 +97,9 @@ function TrackButton({
   count: number
 }) {
   // A locked card stays clickable: picking it sends you to the English exam.
-  const blocked = needsPractice || count === 0
+  // Practice is only recommended: it is saved in this browser alone, so it
+  // would lock out anyone on a new device.
+  const blocked = count === 0
   const minutes = Math.max(10, Math.round(count * 2.5))
   return (
     <button
@@ -122,9 +124,7 @@ function TrackButton({
       <p className="mt-2 text-xs text-muted-foreground">
         {locked
           ? 'English exam first · select to take it'
-          : needsPractice
-            ? 'Finish practice for this type first'
-            : `${count} question${count === 1 ? '' : 's'} · this type only`}
+          : `${count} question${count === 1 ? '' : 's'} · this type only${needsPractice ? ' · practice recommended first' : ''}`}
       </p>
       </div>
     </button>
