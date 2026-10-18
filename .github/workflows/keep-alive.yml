@@ -2,12 +2,16 @@ name: Keep Supabase awake
 
 on:
   schedule:
-    - cron: '0 12 * * *'
+    - cron: '0 */6 * * *'
   workflow_dispatch:
 
 jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping production keep-alive
-        run: curl -fsS --retry 3 --retry-delay 5 "https://datanerds-ai-training.vercel.app/api/keep-alive"
+      # Set the repository variable SITE_URL to the production domain.
+      # A failed run here is the uptime alert: GitHub emails the owner.
+      - name: Check production health
+        run: curl -fsS --retry 3 --retry-delay 5 "${SITE_URL:-https://datanerds-ai-training.vercel.app}/api/health"
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
