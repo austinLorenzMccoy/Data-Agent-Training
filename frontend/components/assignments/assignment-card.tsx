@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import type { Question } from '@/lib/types'
+import type { PublicQuestion } from '@/lib/exam/public'
 import { TYPE_NAMES } from '@/lib/scoring'
 import { guidelineHrefForType } from '@/lib/guidelines'
 import { ClassificationStamp } from '@/components/classification-stamp'
@@ -12,7 +12,7 @@ export function AssignmentCard({
   children,
   flashState,
 }: {
-  question: Question
+  question: PublicQuestion
   children: React.ReactNode
   flashState?: 'correct' | 'wrong' | 'partial' | null
 }) {

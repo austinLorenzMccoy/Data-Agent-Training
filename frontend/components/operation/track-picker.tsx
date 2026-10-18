@@ -2,7 +2,6 @@
 
 import { CORE_TYPES, getEnabledTypes, isV4Type } from '@/lib/feature-flags'
 import { TYPE_BLURBS, TYPE_NAMES } from '@/lib/scoring'
-import { getQuestionsByType } from '@/lib/questions'
 import type { AssignmentType } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useAgent } from '@/components/providers/agent-provider'
@@ -32,12 +31,16 @@ const ICONS: Record<AssignmentType, typeof Crosshair> = {
   kappa: ClipboardCheck,
 }
 
+const TEST_LENGTH = 12
+
 export function TrackPicker({
   onPick,
   locked,
+  counts,
 }: {
   onPick: (type: AssignmentType) => void
   locked?: Set<AssignmentType>
+  counts: Partial<Record<AssignmentType, number>>
 }) {
   const { agent } = useAgent()
   const practiced = new Set(agent?.completedTraining ?? [])
@@ -60,6 +63,7 @@ export function TrackPicker({
             key={type}
             type={type}
             locked={locked?.has(type)}
+            count={Math.min(TEST_LENGTH, counts[type] ?? 0)}
             needsPractice={!practiced.has(type)}
             onPick={onPick}
           />
@@ -86,6 +90,7 @@ export function TrackPicker({
                 type={type}
                 featured
                 locked={locked?.has(type)}
+                count={Math.min(TEST_LENGTH, counts[type] ?? 0)}
                 needsPractice={!practiced.has(type)}
                 onPick={onPick}
               />
@@ -104,15 +109,16 @@ function TrackButton({
   featured,
   locked,
   needsPractice,
+  count,
 }: {
   type: AssignmentType
   onPick: (type: AssignmentType) => void
   featured?: boolean
   locked?: boolean
   needsPractice?: boolean
+  count: number
 }) {
   const Icon = ICONS[type]
-  const count = getQuestionsByType(type).length
   const blocked = locked || needsPractice || count === 0
   return (
     <button

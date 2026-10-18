@@ -1,13 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'motion/react'
 import { useAgent } from '@/components/providers/agent-provider'
-import { getQuestionsByType } from '@/lib/questions'
-import type { AssignmentType, Question } from '@/lib/types'
-import { TYPE_BLURBS, TYPE_NAMES, XP, isSelectionCorrect, hasJustification, selectionScore } from '@/lib/scoring'
-import { gradeJustification, QuotaExceededError } from '@/lib/grade-client'
+import type { AssignmentType } from '@/lib/types'
+import type { Feedback, PublicQuestion } from '@/lib/exam/public'
+import { TYPE_BLURBS, TYPE_NAMES, XP } from '@/lib/scoring'
 import { UpgradeDialog } from '@/components/billing/upgrade-dialog'
 import { AssignmentRenderer, type SubmittedAnswer } from '@/components/assignments/assignment-renderer'
 import { FeedbackPanel } from '@/components/assignments/feedback-panel'
@@ -183,14 +182,6 @@ function DrillCard({
   )
 }
 
-interface Result {
-  correct: boolean
-  ratio: number
-  selection: unknown
-  justificationScore?: 0 | 1 | 2
-  justificationFeedback?: string
-}
-
 function TrainingSession({
   type,
   onExit,
@@ -200,47 +191,56 @@ function TrainingSession({
   onExit: () => void
   onComplete: () => void
 }) {
-  const pool = useMemo(() => {
-    const all = getQuestionsByType(type)
-    return [...all].sort(() => Math.random() - 0.5).slice(0, Math.min(8, all.length))
-  }, [type])
+  const [pool, setPool] = useState<PublicQuestion[] | null>(null)
+  const [loadError, setLoadError] = useState(false)
   const [index, setIndex] = useState(0)
-  const [result, setResult] = useState<Result | null>(null)
+  const [result, setResult] = useState<Feedback | null>(null)
   const [grading, setGrading] = useState(false)
   const [completedAll, setCompletedAll] = useState(false)
   const [quotaBlocked, setQuotaBlocked] = useState(false)
-  const question: Question | undefined = pool[index]
+  const question: PublicQuestion | undefined = pool?.[index]
+
+  useEffect(() => {
+    let cancelled = false
+    fetch(`/api/practice/questions?type=${type}`)
+      .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+      .then((data: { questions: PublicQuestion[] }) => {
+        if (!cancelled) setPool(data.questions)
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [type])
 
   async function handleSubmit(answer: SubmittedAnswer) {
-    if (!question) return
-    const ratio = selectionScore(question, answer.selection)
-    const correct = isSelectionCorrect(question, answer.selection)
-    setResult({ correct, ratio, selection: answer.selection })
-    if (hasJustification(question.type) && answer.justification) {
-      setGrading(true)
-      const decision =
-        typeof answer.selection === 'object'
-          ? JSON.stringify(answer.selection)
-          : String(answer.selection)
-      try {
-        const graded = await gradeJustification(question, answer.justification, decision)
-        setResult({
-          correct,
-          ratio,
+    if (!question || grading) return
+    setGrading(true)
+    try {
+      const res = await fetch('/api/practice/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          questionId: question.id,
           selection: answer.selection,
-          justificationScore: graded.score,
-          justificationFeedback: graded.feedback,
-        })
-      } catch (err) {
-        if (err instanceof QuotaExceededError) setQuotaBlocked(true)
-      } finally {
-        setGrading(false)
-      }
+          justification: answer.justification,
+        }),
+      })
+      if (!res.ok) throw new Error(String(res.status))
+      const feedback = (await res.json()) as Feedback & { quotaExceeded?: boolean }
+      if (feedback.quotaExceeded) setQuotaBlocked(true)
+      setResult(feedback)
+    } catch {
+      setLoadError(true)
+    } finally {
+      setGrading(false)
     }
   }
 
   function next() {
-    if (index + 1 >= pool.length) {
+    if (!pool || index + 1 >= pool.length) {
       setCompletedAll(true)
       onComplete()
       return
@@ -259,14 +259,14 @@ function TrainingSession({
           {'<'} Back to practice
         </button>
           <span className="font-sans text-xs font-medium text-accent">
-          {TYPE_NAMES[type]} · {Math.min(index + 1, pool.length)}/{pool.length}
+          {TYPE_NAMES[type]} · {pool ? `${Math.min(index + 1, pool.length)}/${pool.length}` : '…'}
         </span>
       </div>
 
       <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-secondary">
         <div
           className="h-full bg-accent transition-all"
-          style={{ width: `${(index / pool.length) * 100}%` }}
+          style={{ width: `${pool?.length ? (index / pool.length) * 100 : 0}%` }}
         />
       </div>
 
@@ -316,22 +316,23 @@ function TrainingSession({
             )}
             {result && !grading && (
               <>
-                <FeedbackPanel
-                  question={question}
-                  correct={result.correct}
-                  selection={result.selection}
-                  ratio={result.ratio}
-                  justificationScore={result.justificationScore}
-                  justificationFeedback={result.justificationFeedback}
-                />
+                <FeedbackPanel feedback={result} />
                 <Button onClick={next} className="w-full" size="lg">
-                  {index + 1 >= pool.length ? 'Finish practice' : 'Next question'}
+                  {pool && index + 1 >= pool.length ? 'Finish practice' : 'Next question'}
                   <ArrowRight className="size-4" />
                 </Button>
               </>
             )}
           </motion.div>
-        ) : null}
+        ) : loadError ? (
+          <p key="error" className="mt-10 text-center text-sm text-danger">
+            Could not load practice questions. Check your connection and try again.
+          </p>
+        ) : (
+          <p key="loading" className="mt-10 text-center text-sm text-muted-foreground">
+            Loading questions…
+          </p>
+        )}
       </AnimatePresence>
       <UpgradeDialog
         open={quotaBlocked}

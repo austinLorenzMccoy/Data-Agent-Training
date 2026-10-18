@@ -1,32 +1,14 @@
 'use client'
 
-import type { Question } from '@/lib/types'
+import type { Feedback } from '@/lib/exam/public'
 import { motion } from 'motion/react'
 import { Check, X, Lightbulb } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { scoreDomainQuestion } from '@/lib/domain-scoring'
 
-export function FeedbackPanel({
-  question,
-  correct,
-  justificationScore,
-  justificationFeedback,
-  selection,
-  ratio,
-}: {
-  question: Question
-  correct: boolean
-  justificationScore?: 0 | 1 | 2
-  justificationFeedback?: string
-  selection?: unknown
-  ratio?: number
-}) {
-  const breakdown =
-    question.payload !== undefined && selection !== undefined
-      ? scoreDomainQuestion(question, selection)
-      : null
-  const displayRatio = ratio ?? breakdown?.ratio
-  const partial = !correct && (displayRatio ?? 0) > 0
+export function FeedbackPanel({ feedback }: { feedback: Feedback }) {
+  const { correct, explanation, diffs, notes, justificationScore, justificationFeedback } = feedback
+  const displayRatio = feedback.ratio
+  const partial = !correct && displayRatio > 0
 
   return (
     <motion.div
@@ -51,18 +33,18 @@ export function FeedbackPanel({
         {correct
           ? 'Correct'
           : partial
-            ? `Partial credit — ${Math.round((displayRatio ?? 0) * 100)}%`
+            ? `Partial credit — ${Math.round(displayRatio * 100)}%`
             : 'Not quite'}
       </div>
 
       <p className="mt-3 leading-relaxed text-foreground/80">
         <span className="font-semibold text-foreground">Why: </span>
-        {question.explanation}
+        {explanation}
       </p>
 
-      {breakdown && breakdown.diffs.length > 0 && (
+      {diffs.length > 0 && (
         <div className="mt-3 space-y-1 border-t border-border/60 pt-3">
-          {breakdown.diffs.map((d) => (
+          {diffs.map((d) => (
             <div
               key={d.field}
               className="flex flex-wrap items-baseline justify-between gap-2 text-xs"
@@ -77,7 +59,7 @@ export function FeedbackPanel({
         </div>
       )}
 
-      {breakdown?.notes?.map((note) => (
+      {notes?.map((note) => (
         <p key={note} className="mt-3 text-xs leading-relaxed text-foreground/70">
           {note}
         </p>

@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import type { AlphaRating, FlagReason, Question } from '@/lib/types'
+import type { AlphaRating, FlagReason } from '@/lib/types'
+import type { PublicQuestion } from '@/lib/exam/public'
 import { FLAG_REASONS } from '@/lib/types'
 import { hasJustification } from '@/lib/scoring'
 import { AssignmentCard, PromptBlock } from './assignment-card'
@@ -17,7 +18,7 @@ import type { SubmittedAnswer } from './types'
 export type { SubmittedAnswer }
 
 type RendererProps = {
-  question: Question
+  question: PublicQuestion
   onSubmit: (answer: SubmittedAnswer) => void
   flashState?: 'correct' | 'wrong' | 'partial' | null
   disabled?: boolean

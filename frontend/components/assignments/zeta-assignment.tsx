@@ -1,7 +1,9 @@
 'use client'
 
+import type { PublicZetaPayload } from '@/lib/exam/public'
+
 import { useMemo, useState } from 'react'
-import type { Question } from '@/lib/types'
+import type { PublicQuestion } from '@/lib/exam/public'
 import type {
   EtaLiteFlags,
   EtaRating,
@@ -9,7 +11,6 @@ import type {
   PqRating,
   ZetaAnswer,
   ZetaFullFlags,
-  ZetaPayload,
 } from '@/lib/domain-types'
 import { ETA_LABELS, ETA_SCALE, NM_LABELS, NM_SCALE, PQ_SCALE } from '@/lib/domain-types'
 import { AssignmentCard, PromptBlock } from './assignment-card'
@@ -112,15 +113,15 @@ export function ZetaAssignment({
   flashState,
   disabled,
 }: {
-  question: Question
+  question: PublicQuestion
   onSubmit: (answer: SubmittedAnswer) => void
   flashState?: 'correct' | 'wrong' | 'partial' | null
   disabled?: boolean
 }) {
-  const payload = question.payload as ZetaPayload
+  const payload = question.payload as PublicZetaPayload
   const lite = payload.rubric === 'lite' || question.type === 'eta'
-  const askPq = !lite && (payload.ask_pq ?? !!payload.correct_pq)
-  const askNm = !lite && (payload.ask_nm ?? !!payload.correct_nm)
+  const askPq = !lite && payload.ask_pq
+  const askNm = !lite && payload.ask_nm
 
   const [pq, setPq] = useState<PqRating | null>(null)
   const [nm, setNm] = useState<NmRating | null>(null)

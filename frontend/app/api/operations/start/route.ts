@@ -1,21 +1,33 @@
-import { NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { checkAndConsumeQuota } from '@/lib/entitlements'
+import { startAttempt } from '@/lib/server/attempts'
+import { supabaseAttemptStore } from '@/lib/server/attempt-store'
+import { currentUser, errorResponse, readJson, unauthorized } from '@/lib/server/http'
+import { rateLimit, tooMany } from '@/lib/server/rate-limit'
 
-// Gates entry into a timed test. Checked here, before the test starts,
-// because the monthly quota is derived from completed `operations` rows —
-// there's no way to "un-count" a test after a user has already sat it.
-export async function POST() {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+// Starts (or resumes) a timed test. The server draws the questions, fixes
+// their order and option shuffle, and sets the deadline; the browser only
+// ever receives the questions without their answers.
+export async function POST(req: Request) {
+  const user = await currentUser()
+  if (!user) return unauthorized()
+
+  const limited = await rateLimit('testStart', user.id)
+  if (!limited.ok) return tooMany(limited.retryAfter)
+
+  const body = await readJson(req)
+  if (!body || typeof body.track !== 'string') {
+    return Response.json({ error: 'bad_request' }, { status: 400 })
   }
 
-  const quota = await checkAndConsumeQuota(user.id, 'test')
-  if (!quota.allowed) {
-    return NextResponse.json({ error: 'quota_exceeded', ...quota }, { status: 402 })
+  try {
+    const attempt = await startAttempt({
+      store: supabaseAttemptStore(),
+      agentId: user.id,
+      track: body.track,
+      checkQuota: () => checkAndConsumeQuota(user.id, 'test'),
+    })
+    return Response.json(attempt, { headers: { 'Cache-Control': 'no-store' } })
+  } catch (err) {
+    return errorResponse(err, 'operations/start')
   }
-
-  return NextResponse.json({ ok: true })
 }

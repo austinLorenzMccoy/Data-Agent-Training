@@ -1,7 +1,7 @@
 'use client'
 
-import { motion, AnimatePresence } from 'motion/react'
-import { Flame, Clock, Zap } from 'lucide-react'
+import { motion } from 'motion/react'
+import { Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 function fmt(sec: number): string {
@@ -14,15 +14,11 @@ export function OperationHud({
   index,
   total,
   timeLeft,
-  streak,
-  xp,
   trackLabel,
 }: {
   index: number
   total: number
   timeLeft: number
-  streak: number
-  xp: number
   trackLabel?: string
 }) {
   const danger = timeLeft <= 30
@@ -46,25 +42,6 @@ export function OperationHud({
         </div>
 
         <div className="flex items-center gap-3">
-          <AnimatePresence>
-            {streak >= 2 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.6 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.6 }}
-                className="flex items-center gap-1 font-mono text-xs font-bold text-streak"
-              >
-                <Flame className="size-3.5" />
-                {streak}x
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <div className="flex items-center gap-1 font-mono text-xs text-xp">
-            <Zap className="size-3.5" />
-            {xp}
-          </div>
-
           <div
             className={cn(
               'flex items-center gap-1 font-mono text-sm font-bold tabular-nums',

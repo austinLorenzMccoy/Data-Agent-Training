@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createAdminClient, createServerSupabaseClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/database'
 
 type BillingPlan = Database['public']['Tables']['billing_plans']['Row']
@@ -53,9 +53,7 @@ export async function getEntitlements(userId: string): Promise<Entitlements | nu
   if (!loaded) return null
   const { subscription, plan } = loaded
 
-  const { count: testsUsedThisMonth } = await supabase
-    .from('operations').select('id', { count: 'exact', head: true })
-    .eq('agent_id', userId).gte('created_at', monthStart())
+  const testsUsedThisMonth = await countTestsStarted(userId)
 
   const { data: usageRow } = await supabase
     .from('usage_counters').select('count')
@@ -67,7 +65,7 @@ export async function getEntitlements(userId: string): Promise<Entitlements | nu
     plan,
     subscription,
     practiceUsedToday: (usageRow as unknown as { count: number } | null)?.count ?? 0,
-    testsUsedThisMonth: testsUsedThisMonth ?? 0,
+    testsUsedThisMonth,
   }
 }
 
@@ -97,17 +95,28 @@ export async function checkAndConsumeQuota(userId: string, action: QuotaAction):
     return { allowed: true }
   }
 
-  // 'test' — the operations insert itself is the record, so this must be
-  // checked before the test starts, not after submission (a completed
-  // test can't be un-counted). A small non-atomic race between two tabs
-  // starting at the exact boundary is accepted rather than row-locked.
+  // 'test' — counted from attempts started this month, not tests
+  // finished: a started test has already shown its questions, so walking
+  // away from it must still use up the quota. Checked before the attempt
+  // row is created; a race between two tabs is stopped by the one-active-
+  // attempt index instead.
   const limit = plan.tests_monthly_limit
   if (limit == null) return { allowed: true }
 
-  const { count, error } = await supabase
-    .from('operations').select('id', { count: 'exact', head: true })
-    .eq('agent_id', userId).gte('created_at', monthStart())
-  if (error || count == null) return { allowed: false, reason: 'no_subscription' }
+  const count = await countTestsStarted(userId)
   if (count >= limit) return { allowed: false, reason: 'quota_exceeded', limit, plan: plan.slug }
   return { allowed: true }
+}
+
+// Attempts are read with the service role: active attempts are hidden from
+// the agent's own client so their question order stays private.
+async function countTestsStarted(userId: string): Promise<number> {
+  const admin = createAdminClient()
+  const { count, error } = await admin
+    .from('operation_attempts' as never)
+    .select('id', { count: 'exact', head: true })
+    .eq('agent_id', userId)
+    .gte('started_at', monthStart())
+  if (error) throw new Error(`countTestsStarted: ${error.message}`)
+  return count ?? 0
 }

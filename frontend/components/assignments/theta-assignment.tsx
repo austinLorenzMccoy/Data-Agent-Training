@@ -1,12 +1,13 @@
 'use client'
 
+import type { PublicThetaPayload } from '@/lib/exam/public'
+
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { Question } from '@/lib/types'
+import type { PublicQuestion } from '@/lib/exam/public'
 import type {
   AudioQualityFlag,
   SpeakerGender,
   ThetaAnswer,
-  ThetaPayload,
   ThetaSegment,
   ThetaTag,
   ThetaTagType,
@@ -30,12 +31,12 @@ export function ThetaAssignment({
   flashState,
   disabled,
 }: {
-  question: Question
+  question: PublicQuestion
   onSubmit: (answer: SubmittedAnswer) => void
   flashState?: 'correct' | 'wrong' | 'partial' | null
   disabled?: boolean
 }) {
-  const payload = question.payload as ThetaPayload
+  const payload = question.payload as PublicThetaPayload
   const audioUrl = question.audioAssetUrl || payload.audio_asset_url
   const waveRef = useRef<HTMLDivElement>(null)
   const wsRef = useRef<{ destroy: () => void; playPause: () => void } | null>(null)

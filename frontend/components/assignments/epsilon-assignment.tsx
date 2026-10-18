@@ -1,12 +1,13 @@
 'use client'
 
+import type { PublicEpsilonPayload } from '@/lib/exam/public'
+
 import { useEffect, useMemo, useState } from 'react'
-import type { Question } from '@/lib/types'
+import type { PublicQuestion } from '@/lib/exam/public'
 import type {
   AddressAccuracy,
   AddressIssue,
   EpsilonAnswer,
-  EpsilonPayload,
   EpsilonResultAnswer,
   NameAccuracy,
   PinAccuracy,
@@ -85,12 +86,12 @@ export function EpsilonAssignment({
   flashState,
   disabled,
 }: {
-  question: Question
+  question: PublicQuestion
   onSubmit: (answer: SubmittedAnswer) => void
   flashState?: 'correct' | 'wrong' | 'partial' | null
   disabled?: boolean
 }) {
-  const payload = question.payload as EpsilonPayload
+  const payload = question.payload as PublicEpsilonPayload
   const [nav, setNav] = useState<boolean | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(payload.results[0]?.id ?? null)
   const [results, setResults] = useState<Record<string, EpsilonResultAnswer>>(() => {

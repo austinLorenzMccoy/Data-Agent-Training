@@ -1,245 +1,182 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
-import { drawTrackOperation } from '@/lib/questions'
 import { TrackPicker } from './track-picker'
 import { TYPE_NAMES } from '@/lib/scoring'
-import type { Answer, AssignmentType, Question } from '@/lib/types'
+import type { AssignmentType } from '@/lib/types'
+import type { PublicQuestion } from '@/lib/exam/public'
+import type { AttemptView, FinishView } from '@/lib/exam/attempt-types'
 import { useAgent } from '@/components/providers/agent-provider'
-import { useAuth } from '@/contexts/AuthContext'
 import { LaunchSequence } from './launch-sequence'
 import { OperationHud } from './operation-hud'
 import { AssignmentRenderer, type SubmittedAnswer } from '@/components/assignments/assignment-renderer'
 import { Button } from '@/components/ui/button'
-import { gradeJustification } from '@/lib/grade-client'
-import { isSelectionCorrect, XP, hasJustification, buildResult, pointsPossible, selectionScore } from '@/lib/scoring'
 import { getProficiencyGatedTypes, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM } from '@/lib/feature-flags'
 import { hasPassedProficiency } from '@/lib/proficiency'
-import { buildLastTest, saveLastTest } from '@/lib/last-test'
-import { submitOperation } from '@/lib/db'
+import { saveLastTest } from '@/lib/last-test'
 import { UpgradeDialog } from '@/components/billing/upgrade-dialog'
 import { enterFullscreen, exitFullscreen, useIntegrityMonitor } from '@/lib/integrity'
 import { IntegrityBanner } from './integrity-banner'
-const MAX_TRACK_QUESTIONS = 12
-const MINUTES_PER_ASSIGNMENT = 2.5
-const MIN_OPERATION_MIN = 10
 
+type Phase = 'selecting' | 'launching' | 'active' | 'submitting' | 'complete'
 
+async function post<T>(url: string, body: unknown): Promise<{ ok: true; data: T } | { ok: false; status: number; error: string; data: Record<string, unknown> }> {
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (res.ok) return { ok: true, data: data as T }
+    return { ok: false, status: res.status, error: String(data.error ?? 'error'), data }
+  } catch {
+    return { ok: false, status: 0, error: 'network', data: {} }
+  }
+}
 
-export function OperationController() {
+function firstUnanswered(total: number, answered: number[]): number {
+  const done = new Set(answered)
+  for (let i = 0; i < total; i++) if (!done.has(i)) return i
+  return total
+}
+
+export function OperationController({ counts }: { counts: Partial<Record<AssignmentType, number>> }) {
   const router = useRouter()
-  const { agent, addXp, logOperation } = useAgent()
-  const { user } = useAuth()
+  const { logOperation, addXp } = useAgent()
 
-  const [state, setState] = useState<'selecting' | 'launching' | 'active' | 'submitting' | 'complete'>('selecting')
-  const [track, setTrack] = useState<AssignmentType | null>(null)
+  const [state, setState] = useState<Phase>('selecting')
   const [quotaBlocked, setQuotaBlocked] = useState(false)
   const [checkingQuota, setCheckingQuota] = useState(false)
-  const [operationName, setOperationName] = useState('')
-  const [questions, setQuestions] = useState<Question[]>([])
+  const [startError, setStartError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState<AttemptView | null>(null)
+  const [answered, setAnswered] = useState<number[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [answers, setAnswers] = useState<Answer[]>([])
-  const [streak, setStreak] = useState(0)
-  const [bestStreak, setBestStreak] = useState(0)
-  const [totalXp, setTotalXp] = useState(0)
   const [timeLeft, setTimeLeft] = useState(0)
-  const [durationSec, setDurationSec] = useState(0)
-  const [flashState, setFlashState] = useState<'correct' | 'wrong' | 'partial' | null>(null)
-  const [grading, setGrading] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [answerError, setAnswerError] = useState<string | null>(null)
+  const [finishing, setFinishing] = useState(false)
+  const clockOffset = useRef(0)
   const integrity = useIntegrityMonitor(state === 'launching' || state === 'active')
 
   useEffect(() => exitFullscreen, [])
 
-  const gated = new Set(getProficiencyGatedTypes())
+  const questions: PublicQuestion[] = attempt?.questions ?? []
+  // Display only — the start route enforces the gate from the server record.
   const examPassed =
-    !FEATURE_PROFICIENCY_GATE ||
-    !REQUIRED_PROFICIENCY_EXAM ||
-    hasPassedProficiency(REQUIRED_PROFICIENCY_EXAM)
+    !FEATURE_PROFICIENCY_GATE || !REQUIRED_PROFICIENCY_EXAM || hasPassedProficiency(REQUIRED_PROFICIENCY_EXAM)
+  const gated = new Set(getProficiencyGatedTypes())
 
   async function startTrack(type: AssignmentType) {
+    setStartError(null)
     if (gated.has(type) && !examPassed) {
       router.push(`/proficiency/${REQUIRED_PROFICIENCY_EXAM}?next=/operation`)
       return
     }
-
     // Must run inside the click handler — browsers refuse fullscreen
-    // without a user gesture, and the quota fetch below would outlive it.
+    // without a user gesture, and the request below would outlive it.
     enterFullscreen()
-
-    // Checked before drawing questions, not after submission — a
-    // completed test can't be un-counted against the monthly quota.
     setCheckingQuota(true)
-    try {
-      const res = await fetch('/api/operations/start', { method: 'POST' })
-      if (res.status === 402) {
-        exitFullscreen()
-        setQuotaBlocked(true)
-        return
-      }
-      if (!res.ok) {
-        exitFullscreen()
-        return
-      }
-    } finally {
-      setCheckingQuota(false)
-    }
+    const res = await post<AttemptView>('/api/operations/start', { track: type })
+    setCheckingQuota(false)
 
-    const qs = drawTrackOperation(type, MAX_TRACK_QUESTIONS)
-    if (qs.length === 0) {
+    if (!res.ok) {
       exitFullscreen()
+      if (res.status === 401) router.push('/login?next=/operation')
+      else if (res.status === 402) setQuotaBlocked(true)
+      else if (res.error === 'proficiency_required') router.push(`/proficiency/${REQUIRED_PROFICIENCY_EXAM}?next=/operation`)
+      else if (res.error === 'busy')
+        setStartError(`You have a ${TYPE_NAMES[res.data.track as AssignmentType] ?? 'test'} in progress. Finish it first.`)
+      else if (res.error === 'attempt_limit') setStartError('You have used every attempt allowed for this test.')
+      else if (res.error === 'rate_limited') setStartError('Too many test starts. Try again later.')
+      else setStartError('Could not start the test. Try again.')
       return
     }
-    const minutes = Math.max(MIN_OPERATION_MIN, Math.round(qs.length * MINUTES_PER_ASSIGNMENT))
-    setTrack(type)
-    setQuestions(qs)
-    setCurrentIndex(0)
-    setAnswers([])
-    setStreak(0)
-    setBestStreak(0)
-    setTotalXp(0)
-    setDurationSec(minutes * 60)
-    setTimeLeft(minutes * 60)
-    setOperationName(TYPE_NAMES[type])
+
+    const view = res.data
+    clockOffset.current = Date.parse(view.serverNow) - Date.now()
+    setAttempt(view)
+    setAnswered(view.answered)
+    setCurrentIndex(firstUnanswered(view.questions.length, view.answered))
     integrity.reset()
-    setState('launching')
+    setState(view.answered.length > 0 ? 'active' : 'launching')
   }
 
-  // Timer countdown
+  // The deadline is the server's; the browser only counts down to it.
   useEffect(() => {
-    if (state !== 'active' || timeLeft <= 0) return
-    const timer = setInterval(() => {
-      setTimeLeft((t) => {
-        if (t <= 1) {
-          setState('submitting')
-          return 0
-        }
-        return t - 1
-      })
-    }, 1000)
+    if (!attempt || (state !== 'active' && state !== 'launching')) return
+    const tick = () => {
+      const left = Math.ceil((Date.parse(attempt.expiresAt) - (Date.now() + clockOffset.current)) / 1000)
+      setTimeLeft(Math.max(0, left))
+      if (left <= 0 && state === 'active') setState('submitting')
+    }
+    tick()
+    const timer = setInterval(tick, 500)
     return () => clearInterval(timer)
-  }, [state, timeLeft])
+  }, [attempt, state])
 
   const currentQuestion = questions[currentIndex]
 
   async function handleSubmitAnswer(answer: SubmittedAnswer) {
-    if (!currentQuestion || grading) return
-    setGrading(true)
+    if (!attempt || !currentQuestion || sending) return
+    setSending(true)
+    setAnswerError(null)
+    const res = await post<{ answered: number }>('/api/operations/answer', {
+      attemptId: attempt.attemptId,
+      index: currentIndex,
+      selection: answer.selection,
+      justification: answer.justification,
+    })
+    setSending(false)
 
-    try {
-      // Grade the answer
-      const ratio = selectionScore(currentQuestion, answer.selection)
-      const correct = isSelectionCorrect(currentQuestion, answer.selection)
-      let justificationScore: 0 | 1 | 2 = 0
-
-      // Grade justification if present
-      if (answer.justification) {
-        try {
-          const result = await gradeJustification(
-            currentQuestion,
-            answer.justification,
-            typeof answer.selection === 'string' ? answer.selection : JSON.stringify(answer.selection),
-          )
-          justificationScore = result.score as 0 | 1 | 2
-        } catch (err) {
-          console.error('Grading error:', err)
-          justificationScore = 0
-        }
-      }
-
-      // Calculate streak first
-      const newStreak = correct ? streak + 1 : 0
-      const newBestStreak = Math.max(bestStreak, newStreak)
-
-      let xpEarned = 0
-      if (ratio > 0) {
-        xpEarned = Math.round(XP.CORRECT_MCQ * ratio)
-        if (hasJustification(currentQuestion.type)) {
-          xpEarned += justificationScore === 2 ? XP.JUSTIFICATION_FULL : justificationScore === 1 ? XP.JUSTIFICATION_PARTIAL : 0
-        }
-        if (correct) {
-          if (newStreak === 3) xpEarned += XP.STREAK_3
-          else if (newStreak === 5) xpEarned += XP.STREAK_5
-          else if (newStreak === 10) xpEarned += XP.STREAK_10
-        }
-      }
-      const pointsEarned = Math.round(ratio * currentQuestion.xpValue)
-
-      // Record answer
-      const possiblePoints = pointsPossible(currentQuestion)
-      const newAnswer: Answer = {
-        questionId: currentQuestion.id,
-        type: currentQuestion.type,
-        selection: answer.selection,
-        justification: answer.justification,
-        correct,
-        pointsEarned,
-        pointsPossible: possiblePoints,
-        xpEarned,
-        justificationScore,
-        justificationFeedback: '',
-        timeMs: 0,
-      }
-
-      setAnswers((prev) => [...prev, newAnswer])
-      setStreak(newStreak)
-      setBestStreak(newBestStreak)
-      setTotalXp((prev) => prev + xpEarned)
-
-      // Visual feedback
-      setFlashState(correct ? 'correct' : ratio > 0 ? 'partial' : 'wrong')
-      setTimeout(() => setFlashState(null), 1000)
-
-      // Move to next question or submit
-      if (currentIndex < questions.length - 1) {
-        setCurrentIndex((i) => i + 1)
-      } else {
-        setState('submitting')
-      }
-    } finally {
-      setGrading(false)
+    if (!res.ok && res.error !== 'already_answered') {
+      if (res.error === 'expired') setState('submitting')
+      else setAnswerError(res.status === 0 ? 'Connection lost. Your answer was not saved — submit again.' : 'Could not save that answer. Submit again.')
+      return
     }
+
+    const nextAnswered = [...answered, currentIndex]
+    setAnswered(nextAnswered)
+    const next = firstUnanswered(questions.length, nextAnswered)
+    if (next >= questions.length) setState('submitting')
+    else setCurrentIndex(next)
   }
 
-  function handleLaunchComplete() {
-    setState('active')
-  }
-
-  function handleSubmitOperation() {
-    const integrityReport = integrity.report()
+  async function handleSubmitOperation() {
+    if (!attempt || finishing) return
+    setFinishing(true)
+    const res = await post<FinishView>('/api/operations/finish', {
+      attemptId: attempt.attemptId,
+      integrity: integrity.report(),
+    })
+    setFinishing(false)
+    if (!res.ok) {
+      setAnswerError('Could not submit the test. Check your connection and try again.')
+      return
+    }
     exitFullscreen()
-
-    // Build full result
-    const result = buildResult(
-      `op_${Date.now()}`,
-      operationName,
-      answers,
-      bestStreak,
-      agent?.alias || 'UNKNOWN'
-    )
-
-    // Log operation and check for rank up
-    const { rankedUp } = logOperation(result)
-
+    const { result, rankedUp, items, integrity: report } = res.data
+    // The server already saved the result; this keeps the on-device profile in step.
+    logOperation(result)
     addXp(result.xpEarned)
-    saveLastTest({ ...buildLastTest(result, rankedUp, questions, answers), integrity: integrityReport })
-
-    // localStorage stays the optimistic UI layer; this is the server-truth
-    // write that quota checks and the cloud profile read from.
-    if (user) {
-      submitOperation(user.id, result, answers, durationSec - timeLeft, integrityReport)
-    }
-
+    saveLastTest({ result, rankedUp, items, integrity: report ?? undefined })
+    setState('complete')
     router.push(
-      `/operation/debrief?iqScore=${Math.round(result.iqScore)}&passed=${result.passed}&xp=${result.xpEarned}&rankedUp=${rankedUp}`
+      `/operation/debrief?iqScore=${Math.round(result.iqScore)}&passed=${result.passed}&xp=${result.xpEarned}&rankedUp=${rankedUp}`,
     )
   }
 
   if (state === 'selecting') {
     return (
       <>
-        <TrackPicker onPick={startTrack} locked={examPassed ? undefined : gated} />
+        <TrackPicker onPick={startTrack} counts={counts} locked={examPassed ? undefined : gated} />
+        {startError && (
+          <div className="fixed inset-x-0 bottom-6 z-50 mx-auto w-fit max-w-[90vw] rounded-md border border-danger/40 bg-surface px-4 py-2 text-sm text-danger shadow">
+            {startError}
+          </div>
+        )}
         {checkingQuota && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm">
             <p className="font-mono text-sm text-muted-foreground">Checking clearance...</p>
@@ -254,18 +191,18 @@ export function OperationController() {
     )
   }
 
-  if (state === 'launching' && questions.length > 0) {
+  if (state === 'launching' && attempt && questions.length > 0) {
     return (
       <LaunchSequence
-        operationName={operationName}
+        operationName={attempt.operationName}
         assignmentCount={questions.length}
-        durationSec={durationSec}
-        onReady={handleLaunchComplete}
+        durationSec={attempt.durationSec}
+        onReady={() => setState('active')}
       />
     )
   }
 
-  if (!currentQuestion) {
+  if (!currentQuestion && state !== 'submitting') {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
@@ -278,15 +215,14 @@ export function OperationController() {
   return (
     <div className="relative min-h-screen pb-20">
       <OperationHud
-        index={currentIndex}
+        index={Math.min(answered.length, questions.length - 1)}
         total={questions.length}
         timeLeft={timeLeft}
-        streak={streak}
-        xp={totalXp}
-        trackLabel={track ? TYPE_NAMES[track] : undefined}
+        trackLabel={attempt ? TYPE_NAMES[attempt.track] : undefined}
       />
 
       <AnimatePresence mode="wait">
+        {currentQuestion && (
         <motion.div
           key={currentQuestion.id}
           initial={{ opacity: 0, y: 10 }}
@@ -297,10 +233,12 @@ export function OperationController() {
           <AssignmentRenderer
             question={currentQuestion}
             onSubmit={handleSubmitAnswer}
-            flashState={flashState}
-            disabled={grading || state !== 'active'}
+            disabled={sending || state !== 'active'}
           />
+          {sending && <p className="mt-3 text-sm text-muted-foreground">Saving your answer…</p>}
+          {answerError && <p className="mt-3 text-sm text-danger">{answerError}</p>}
         </motion.div>
+        )}
       </AnimatePresence>
 
       {state === 'submitting' && (
@@ -311,20 +249,21 @@ export function OperationController() {
         >
           <div className="rounded-lg border border-border bg-surface p-8 text-center">
             <h3 className="text-lg font-bold text-foreground">
-              {currentIndex >= questions.length ? 'Submitting...' : 'Time’s up'}
+              {answered.length >= questions.length ? 'All answers saved' : 'Time’s up'}
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              {currentIndex >= questions.length
-                ? 'Scoring your answers...'
+              {answered.length >= questions.length
+                ? 'Submit to see your score.'
                 : 'We’ll score what you finished.'}
             </p>
             <Button
               onClick={handleSubmitOperation}
               className="mt-6 bg-accent hover:bg-accent/90"
-              disabled={grading}
+              disabled={finishing}
             >
-              {grading ? 'Scoring...' : 'See results'}
+              {finishing ? 'Scoring...' : 'See results'}
             </Button>
+            {answerError && <p className="mt-3 text-sm text-danger">{answerError}</p>}
           </div>
         </motion.div>
       )}

@@ -1,4 +1,5 @@
 import { OperationController } from '@/components/operation/operation-controller'
+import { typeCounts } from '@/lib/server/bank'
 
 export const metadata = {
   title: 'Timed test — Datanerds Annotation',
@@ -8,7 +9,7 @@ export const metadata = {
 export default function OperationPage() {
   return (
     <main className="relative min-h-screen">
-      <OperationController />
+      <OperationController counts={typeCounts()} />
     </main>
   )
 }

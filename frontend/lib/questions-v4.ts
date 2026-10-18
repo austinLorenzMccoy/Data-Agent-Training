@@ -1,3 +1,4 @@
+import 'server-only'
 import type { Question } from './types'
 import type { EpsilonPayload, ThetaPayload, ZetaPayload } from './domain-types'
 

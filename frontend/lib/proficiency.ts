@@ -1,5 +1,4 @@
-import { EN_CA_QUESTIONS } from './proficiency-en-ca'
-import type { IntegrityReport } from './integrity'
+import type { IntegrityReport } from './integrity-core'
 
 export interface ProficiencyChoice {
   id: string
@@ -15,31 +14,34 @@ export interface ProficiencyQuestion {
   correctId: string
 }
 
-export interface ProficiencyExam {
+/** A question as the browser sees it — the answer key stays on the server. */
+export type PublicProficiencyQuestion = Omit<ProficiencyQuestion, 'correctId'>
+
+export interface ProficiencyExamMeta {
   id: string
   label: string
   passScore: number
   timeLimitSec: number
+}
+
+export interface ProficiencyExam extends ProficiencyExamMeta {
   questions: ProficiencyQuestion[]
+}
+
+export interface PublicProficiencyExam extends ProficiencyExamMeta {
+  questions: PublicProficiencyQuestion[]
 }
 
 export const PROFICIENCY_COOKIE_PREFIX = 'dna_proficiency_'
 export const PROFICIENCY_STORAGE_KEY = 'dna.proficiency.v1'
 
-export const EN_CA_EXAM: ProficiencyExam = {
-  id: 'en-CA',
-  label: 'English (Canada) Language Proficiency',
-  passScore: 80,
-  timeLimitSec: 50 * 60,
-  questions: EN_CA_QUESTIONS,
-}
-
-export const PROFICIENCY_EXAMS: Record<string, ProficiencyExam> = {
-  'en-CA': EN_CA_EXAM,
-}
-
-export function getExam(id: string): ProficiencyExam | undefined {
-  return PROFICIENCY_EXAMS[id]
+export const EXAM_META: Record<string, ProficiencyExamMeta> = {
+  'en-CA': {
+    id: 'en-CA',
+    label: 'English (Canada) Language Proficiency',
+    passScore: 80,
+    timeLimitSec: 50 * 60,
+  },
 }
 
 export interface ProficiencyRecord {
@@ -50,6 +52,8 @@ export interface ProficiencyRecord {
   integrity?: IntegrityReport
 }
 
+// The server's proficiency_results row is the record the test gate reads.
+// This local copy only saves a round trip when drawing locked badges.
 function readStore(): Record<string, ProficiencyRecord> {
   if (typeof window === 'undefined') return {}
   try {
@@ -82,11 +86,4 @@ export function saveProficiencyResult(record: ProficiencyRecord): void {
   localStorage.setItem(PROFICIENCY_STORAGE_KEY, JSON.stringify(store))
   const value = record.passed ? 'passed' : 'failed'
   document.cookie = `${PROFICIENCY_COOKIE_PREFIX}${record.examId}=${value}; path=/; max-age=31536000; samesite=lax`
-}
-
-export function scoreExam(exam: ProficiencyExam, answers: Record<string, string>): { score: number; passed: boolean } {
-  const total = exam.questions.length
-  const hits = exam.questions.filter((q) => answers[q.id] === q.correctId).length
-  const score = total === 0 ? 0 : Math.round((hits / total) * 100)
-  return { score, passed: score >= exam.passScore }
 }

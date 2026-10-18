@@ -1,13 +1,10 @@
 import { createClient } from '@/lib/supabase/client'
 import type { Database } from '@/types/database'
-import type { Answer, OperationResult } from '@/lib/types'
-import type { IntegrityReport } from '@/lib/integrity'
 
 type Agent           = Database['public']['Tables']['agents']['Row']
 type AgentBadge      = Database['public']['Tables']['agent_badges']['Row']
 type Operation       = Database['public']['Tables']['operations']['Row']
 type LeaderboardEntry = Database['public']['Views']['leaderboard']['Row']
-type OperationInsert  = Database['public']['Tables']['operations']['Insert']
 
 export type { Agent, AgentBadge, Operation, LeaderboardEntry }
 
@@ -66,35 +63,8 @@ export async function fetchAgentOperations(
   return data
 }
 
-export async function submitOperation(
-  agentId: string,
-  result: OperationResult,
-  answers: Answer[],
-  timeTakenSeconds: number | null,
-  integrity: IntegrityReport | null = null
-): Promise<{ operation: Operation | null; error: string | null }> {
-  const supabase = createClient()
-
-  const insert: OperationInsert = {
-    agent_id:           agentId,
-    operation_name:     result.operationName,
-    iq_score:           Math.round(result.iqScore),
-    xp_earned:          result.xpEarned,
-    questions_total:    answers.length,
-    questions_correct:  answers.filter(a => a.correct).length,
-    time_taken_seconds: timeTakenSeconds,
-    passed:             result.passed,
-    category_scores:    result.categoryScores,
-    answers:            answers as unknown as AnswerLog[],
-    integrity:          integrity as unknown as Record<string, unknown> | null,
-  }
-
-  const { data, error } = await supabase
-    .from('operations').insert(insert as never).select().single()
-
-  if (error) { console.error('submitOperation:', error.message); return { operation: null, error: error.message } }
-  return { operation: data, error: null }
-}
+// Test results are written by the server (/api/operations/finish); the
+// browser has no insert permission on `operations`.
 
 // ── Leaderboard ─────────────────────────────────────────────────
 

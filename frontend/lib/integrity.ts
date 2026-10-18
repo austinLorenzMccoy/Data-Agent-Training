@@ -1,40 +1,12 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { EMPTY, INJECTED_TEXT_CHARS, summarize, type Counts, type IntegrityReport } from './integrity-core'
 
 // Soft lockdown for timed assessments. Nothing here blocks a user from
 // finishing — it records what happened so a score can be marked unverified.
 
-export interface IntegrityReport {
-  fullscreenSupported: boolean
-  fullscreenExits: number
-  tabSwitches: number
-  awayMs: number
-  pasteBlocked: number
-  dropBlocked: number
-  // Large text inserts that didn't come from a paste: autofill, extensions,
-  // text expanders.
-  injectedText: number
-  verified: boolean
-  reasons: string[]
-}
-
-const MAX_TAB_SWITCHES = 2
-const MAX_AWAY_MS = 30_000
-const MAX_FULLSCREEN_EXITS = 2
-const MAX_BLOCKED_INSERTS = 3
-const INJECTED_TEXT_CHARS = 25
-
-type Counts = Omit<IntegrityReport, 'verified' | 'reasons' | 'fullscreenSupported'>
-
-const EMPTY: Counts = {
-  fullscreenExits: 0,
-  tabSwitches: 0,
-  awayMs: 0,
-  pasteBlocked: 0,
-  dropBlocked: 0,
-  injectedText: 0,
-}
+export { summarize, type IntegrityReport }
 
 function fullscreenSupported(): boolean {
   return typeof document !== 'undefined' && !!document.documentElement.requestFullscreen
@@ -49,18 +21,6 @@ export function exitFullscreen() {
   if (typeof document !== 'undefined' && document.fullscreenElement) {
     document.exitFullscreen().catch(() => {})
   }
-}
-
-export function summarize(counts: Counts, fsSupported: boolean): IntegrityReport {
-  const reasons: string[] = []
-  if (counts.tabSwitches > MAX_TAB_SWITCHES) reasons.push(`Left the test ${counts.tabSwitches} times`)
-  if (counts.awayMs > MAX_AWAY_MS) reasons.push(`${Math.round(counts.awayMs / 1000)}s spent outside the test`)
-  if (fsSupported && counts.fullscreenExits > MAX_FULLSCREEN_EXITS)
-    reasons.push(`Exited fullscreen ${counts.fullscreenExits} times`)
-  const blocked = counts.pasteBlocked + counts.dropBlocked
-  if (blocked > MAX_BLOCKED_INSERTS) reasons.push(`${blocked} paste/drop attempts`)
-  if (counts.injectedText > 0) reasons.push(`${counts.injectedText} large text inserts not typed by hand`)
-  return { ...counts, fullscreenSupported: fsSupported, verified: reasons.length === 0, reasons }
 }
 
 export function useIntegrityMonitor(active: boolean) {

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createAdminClient, createServerSupabaseClient } from '@/lib/supabase/server'
 
 // Best-effort, one-shot import of pre-signup localStorage progress. This is
-// an unverifiable, client-asserted claim (same trust level as the existing
-// proficiency-exam cookie) — sanity-clamped, and only ever applied once,
-// onto an agent row that hasn't earned any real XP yet.
+// an unverifiable, client-asserted claim, so it lands in `imported_xp`:
+// shown on the profile, never counted toward rank or the leaderboard.
+// Sanity-clamped, and applied once onto an agent with no real XP yet.
 const MAX_PLAUSIBLE_XP = 500_000
 
 export async function POST(request: NextRequest) {
@@ -19,21 +19,22 @@ export async function POST(request: NextRequest) {
   const importedStreak = Math.min(Math.max(0, Number(bestStreak) || 0), 1000)
 
   const { data: agentRow, error: fetchError } = await supabase
-    .from('agents').select('total_xp, best_streak').eq('id', user.id).single()
+    .from('agents').select('total_xp, imported_xp, best_streak').eq('id', user.id).single()
   // See lib/entitlements.ts — the generated client types collapse to
   // `never` here for reasons unrelated to this feature; cast at the boundary.
-  const agent = agentRow as unknown as { total_xp: number; best_streak: number } | null
+  const agent = agentRow as unknown as { total_xp: number; imported_xp: number; best_streak: number } | null
   if (fetchError || !agent) {
     return NextResponse.json({ error: 'agent not found' }, { status: 404 })
   }
 
-  if (agent.total_xp !== 0) {
+  if (agent.total_xp !== 0 || agent.imported_xp !== 0) {
     return NextResponse.json({ error: 'import already applied or account not fresh' }, { status: 409 })
   }
 
-  const { error: updateError } = await supabase
+  // Agents can no longer write their own XP columns (migration 027).
+  const { error: updateError } = await createAdminClient()
     .from('agents')
-    .update({ total_xp: importedXp, best_streak: Math.max(agent.best_streak, importedStreak) } as never)
+    .update({ imported_xp: importedXp, best_streak: Math.max(agent.best_streak, importedStreak) } as never)
     .eq('id', user.id)
 
   if (updateError) {

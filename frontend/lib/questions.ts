@@ -1,3 +1,4 @@
+import 'server-only'
 import type { AssignmentType, Question } from './types'
 import { isTrackEnabled } from './feature-flags'
 import { V4_QUESTIONS } from './questions-v4'
@@ -1694,42 +1695,4 @@ export function getQuestionBank(extraEnabled?: AssignmentType[]): Question[] {
 
 export function getQuestionsByType(type: Question['type']): Question[] {
   return getQuestionBank().filter((q) => q.type === type)
-}
-
-export function drawTrackOperation(type: AssignmentType, maxCount = 12): Question[] {
-  const pool = [...getQuestionsByType(type)].sort(() => Math.random() - 0.5)
-  return pool.slice(0, Math.min(maxCount, pool.length))
-}
-
-export function drawOperation(count: number, types?: AssignmentType[]): Question[] {
-  const bank = getQuestionBank(types)
-  const pool = types ? bank.filter((q) => types.includes(q.type)) : bank
-  const byType = new Map<AssignmentType, Question[]>()
-  for (const q of pool) {
-    const list = byType.get(q.type) ?? []
-    list.push(q)
-    byType.set(q.type, list)
-  }
-  for (const list of byType.values()) {
-    list.sort(() => Math.random() - 0.5)
-  }
-  const keys = [...byType.keys()]
-  const picked: Question[] = []
-  let i = 0
-  while (picked.length < count && keys.length > 0) {
-    const type = keys[i % keys.length]
-    const list = byType.get(type)
-    if (list && list.length > 0) {
-      picked.push(list.shift()!)
-    } else {
-      keys.splice(i % keys.length, 1)
-      continue
-    }
-    i += 1
-  }
-  return picked.sort(() => Math.random() - 0.5)
-}
-
-export function getQuestionById(id: string): Question | undefined {
-  return getQuestionBank().find((q) => q.id === id)
 }

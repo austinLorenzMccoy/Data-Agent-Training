@@ -1,7 +1,8 @@
 'use client'
 
+import type { PublicEpsilonPayload } from '@/lib/exam/public'
+
 import { useEffect, useMemo } from 'react'
-import type { EpsilonPayload } from '@/lib/domain-types'
 
 type Pin = { id: string; letter: string; name: string; lat: number; lng: number }
 
@@ -10,7 +11,7 @@ export function EpsilonMap({
   selectedId: _selectedId,
   onSelect,
 }: {
-  payload: EpsilonPayload
+  payload: PublicEpsilonPayload
   selectedId: string | null
   onSelect: (id: string) => void
 }) {
