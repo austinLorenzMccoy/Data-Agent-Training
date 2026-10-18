@@ -22,6 +22,8 @@ export function OperationHud({
   trackLabel?: string
 }) {
   const danger = timeLeft <= 30
+  // Announce only at a few marks; a timer read out every second is noise.
+  const mark = timeLeft === 300 ? '5 minutes left' : timeLeft === 60 ? '1 minute left' : timeLeft === 10 ? '10 seconds left' : ''
   return (
     <div className="sticky top-0 z-30 border-b border-border bg-background/85 backdrop-blur">
       <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3">
@@ -42,7 +44,12 @@ export function OperationHud({
         </div>
 
         <div className="flex items-center gap-3">
+          <span className="sr-only" aria-live="assertive">
+            {mark}
+          </span>
           <div
+            role="timer"
+            aria-label={`Time left ${fmt(Math.max(0, timeLeft))}`}
             className={cn(
               'flex items-center gap-1 font-mono text-sm font-bold tabular-nums',
               danger ? 'text-destructive' : 'text-foreground',

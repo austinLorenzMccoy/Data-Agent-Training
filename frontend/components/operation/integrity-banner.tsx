@@ -15,7 +15,7 @@ export function IntegrityBanner({
   if (!needsFullscreen && !warning) return null
   return (
     <div className="fixed inset-x-0 bottom-4 z-40 flex justify-center px-4">
-      <div className="flex max-w-xl items-center gap-3 rounded-md border border-danger/40 bg-surface px-4 py-2.5 text-sm shadow-lg">
+      <div role="alert" className="flex max-w-xl items-center gap-3 rounded-md border border-danger/40 bg-surface px-4 py-2.5 text-sm shadow-lg">
         <ShieldAlert className="size-4 shrink-0 text-danger" />
         <span className="text-foreground">
           {warning ?? 'Stay in fullscreen until you finish. Leaving is logged.'}

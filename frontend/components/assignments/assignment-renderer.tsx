@@ -145,14 +145,16 @@ function CoreAssignment({
               <RatingSelect value={betaB} onChange={setBetaB} disabled={disabled} idPrefix="b" />
             </div>
           </div>
-          <p className="mb-2 mt-4 text-[11px] font-medium text-muted-foreground">
+          <p id="beta-pick-label" className="mb-2 mt-4 text-[11px] font-medium text-muted-foreground">
             Which response is better?
           </p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-labelledby="beta-pick-label">
             {(['A', 'B'] as const).map((p) => (
               <button
                 key={p}
                 type="button"
+                role="radio"
+                aria-checked={betaPick === p}
                 disabled={disabled}
                 onClick={() => setBetaPick(p)}
                 className={cn(
@@ -177,14 +179,16 @@ function CoreAssignment({
             <PromptBlock label="Response A">{question.responseA}</PromptBlock>
             <PromptBlock label="Response B">{question.responseB}</PromptBlock>
           </div>
-          <p className="mb-2 mt-4 text-[11px] font-medium text-muted-foreground">
+          <p id="iota-pick-label" className="mb-2 mt-4 text-[11px] font-medium text-muted-foreground">
             Which one wins on the stated axis?
           </p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-labelledby="iota-pick-label">
             {(['A', 'B'] as const).map((p) => (
               <button
                 key={p}
                 type="button"
+                role="radio"
+                aria-checked={iotaPick === p}
                 disabled={disabled}
                 onClick={() => setIotaPick(p)}
                 className={cn(
@@ -207,12 +211,14 @@ function CoreAssignment({
           <PromptBlock label="Transcript">
             <span className="whitespace-pre-wrap">{question.transcript}</span>
           </PromptBlock>
-          <p className="mb-2 text-[11px] font-medium text-muted-foreground">
+          <p id="gamma-decision-label" className="mb-2 text-[11px] font-medium text-muted-foreground">
             Your decision
           </p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-labelledby="gamma-decision-label">
             <button
               type="button"
+              role="radio"
+              aria-checked={gammaDecision === 'CLEAR'}
               disabled={disabled}
               onClick={() => {
                 setGammaDecision('CLEAR')
@@ -229,6 +235,8 @@ function CoreAssignment({
             </button>
             <button
               type="button"
+              role="radio"
+              aria-checked={gammaDecision === 'FLAGGED'}
               disabled={disabled}
               onClick={() => setGammaDecision('FLAGGED')}
               className={cn(
@@ -243,16 +251,18 @@ function CoreAssignment({
           </div>
           {gammaDecision === 'FLAGGED' && (
             <div className="mt-4">
-              <p className="mb-2 text-[11px] font-medium text-muted-foreground">
+              <p id="gamma-flags-label" className="mb-2 text-[11px] font-medium text-muted-foreground">
                 What is wrong? Select all that apply
               </p>
-              <div className="grid gap-2 sm:grid-cols-2">
+              <div className="grid gap-2 sm:grid-cols-2" role="group" aria-labelledby="gamma-flags-label">
                 {FLAG_REASONS.map((f) => {
                   const on = gammaFlags.includes(f)
                   return (
                     <button
                       key={f}
                       type="button"
+                      role="checkbox"
+                      aria-checked={on}
                       disabled={disabled}
                       onClick={() => toggleFlag(f)}
                       className={cn(
@@ -263,6 +273,7 @@ function CoreAssignment({
                       )}
                     >
                       <span
+                        aria-hidden
                         className={cn(
                           'flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border',
                           on ? 'border-danger bg-danger text-danger-foreground' : 'border-border',
@@ -291,14 +302,16 @@ function CoreAssignment({
           <PromptBlock label={question.type === 'kappa' ? 'Scenario' : 'Last message'}>
             {question.prompt}
           </PromptBlock>
-          <p className="mb-2 text-[11px] font-medium text-muted-foreground">
+          <p id="delta-pick-label" className="mb-2 text-[11px] font-medium text-muted-foreground">
             {question.type === 'kappa' ? 'Pick the correct call' : 'Pick the best reply'}
           </p>
-          <div className="space-y-2">
+          <div className="space-y-2" role="radiogroup" aria-labelledby="delta-pick-label">
             {question.responses?.map((r, i) => (
               <button
                 key={i}
                 type="button"
+                role="radio"
+                aria-checked={deltaPick === i}
                 disabled={disabled}
                 onClick={() => setDeltaPick(i)}
                 className={cn(
