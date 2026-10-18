@@ -2,9 +2,11 @@ import type { AssignmentType } from '@/lib/types'
 import type { AudioManifest, Lesson } from './types'
 import { REVIEW_A_TRANSCRIPT } from './review-a-transcript'
 import { TIMED_TEST_TUTORIAL } from './timed-test-tutorial'
+import { RATE_AI_RESPONSES } from './rate-ai-responses'
+import { PICK_THE_BEST_REPLY } from './pick-the-best-reply'
 import manifest from './audio-manifest.json'
 
-export const LESSONS: Lesson[] = [REVIEW_A_TRANSCRIPT, TIMED_TEST_TUTORIAL]
+export const LESSONS: Lesson[] = [RATE_AI_RESPONSES, REVIEW_A_TRANSCRIPT, PICK_THE_BEST_REPLY, TIMED_TEST_TUTORIAL]
 
 export const AUDIO = manifest as AudioManifest
 

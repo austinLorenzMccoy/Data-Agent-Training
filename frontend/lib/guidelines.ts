@@ -273,5 +273,9 @@ export function specialisationGuidelinePacks(): GuidelinePack[] {
 
 export function guidelineHrefForType(type: AssignmentType): string {
   const pack = guidelineFor(type)
-  return pack ? `/guidelines/${pack.id}` : '/prep'
+  if (pack) return `/guidelines/${pack.id}`
+  if (type === 'alpha' || type === 'beta') return '/prep/rating'
+  if (type === 'gamma') return '/prep/transcripts'
+  if (type === 'delta') return '/prep/replies'
+  return '/prep'
 }

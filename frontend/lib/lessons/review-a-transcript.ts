@@ -10,7 +10,7 @@ export const REVIEW_A_TRANSCRIPT: Lesson = {
   track: 'gamma',
   title: 'Review a transcript',
   summary: 'The transcript guideline in five short chapters: pass a text conversation, or flag every reason it cannot be used.',
-  guide: { href: '/prep?tab=transcript', label: 'Read the transcript guideline' },
+  guide: { href: '/prep/transcripts', label: 'Read the transcript guideline' },
   next: { href: '/training', label: 'Start practice' },
   chapters: [
     {

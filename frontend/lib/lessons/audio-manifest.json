@@ -1,4 +1,66 @@
 {
+  "rate-ai-responses": {
+    "three-checks": {
+      "src": "/lessons/rate-ai-responses/three-checks.m4a",
+      "duration": 18.6,
+      "cues": [
+        {
+          "scene": "intro",
+          "start": 0
+        },
+        {
+          "scene": "checks",
+          "start": 8.79
+        }
+      ]
+    },
+    "good-okay-bad": {
+      "src": "/lessons/rate-ai-responses/good-okay-bad.m4a",
+      "duration": 37.23,
+      "cues": [
+        {
+          "scene": "bad",
+          "start": 0
+        },
+        {
+          "scene": "okay",
+          "start": 14.21
+        },
+        {
+          "scene": "compare",
+          "start": 25.02
+        }
+      ]
+    },
+    "comparing": {
+      "src": "/lessons/rate-ai-responses/comparing.m4a",
+      "duration": 18.16,
+      "cues": [
+        {
+          "scene": "rate-each",
+          "start": 0
+        },
+        {
+          "scene": "example",
+          "start": 9.17
+        }
+      ]
+    },
+    "reasons": {
+      "src": "/lessons/rate-ai-responses/reasons.m4a",
+      "duration": 20.28,
+      "cues": [
+        {
+          "scene": "reason-rule",
+          "start": 0
+        },
+        {
+          "scene": "weak-strong",
+          "start": 12.73
+        }
+      ]
+    }
+  },
   "review-a-transcript": {
     "the-job": {
       "src": "/lessons/review-a-transcript/the-job.m4a",
@@ -95,6 +157,40 @@
         {
           "scene": "ready",
           "start": 20.84
+        }
+      ]
+    }
+  },
+  "pick-the-best-reply": {
+    "good-reply": {
+      "src": "/lessons/pick-the-best-reply/good-reply.m4a",
+      "duration": 28.65,
+      "cues": [
+        {
+          "scene": "intro",
+          "start": 0
+        },
+        {
+          "scene": "rules",
+          "start": 8.38
+        },
+        {
+          "scene": "example",
+          "start": 22.06
+        }
+      ]
+    },
+    "traps": {
+      "src": "/lessons/pick-the-best-reply/traps.m4a",
+      "duration": 20.95,
+      "cues": [
+        {
+          "scene": "flags",
+          "start": 0
+        },
+        {
+          "scene": "repeat-presence",
+          "start": 10.12
         }
       ]
     }

@@ -1,12 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
-import { specialisationGuidelinePacks } from '@/lib/guidelines'
-import { guideVideoForTrack, lessonMinutes } from '@/lib/lessons'
 import {
   BookOpen,
   ChevronDown,
@@ -20,16 +17,12 @@ import {
   ListChecks,
   Target,
   GitCompare,
-  Sparkles,
   MapPin,
   Search,
   AudioLines,
   ClipboardCheck,
-  Play,
 } from 'lucide-react'
-import { getEnabledTypes, isV4Type } from '@/lib/feature-flags'
 import { Button } from '@/components/ui/button'
-import { PageHero } from '@/components/page-hero'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -129,125 +122,9 @@ function RuleTag({ children }: { children: React.ReactNode }) {
   )
 }
 
-// ─── Main Component ───────────────────────────────────────────────────────────
-
-type PrepTab = 'core' | 'transcript' | 'response' | 'special'
-
-function initialTab(tab: string, track: string): PrepTab {
-  if (tab === 'special' || track === 'special') return 'special'
-  if (tab === 'transcript' || tab === 'response' || tab === 'core') return tab
-  return 'core'
-}
-
-export function PrepHub() {
-  const search = useSearchParams()
-  const requestedTab = search.get('tab')?.toLowerCase() ?? ''
-  const requestedTrack = search.get('track')?.toLowerCase() ?? ''
-  const [activeTab, setActiveTab] = useState<PrepTab>(() => initialTab(requestedTab, requestedTrack))
-  const showSpecial = getEnabledTypes().some(isV4Type)
-
-  useEffect(() => {
-    setActiveTab(initialTab(requestedTab, requestedTrack))
-  }, [requestedTab, requestedTrack])
-
-  const tabs = [
-    { id: 'core' as const, label: 'Core rules', icon: BookOpen, fresh: false },
-    { id: 'transcript' as const, label: 'Transcripts', icon: FileText, fresh: false },
-    { id: 'response' as const, label: 'Picking a reply', icon: MessageSquare, fresh: false },
-    ...(showSpecial
-      ? [{ id: 'special' as const, label: 'Extra tracks', icon: MapPin, fresh: true }]
-      : []),
-  ]
-
-  return (
-    <>
-    <PageHero eyebrow="Study guide" title="Learn the" accent="rating rules.">
-      Core rules are in the tabs below. Official documents open from the box under this heading.
-    </PageHero>
-    <div className="mx-auto max-w-4xl px-4 py-12">
-
-      {showSpecial && <GuidelinePointer />}
-
-      {/* Progress pills */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        {tabs.map((t) => {
-          const Icon = t.icon
-          return (
-            <button
-              key={t.id}
-              onClick={() => setActiveTab(t.id)}
-              className={cn(
-                'flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm transition-colors',
-                activeTab === t.id
-                  ? 'border-primary bg-primary/15 text-primary'
-                  : 'border-border text-muted-foreground hover:border-primary/40 hover:text-foreground',
-              )}
-            >
-              <Icon className="size-3.5" />
-              {t.label}
-              {t.fresh && (
-                <span className="rounded-full bg-primary/20 px-1.5 py-0.5 text-[9px] font-bold">
-                  New
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeTab}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.18 }}
-          className="space-y-4"
-        >
-          {/* ─── TAB: Core Framework ─────────────────────────────────── */}
-          {activeTab === 'core' && <CoreFrameworkSection />}
-
-          {/* ─── TAB: Transcript Clearance ───────────────────────────── */}
-          {activeTab === 'transcript' && <TranscriptSection />}
-
-          {/* ─── TAB: Response Selection ─────────────────────────────── */}
-          {activeTab === 'response' && <ResponseSelectionSection />}
-
-          {activeTab === 'special' && <SpecialisationSection highlight={requestedTrack} />}
-        </motion.div>
-      </AnimatePresence>
-
-      {/* CTA */}
-      <div className="mt-10 flex flex-col items-start gap-4 rounded-xl border border-border bg-card/60 p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="size-4 text-primary" />
-            <h3 className="font-semibold">Ready to practice?</h3>
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Start with untimed practice. Sit a timed test when you feel ready.
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button asChild size="lg">
-            <Link href="/training">
-              Start practice
-              <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link href="/operation">Timed test</Link>
-          </Button>
-        </div>
-      </div>
-    </div>
-    </>
-  )
-}
-
 // ─── Core Framework Section ────────────────────────────────────────────────
 
-function CoreFrameworkSection() {
+export function CoreFrameworkSection() {
   return (
     <>
       {/* Three pillars */}
@@ -484,27 +361,9 @@ const REJECTION_REASONS = [
   },
 ]
 
-function TranscriptSection() {
-  const video = guideVideoForTrack('gamma')
+export function TranscriptSection() {
   return (
     <>
-      {video && (
-        <Link
-          href={`/learn/${video.id}`}
-          className="group ink-band flex items-center gap-4 rounded-xl p-4 text-ink-foreground"
-        >
-          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-ink-accent text-ink transition-transform group-hover:scale-105">
-            <Play className="ml-0.5 size-5" />
-          </span>
-          <span className="min-w-0">
-            <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-accent">
-              Video guide · {lessonMinutes(video)} min
-            </span>
-            <span className="block font-heading text-lg">Watch this guideline explained, then read the details below</span>
-          </span>
-          <ArrowRight className="ml-auto size-4 shrink-0 transition-transform group-hover:translate-x-1" />
-        </Link>
-      )}
       {/* Overview card */}
       <div className="agency-card agency-card-accent p-5">
         <p className="mb-3 text-[12px] font-medium text-primary">Review a transcript</p>
@@ -676,7 +535,7 @@ function TranscriptSection() {
 
 // ─── Response Selection Section ────────────────────────────────────────────
 
-function ResponseSelectionSection() {
+export function ResponseSelectionSection() {
   return (
     <>
       {/* Overview */}
@@ -840,50 +699,7 @@ function ResponseSelectionSection() {
   )
 }
 
-function GuidelinePointer() {
-  const packs = specialisationGuidelinePacks()
-  return (
-    <div
-      id="guidelines-brief"
-      className="mb-10 rounded-xl border-2 border-primary bg-primary/10 p-5 sm:p-6"
-    >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="w-full min-w-0">
-          <p className="text-sm font-medium text-primary">Full guidelines</p>
-          <h2 className="mt-1 font-heading text-2xl font-medium tracking-tight">
-            Open the official documents
-          </h2>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            DataAnnotation.tech, maps, search quality, transcription, and the English exam.
-            Figures scale on screen. Nothing downloads. The tabs below summarise the rules and how
-            practice here is scored.
-          </p>
-        </div>
-        <Button asChild size="lg" className="h-11 w-full shrink-0 text-base sm:w-auto">
-          <Link href="/guidelines">
-            Open Guidelines
-            <ArrowRight className="size-4" />
-          </Link>
-        </Button>
-      </div>
-      <p className="mt-5 text-xs font-medium text-muted-foreground">Or jump straight to a document</p>
-      <div className="mt-2 grid gap-2 sm:grid-cols-2">
-        {packs.map((pack) => (
-          <Link
-            key={pack.id}
-            href={`/guidelines/${pack.id}`}
-            className="flex items-center justify-between gap-2 rounded-md border border-primary/35 bg-background px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary hover:bg-primary/10"
-          >
-            <span className="min-w-0 text-left">{pack.title}</span>
-            <ArrowRight className="size-4 shrink-0 text-primary" />
-          </Link>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function SpecialisationSection({ highlight }: { highlight: string }) {
+export function SpecialisationSection({ highlight }: { highlight: string }) {
   return (
     <div id="specialisations-brief" className="scroll-mt-24 space-y-4">
       <div className="agency-card agency-card-accent p-5">

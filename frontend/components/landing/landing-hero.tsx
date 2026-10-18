@@ -154,7 +154,7 @@ export function LandingHero() {
               variant="outline"
               className="rounded-full border-white/25 bg-transparent px-7 font-sans font-semibold text-ink-foreground hover:bg-white/10 hover:text-ink-foreground"
             >
-              <Link href="/prep#guidelines-brief">Read the study guide</Link>
+              <Link href="/prep">Read the study guide</Link>
             </Button>
           </div>
 
