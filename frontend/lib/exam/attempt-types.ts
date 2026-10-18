@@ -21,4 +21,6 @@ export interface FinishView {
   rankedUp: boolean
   items: ReviewItem[]
   integrity: IntegrityReport | null
+  /** Public check code when the attempt passed. */
+  certificateCode?: string
 }

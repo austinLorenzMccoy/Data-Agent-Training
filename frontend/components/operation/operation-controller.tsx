@@ -157,11 +157,11 @@ export function OperationController({ counts }: { counts: Partial<Record<Assignm
       return
     }
     exitFullscreen()
-    const { result, rankedUp, items, integrity: report } = res.data
+    const { result, rankedUp, items, integrity: report, certificateCode } = res.data
     // The server already saved the result; this keeps the on-device profile in step.
     logOperation(result)
     addXp(result.xpEarned)
-    saveLastTest({ result, rankedUp, items, integrity: report ?? undefined })
+    saveLastTest({ result, rankedUp, items, integrity: report ?? undefined, certificateCode })
     setState('complete')
     router.push(
       `/operation/debrief?iqScore=${Math.round(result.iqScore)}&passed=${result.passed}&xp=${result.xpEarned}&rankedUp=${rankedUp}`,

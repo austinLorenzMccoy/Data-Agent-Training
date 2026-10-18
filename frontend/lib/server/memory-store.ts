@@ -1,4 +1,4 @@
-import type { AttemptRow, AttemptStore, GradeLogEntry, OperationRow } from './attempts'
+import type { AttemptRow, AttemptStore, CertificateInsert, GradeLogEntry, OperationRow } from './attempts'
 
 // In-memory AttemptStore for tests. Mirrors the SQL guarantees the service
 // relies on: one active attempt per agent, answers written once, deadline
@@ -11,6 +11,7 @@ export function memoryAttemptStore(opts: { now?: () => Date; graceSec?: number }
   const operations = new Map<string, OperationRow>()
   const grades: GradeLogEntry[] = []
   const proficiency = new Set<string>()
+  const certificates = new Map<string, CertificateInsert>()
   let seq = 0
 
   const store: AttemptStore = {
@@ -71,6 +72,11 @@ export function memoryAttemptStore(opts: { now?: () => Date; graceSec?: number }
     async logGrade(entry) {
       grades.push(entry)
     },
+    async issueCertificate(cert) {
+      const code = `CERT${++seq}`
+      certificates.set(code, cert)
+      return { code }
+    },
     async hasPassedProficiency(agentId, examId) {
       return proficiency.has(`${agentId}:${examId}`)
     },
@@ -81,6 +87,7 @@ export function memoryAttemptStore(opts: { now?: () => Date; graceSec?: number }
     attempts,
     operations,
     grades,
+    certificates,
     passProficiency: (agentId: string, examId: string) => proficiency.add(`${agentId}:${examId}`),
   }
 }

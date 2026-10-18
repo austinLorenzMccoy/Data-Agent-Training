@@ -73,6 +73,16 @@ export interface GradeLogEntry {
   flagged_injection: boolean
 }
 
+export interface CertificateInsert {
+  agent_id: string
+  operation_id: string
+  track: AssignmentType
+  operation_name: string
+  score: number
+  integrity_verified: boolean
+  org_exam_id: string | null
+}
+
 /** Persistence used by the attempt service; Supabase in production, in-memory in tests. */
 export interface AttemptStore {
   activeAttempt(agentId: string): Promise<AttemptRow | null>
@@ -86,6 +96,7 @@ export interface AttemptStore {
   linkOperation(attemptId: string, operationId: string): Promise<void>
   getOperation(id: string): Promise<OperationRow | null>
   logGrade(entry: GradeLogEntry): Promise<void>
+  issueCertificate(cert: CertificateInsert): Promise<{ code: string }>
   hasPassedProficiency(agentId: string, examId: string): Promise<boolean>
 }
 
@@ -370,11 +381,31 @@ export async function finishAttempt({ store, agentId, attemptId, integrity, now 
   await store.linkOperation(attemptId, op.id)
   const fresh = (await store.getOperation(op.id)) ?? op
 
+  let certificateCode: string | undefined
+  if (result.passed) {
+    try {
+      const cert = await store.issueCertificate({
+        agent_id: agentId,
+        operation_id: op.id,
+        track: row.track,
+        operation_name: row.operation_name,
+        score: Math.round(result.iqScore),
+        integrity_verified: report?.verified ?? true,
+        org_exam_id: row.org_exam_id,
+      })
+      certificateCode = cert.code
+    } catch (err) {
+      // The result is saved either way; a missing certificate can be reissued.
+      console.error('issueCertificate:', (err as Error).message)
+    }
+  }
+
   return {
     result: { ...result, id: op.id, rankAtCompletion: String(fresh.rank_after ?? '') },
     rankedUp: (fresh.rank_after ?? 0) > (fresh.rank_before ?? 0),
     items: reviewItems(questions, answers),
     integrity: report,
+    certificateCode,
   }
 }
 

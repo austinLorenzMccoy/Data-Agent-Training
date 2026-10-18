@@ -63,6 +63,20 @@ function DebriefBody() {
 
       {data?.integrity && <IntegrityResult report={data.integrity} className="mt-4" />}
 
+      {data?.certificateCode && (
+        <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-success/40 bg-success/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-medium text-success">Certificate issued</p>
+            <p className="text-sm text-muted-foreground">
+              Code <span className="font-mono">{data.certificateCode}</span>. Anyone with the link can check it.
+            </p>
+          </div>
+          <Button asChild variant="outline" className="rounded-full">
+            <Link href={`/verify/${data.certificateCode}`}>View certificate</Link>
+          </Button>
+        </div>
+      )}
+
       {rankedUp && (
         <p className="mt-4 rounded-md border border-success/40 bg-success/10 px-3 py-2 text-sm text-success">
           You ranked up.

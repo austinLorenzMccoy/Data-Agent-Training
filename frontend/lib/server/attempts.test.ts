@@ -124,6 +124,16 @@ describe('answerAttempt / finishAttempt', () => {
     })
   }
 
+  it('issues a certificate for a pass and none for a fail', async () => {
+    const pass = await perfectRun('gamma')
+    assert.ok(pass.certificateCode)
+    assert.equal(mem.certificates.get(pass.certificateCode!)?.score, 100)
+    const view = await startAttempt({ store: mem.store, agentId: AGENT, track: 'delta', checkQuota: allow, now: clock })
+    const fail = await finishAttempt({ store: mem.store, agentId: AGENT, attemptId: view.attemptId, integrity: null, now: clock })
+    assert.equal(fail.certificateCode, undefined)
+    assert.equal(mem.certificates.size, 1)
+  })
+
   it('logs each graded reason with its model', async () => {
     await perfectRun('alpha')
     assert.ok(mem.grades.length > 0)
@@ -210,5 +220,13 @@ describe('question bank pools', () => {
     const reserved = questionsOfType('gamma').filter(isExamOnly)
     const drawn = new Set(drawExam('gamma', 12).map((q) => q.id))
     assert.ok(reserved.slice(0, 12).every((q) => drawn.has(q.id)))
+  })
+})
+
+describe('certificate codes', () => {
+  it('normalizes typed codes', async () => {
+    const { normalizeCode } = await import('./certificates')
+    assert.equal(normalizeCode(' 7kq2m x9d4r '), '7KQ2M-X9D4R')
+    assert.equal(normalizeCode('7KQ2M-X9D4R'), '7KQ2M-X9D4R')
   })
 })

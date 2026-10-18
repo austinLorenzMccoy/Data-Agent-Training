@@ -5,6 +5,7 @@ import { useAgent } from '@/components/providers/agent-provider'
 import { RankBadge } from '@/components/rank-badge'
 import { XpProgress } from '@/components/xp-progress'
 import { ProgressRing } from '@/components/progress-ring'
+import { MyCertificates } from '@/components/account/my-certificates'
 import { Constellation } from '@/components/graphics/constellation'
 import { ALL_BADGES } from '@/lib/badges'
 import { TYPE_NAMES } from '@/lib/scoring'
@@ -136,6 +137,8 @@ export default function DossierPage() {
           <StatCard icon={CheckCircle2} label="Avg score" value={agent.history.length ? `${avgIq}%` : '—'} color="var(--success)" />
           <StatCard icon={Flame} label="Best Streak" value={agent.bestStreak} color="#ff5c5c" />
         </div>
+
+        <MyCertificates />
 
         {/* Training completed */}
         <div className="mb-8 rounded-xl border border-border bg-card p-5">

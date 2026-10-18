@@ -1,4 +1,5 @@
 import 'server-only'
+import { randomBytes } from 'node:crypto'
 import { createAdminClient } from '@/lib/supabase/server'
 import type { AttemptRow, AttemptStore, GradeLogEntry, OperationInsert, OperationRow } from './attempts'
 
@@ -8,6 +9,16 @@ type Admin = ReturnType<typeof createAdminClient>
 
 function fail(where: string, error: { message: string } | null): never {
   throw new Error(`${where}: ${error?.message ?? 'no data'}`)
+}
+
+// Crockford base32 without I, L, O, U — easy to read aloud or retype.
+const ALPHABET = '0123456789ABCDEFGHJKMNPQRSTVWXYZ'
+
+export function certificateCode(): string {
+  const bytes = randomBytes(10)
+  let out = ''
+  for (const b of bytes) out += ALPHABET[b % 32]
+  return `${out.slice(0, 5)}-${out.slice(5)}`
 }
 
 export function supabaseAttemptStore(admin: Admin = createAdminClient()): AttemptStore {
@@ -86,6 +97,18 @@ export function supabaseAttemptStore(admin: Admin = createAdminClient()): Attemp
       const { error } = await admin.from('grading_log' as never).insert(entry as never)
       // A missing log row must not lose the candidate's answer.
       if (error) console.error('logGrade:', error.message)
+    },
+
+    async issueCertificate(cert) {
+      const { data: agent } = await admin.from('agents').select('alias').eq('id', cert.agent_id).single()
+      const display_name = (agent as unknown as { alias: string } | null)?.alias ?? 'Unnamed'
+      for (let i = 0; i < 3; i++) {
+        const code = certificateCode()
+        const { error } = await admin.from('certificates' as never).insert({ ...cert, code, display_name } as never)
+        if (!error) return { code }
+        if (!error.message.includes('duplicate')) fail('issueCertificate', error)
+      }
+      throw new Error('issueCertificate: could not find a free code')
     },
 
     async hasPassedProficiency(agentId, examId) {

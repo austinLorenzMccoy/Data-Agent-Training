@@ -18,6 +18,7 @@ export interface LastTest {
   rankedUp: boolean
   items: LastTestItem[]
   integrity?: IntegrityReport
+  certificateCode?: string
 }
 
 export function saveLastTest(data: LastTest) {
