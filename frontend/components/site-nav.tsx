@@ -8,7 +8,6 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useSidebar } from '@/components/sidebar-context'
 import { cn, pathHasSidebar } from '@/lib/utils'
 import { LogOut, Menu, PanelLeftClose, X, Home } from 'lucide-react'
-import { FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM } from '@/lib/feature-flags'
 import { PlanBadge } from '@/components/billing/plan-badge'
 
 const LINKS = [
@@ -36,12 +35,9 @@ export function SiteNav() {
 
   if (pathname?.startsWith('/operation/run')) return null
 
-  const links = [
-    ...LINKS,
-    ...(FEATURE_PROFICIENCY_GATE
-      ? [{ href: `/proficiency/${REQUIRED_PROFICIENCY_EXAM || 'en-CA'}`, label: 'English' }]
-      : []),
-  ]
+  // The English exam is reached from the tracks that need it and from the
+  // Study page, not from the main menu.
+  const links = LINKS
 
   const signedIn = !!user || !!agent
 

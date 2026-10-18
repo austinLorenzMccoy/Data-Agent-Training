@@ -96,7 +96,8 @@ function TrackButton({
   needsPractice?: boolean
   count: number
 }) {
-  const blocked = locked || needsPractice || count === 0
+  // A locked card stays clickable: picking it sends you to the English exam.
+  const blocked = needsPractice || count === 0
   const minutes = Math.max(10, Math.round(count * 2.5))
   return (
     <button
@@ -120,7 +121,7 @@ function TrackButton({
       <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{TYPE_BLURBS[type]}</p>
       <p className="mt-2 text-xs text-muted-foreground">
         {locked
-          ? 'English exam required first'
+          ? 'English exam first · select to take it'
           : needsPractice
             ? 'Finish practice for this type first'
             : `${count} question${count === 1 ? '' : 's'} · this type only`}

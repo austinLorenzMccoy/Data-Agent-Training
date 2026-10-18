@@ -838,8 +838,8 @@ export function SpecialisationSection({ highlight }: { highlight: string }) {
       </Accordion>
 
       <Accordion
-        title="Language proficiency gate"
-        subtitle="en-CA · sits in front of Theta"
+        title="English exam"
+        subtitle="en-CA · can be required before transcription"
         icon={BookOpen}
         defaultOpen={highlight === 'proficiency'}
       >
@@ -850,12 +850,17 @@ export function SpecialisationSection({ highlight }: { highlight: string }) {
             A pass is final; if you miss the mark you can retake it. Answers are not shown during
             or after the exam.
           </p>
-          <Button asChild variant="outline" size="sm" className="mt-1">
-            <Link href="/guidelines/proficiency">
-              Open the English exam guide
-              <ArrowRight className="size-3.5" />
-            </Link>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild size="sm" className="mt-1">
+              <Link href="/proficiency/en-CA">
+                Take the English exam
+                <ArrowRight className="size-3.5" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" className="mt-1">
+              <Link href="/guidelines/proficiency">Read the exam guide</Link>
+            </Button>
+          </div>
         </div>
       </Accordion>
 

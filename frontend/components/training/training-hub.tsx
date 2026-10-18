@@ -99,6 +99,7 @@ export function TrainingHub() {
                   key={type}
                   type={type}
                   featured
+                  needsEnglish={!!REQUIRED_PROFICIENCY_EXAM && gated.has(type)}
                   done={!!agent?.completedTraining.includes(type)}
                   onStart={() => startType(type)}
                 />
@@ -135,11 +136,13 @@ function DrillCard({
   done,
   onStart,
   featured = false,
+  needsEnglish = false,
 }: {
   type: AssignmentType
   done: boolean
   onStart: () => void
   featured?: boolean
+  needsEnglish?: boolean
 }) {
   const pack = featured ? guidelineFor(type) : undefined
   return (
@@ -164,6 +167,14 @@ function DrillCard({
       </div>
       <h3 className="mt-1 font-heading text-xl font-medium">{TYPE_NAMES[type]}</h3>
       <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{TYPE_BLURBS[type]}</p>
+      {needsEnglish && (
+        <p className="mt-1 text-xs text-muted-foreground">
+          Requires the English exam.{' '}
+          <Link href={`/proficiency/${REQUIRED_PROFICIENCY_EXAM}?next=/training`} className="text-primary underline underline-offset-2">
+            Take it
+          </Link>
+        </p>
+      )}
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
         <button
           type="button"
