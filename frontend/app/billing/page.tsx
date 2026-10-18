@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { CreditCard, ArrowRight } from 'lucide-react'
 import { PageHero } from '@/components/page-hero'
+import { DeleteAccount } from '@/components/account/delete-account'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface EntitlementsResponse {
   plan: {
@@ -30,6 +32,7 @@ export default function BillingPage() {
   const [data, setData] = useState<EntitlementsResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [canceling, setCanceling] = useState(false)
+  const { user } = useAuth()
 
   useEffect(() => {
     fetch('/api/entitlements')
@@ -118,6 +121,8 @@ export default function BillingPage() {
             </div>
           </div>
         )}
+
+        {user && <DeleteAccount />}
       </div>
     </main>
   )

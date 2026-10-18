@@ -18,6 +18,7 @@ const COLUMNS = [
     links: [
       { href: '/dossier', label: 'Your progress' },
       { href: '/rankings', label: 'Rankings' },
+      { href: '/verify', label: 'Check a certificate' },
     ],
   },
   {
@@ -26,6 +27,8 @@ const COLUMNS = [
       { href: '/pricing', label: 'Pricing' },
       { href: '/billing', label: 'Billing' },
       { href: '/login', label: 'Sign in' },
+      { href: '/terms', label: 'Terms' },
+      { href: '/privacy', label: 'Privacy' },
     ],
   },
 ]
