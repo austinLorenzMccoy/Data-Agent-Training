@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { CreditCard, ArrowRight } from 'lucide-react'
+import { PageHero } from '@/components/page-hero'
 
 interface EntitlementsResponse {
   plan: {
@@ -52,9 +53,8 @@ export default function BillingPage() {
 
   return (
     <main className="relative min-h-screen">
+      <PageHero eyebrow="Account" title="Your" accent="clearance." />
       <div className="mx-auto max-w-3xl px-4 py-12">
-        <p className="text-[12px] font-medium text-muted-foreground">Account</p>
-        <h1 className="mt-0.5 text-3xl font-bold tracking-tight">Billing</h1>
 
         {loading ? (
           <p className="mt-8 text-sm text-muted-foreground">Loading…</p>

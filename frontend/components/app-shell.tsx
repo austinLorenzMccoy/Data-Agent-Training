@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { useSidebar } from '@/components/sidebar-context'
+import { SiteFooter } from '@/components/site-footer'
 import { cn, pathHasSidebar } from '@/lib/utils'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -17,6 +18,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
     >
       {children}
+      <SiteFooter />
     </div>
   )
 }

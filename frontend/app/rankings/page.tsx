@@ -7,6 +7,7 @@ import { Shield, Trophy, Crown, Loader2, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { PageHero } from '@/components/page-hero'
 
 interface LeaderboardEntry {
   id: string
@@ -56,15 +57,10 @@ export default function RankingsPage() {
 
   return (
     <main className="relative min-h-screen">
+      <PageHero eyebrow="Leaderboard" title="Who is" accent="on the board.">
+        Ranked by XP from the core tasks. Extra-track XP stays on those tracks. Opt in from Progress to appear here.
+      </PageHero>
       <div className="mx-auto max-w-3xl px-4 py-12">
-
-        <div className="mb-8">
-          <p className="text-sm font-medium text-primary">Leaderboard</p>
-          <h1 className="mt-2 text-4xl font-bold tracking-tight">Rankings</h1>
-          <p className="mt-3 text-muted-foreground">
-            Ranked by XP from the core tasks. Extra-track XP stays on those tracks. Opt in from Progress to appear here.
-          </p>
-        </div>
 
         {/* Rank filter pills */}
         <div className="mb-6 flex flex-wrap gap-2">

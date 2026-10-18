@@ -11,27 +11,15 @@ import { gradeJustification, QuotaExceededError } from '@/lib/grade-client'
 import { UpgradeDialog } from '@/components/billing/upgrade-dialog'
 import { AssignmentRenderer, type SubmittedAnswer } from '@/components/assignments/assignment-renderer'
 import { FeedbackPanel } from '@/components/assignments/feedback-panel'
-import { NeuralNoise } from '@/components/neural-noise'
+import { PageHero } from '@/components/page-hero'
+import { SkillTile } from '@/components/graphics/skill-art'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { ArrowRight, Crosshair, GitCompare, ShieldCheck, ListChecks, Lock, MapPin, Search, AudioLines, Images, ClipboardCheck } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Lock } from 'lucide-react'
 import { CORE_TYPES, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM, getEnabledTypes, getProficiencyGatedTypes, isV4Type } from '@/lib/feature-flags'
 import { guidelineFor } from '@/lib/guidelines'
 import { hasPassedProficiency } from '@/lib/proficiency'
 import { useRouter } from 'next/navigation'
-
-const TYPE_ICONS: Record<AssignmentType, typeof Crosshair> = {
-  alpha: Crosshair,
-  beta: GitCompare,
-  gamma: ShieldCheck,
-  delta: ListChecks,
-  epsilon: MapPin,
-  zeta: Search,
-  eta: Search,
-  theta: AudioLines,
-  iota: Images,
-  kappa: ClipboardCheck,
-}
 
 export function TrainingHub() {
   const { agent, completeTraining } = useAgent()
@@ -69,19 +57,11 @@ export function TrainingHub() {
 
   return (
     <div className="relative">
-      <NeuralNoise />
-      <div className="relative mx-auto max-w-5xl px-4 py-12">
-        <p className="font-sans text-sm font-medium text-accent">
-          Practice at your own pace
-        </p>
-        <h1 className="mt-2 text-pretty font-sans text-4xl font-bold tracking-tight">
-          Practice
-        </h1>
-        <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
-          Build confidence without a timer. Try a few examples, see why an answer works,
-          and choose what you would like to practice next.
-        </p>
-
+      <PageHero eyebrow="Practice at your own pace" title="Practice" accent="without the clock.">
+        Build confidence without a timer. Try a few examples, see why an answer works,
+        and choose what you would like to practice next.
+      </PageHero>
+      <div className="relative mx-auto max-w-5xl px-4 pb-16">
         <p className="mb-3 mt-8 font-sans text-sm font-medium text-muted-foreground">
           Practice areas
         </p>
@@ -157,7 +137,6 @@ function DrillCard({
   onStart: () => void
   featured?: boolean
 }) {
-  const Icon = TYPE_ICONS[type]
   const pack = featured ? guidelineFor(type) : undefined
   return (
     <div
@@ -167,9 +146,7 @@ function DrillCard({
       )}
     >
       <div className="flex items-start justify-between">
-        <div className="flex size-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <Icon className="size-5" />
-        </div>
+        <SkillTile type={type} className="h-16 w-24 transition-transform duration-300 group-hover:-rotate-2" />
         <div className="flex items-center gap-2">
           {featured && (
             <span className="rounded-full border border-primary/50 px-1.5 py-0.5 text-[10px] font-medium text-primary">

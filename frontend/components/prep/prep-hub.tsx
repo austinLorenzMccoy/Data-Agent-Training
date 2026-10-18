@@ -27,6 +27,7 @@ import {
 } from 'lucide-react'
 import { getEnabledTypes, isV4Type } from '@/lib/feature-flags'
 import { Button } from '@/components/ui/button'
+import { PageHero } from '@/components/page-hero'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -157,19 +158,11 @@ export function PrepHub() {
   ]
 
   return (
+    <>
+    <PageHero eyebrow="Study guide" title="Learn the" accent="rating rules.">
+      Core rules are in the tabs below. Official documents open from the box under this heading.
+    </PageHero>
     <div className="mx-auto max-w-4xl px-4 py-12">
-      {/* Header */}
-      <div className="mb-8">
-        <p className="text-sm font-medium text-primary">
-          Study guide
-        </p>
-        <h1 className="mt-2 text-4xl font-bold tracking-tight">
-          Learn the rating rules
-        </h1>
-        <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
-          Core rules are in the tabs below. Official documents open from the box under this heading.
-        </p>
-      </div>
 
       {showSpecial && <GuidelinePointer />}
 
@@ -246,6 +239,7 @@ export function PrepHub() {
         </div>
       </div>
     </div>
+    </>
   )
 }
 

@@ -39,6 +39,10 @@
   --color-danger-foreground: var(--danger-foreground);
   --color-indigo-border: var(--indigo-border);
   --color-streak: var(--streak);
+  --color-ink: var(--ink);
+  --color-ink-foreground: var(--ink-foreground);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-accent: var(--ink-accent);
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -99,6 +103,12 @@
   --ring: #b42318;
 
   --radius: 4px;
+
+  /* Ink bands — heroes and footer set on the same iron-gall ink as the type */
+  --ink: #1a1714;
+  --ink-foreground: #f6f0e4;
+  --ink-muted: #b9ad9a;
+  --ink-accent: #e0b84f;
 
   --chart-1: #b42318;
   --chart-2: #276749;
@@ -163,6 +173,22 @@
   .text-glow-primary,
   .text-glow-xp {
     text-shadow: none;
+  }
+
+  .ink-band {
+    background:
+      radial-gradient(ellipse 60% 80% at 85% 0%, rgba(180, 35, 24, 0.22), transparent 60%),
+      radial-gradient(ellipse 50% 70% at 10% 100%, rgba(224, 184, 79, 0.1), transparent 60%),
+      var(--ink);
+    color: var(--ink-foreground);
+  }
+  .ink-grid {
+    background-image:
+      linear-gradient(rgba(246, 240, 228, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(246, 240, 228, 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 80% 90% at 50% 40%, #000 30%, transparent 85%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 90% at 50% 40%, #000 30%, transparent 85%);
   }
 
   .masthead {

@@ -17,6 +17,7 @@ import {
   Search,
   ShieldCheck,
 } from 'lucide-react'
+import { PageHero } from '@/components/page-hero'
 
 const ICONS: Record<AssignmentType, typeof Crosshair> = {
   alpha: Crosshair,
@@ -45,16 +46,12 @@ export function TrackPicker({
   const special = enabled.filter(isV4Type)
 
   return (
+    <>
+    <PageHero eyebrow="Timed test · one task type" title="Sit the" accent="test.">
+      Pick one type. You’ll only see that kind of task until time is up.
+    </PageHero>
     <div className="mx-auto max-w-4xl px-4 py-12">
-      <p className="font-sans text-sm font-medium text-primary">
-        Timed test · one task type
-      </p>
-      <h1 className="mt-2 font-sans text-4xl font-bold tracking-tight">Timed test</h1>
-      <p className="mt-3 max-w-2xl text-pretty leading-relaxed text-muted-foreground">
-        Pick one type. You’ll only see that kind of task until time is up.
-      </p>
-
-      <p className="mb-3 mt-8 font-sans text-sm font-medium text-muted-foreground">
+      <p className="mb-3 font-sans text-sm font-medium text-muted-foreground">
         Core tasks
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -97,6 +94,7 @@ export function TrackPicker({
         </div>
       )}
     </div>
+    </>
   )
 }
 

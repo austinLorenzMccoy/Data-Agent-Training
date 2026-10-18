@@ -68,7 +68,7 @@ export default function RootLayout({
       lang="en"
       className={`bg-background ${newsreader.variable} ${publicSans.variable} ${ibmPlexMono.variable}`}
     >
-      <body className="font-sans antialiased">
+      <body id="top" className="font-sans antialiased">
         <AuthProvider>
           <SupabaseAgentProvider>
             <AgentProvider>

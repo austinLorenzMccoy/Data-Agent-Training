@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { useAgent } from '@/components/providers/agent-provider'
 import { RankBadge } from '@/components/rank-badge'
 import { XpProgress } from '@/components/xp-progress'
+import { ProgressRing } from '@/components/progress-ring'
+import { Constellation } from '@/components/graphics/constellation'
 import { ALL_BADGES } from '@/lib/badges'
 import { TYPE_NAMES } from '@/lib/scoring'
 import type { OperationResult } from '@/lib/types'
@@ -85,38 +87,47 @@ export default function DossierPage() {
     : 0
 
   const initials = agent.alias.slice(0, 2)
+  const coreDone = CORE_TYPES.filter((t) => agent.completedTraining.includes(t)).length
 
   return (
     <main className="relative min-h-screen">
-      <div className="mx-auto max-w-5xl px-4 py-12">
-
-        {/* Header — agent identity */}
-        <div className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+      {/* Header — agent identity on an ink band */}
+      <section className="ink-band relative overflow-hidden">
+        <div aria-hidden className="ink-grid absolute inset-0" />
+        <Constellation />
+        <div className="relative mx-auto flex max-w-5xl flex-col gap-8 px-4 pb-14 pt-16 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-5">
-            {/* Avatar */}
-            <div
-              className="flex size-16 shrink-0 items-center justify-center rounded-xl border-2 font-mono text-xl font-bold"
-              style={{ borderColor: `${rank.color}66`, background: `${rank.color}1a`, color: rank.color }}
-            >
-              {initials}
+            <div className="rounded-full bg-surface-raised p-1">
+              <ProgressRing
+                value={coreDone}
+                max={CORE_TYPES.length}
+                size={84}
+                label={initials}
+                sub={`${coreDone}/${CORE_TYPES.length}`}
+                color={rank.color}
+              />
             </div>
             <div>
-              <p className="text-[12px] font-medium text-muted-foreground">Your progress</p>
-              <h1 className="mt-0.5 text-3xl font-bold tracking-tight" style={{ color: rank.color }}>
-                {agent.alias}
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-ink-accent">{greeting()}</p>
+              <h1 className="mt-2 font-heading text-4xl font-medium leading-tight text-ink-foreground sm:text-5xl">
+                Welcome back, <em className="italic text-ink-accent">{agent.alias}</em>
               </h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Joined {new Date(agent.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+              <p className="mt-2 text-sm text-ink-muted">
+                {Math.round((coreDone / CORE_TYPES.length) * 100)}% through core practice · joined{' '}
+                {new Date(agent.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
               </p>
             </div>
           </div>
-          <div className="w-full sm:w-72">
+          <div className="w-full rounded-2xl bg-surface-raised p-5 text-foreground shadow-[0_20px_40px_-20px_rgba(0,0,0,0.6)] md:w-80">
             <RankBadge rank={rank} size="lg" />
             <div className="mt-4">
               <XpProgress xp={agent.xp} />
             </div>
           </div>
         </div>
+      </section>
+
+      <div className="mx-auto max-w-5xl px-4 py-12">
 
         {/* Stats */}
         <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -236,4 +247,9 @@ export default function DossierPage() {
       </div>
     </main>
   )
+}
+
+function greeting() {
+  const h = new Date().getHours()
+  return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'
 }
