@@ -551,6 +551,278 @@ export const QUESTIONS: Question[] = [
     tags: ['transcript', 'multi'],
   },
 
+  // Live TryRating screening transcripts (Text Response Evaluation).
+  {
+    id: 'gamma_011',
+    type: 'gamma',
+    difficulty: 'easy',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Chris: I'm sure aliens from outer space built the pyramids in Egypt\nAlex: Come on, there's no evidence to support that theory.\nChris: But how else could they have been built?\nAlex: The ancient Egyptians were incredibly skilled builders and had advanced tools.\nChris: I still think it was aliens. It's the only explanation.\nAlex: I know that that is not true. Scientists have studied the pyramids for years.\nChris: Maybe the scientists are covering up the truth about aliens!\nAlex: You're being ridiculous. Why would they do that?",
+    correctAnswer: { decision: 'CLEAR', flags: [] },
+    explanation:
+      'Debrief: "that that" is natural here, not repetition. A heated disagreement is still coherent, there are no misspellings or emojis, and no line-ending rhymes. CLEAR. Participant check: Chris started the conversation.',
+    xpValue: 50,
+    tags: ['transcript', 'clean', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_012',
+    type: 'gamma',
+    difficulty: 'hard',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Sailor: I've seen a storm report for tomorrow. We should delay sailing.\nCaptain: I've checked the radar. We can outrun the storm if we leave on time.\nSailor: I'm concerned. The report said it could get bad quickly.\nCaptain: We've sailed through worse. Our schedule is tight and we can't afford delays.\nSailor: True, but the crew's safety is the most important thing.\nCaptain: I trust my skills and crew.\nCaptain: We'll keep a constant watch on conditions.\nSailor: Let's discuss options at the dock. Better safe than sorry, right?\nCaptain: Fine. We can meet and go over the weather reports together.\nSailor: Thanks, Captain. I prefer caution, especially with weather like this.\nCaptain: Agreed, caution is wise. Let's be sure we're prepared for anything.\nSailor: See you in the morning. We can decide using the information we have then.",
+    correctAnswer: { decision: 'FLAGGED', flags: ['Identity exposure'] },
+    explanation:
+      'Debrief: "Thanks, Captain." — Captain is the other participant\'s ID, so the Sailor is addressing them by name. Everything else reads clean, which is what makes this one easy to miss. FLAGGED. Participant check: the Sailor sent the last text.',
+    xpValue: 50,
+    tags: ['transcript', 'identity', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_013',
+    type: 'gamma',
+    difficulty: 'medium',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Jess: I saw Maya and Chris at that Italian restaurant last night. They were sharing a bottle of wine.\nTyler: Together? Just the two of them?\nJess: Yes! Laughing, sitting close together. It looked super romantic, honestly.\nTyler: They've been friends forever. Probably just catching up.\nJess: Catching up doesn't require candlelight and wine.\nTyler: Maybe it was a work thing? They both work in advertising, right?\nJess: At nine o'clock on a Saturday night? Be serious!\nTyler: Okay. But Maya would have told us if they were dating. She tells us everything.\nJess: Unless they're keeping it secret because they're not ready to tell anybody.\nTyler: That could be true.\nTyler: Should we just ask her about it?",
+    correctAnswer: { decision: 'CLEAR', flags: [] },
+    explanation:
+      'Debrief: Maya and Chris are third parties, not participants, so naming them is fine. Tyler sending two texts in a row is fine. No spelling errors or rhymes. CLEAR. Participant check: Jess started the conversation.',
+    xpValue: 50,
+    tags: ['transcript', 'clean', 'third-party', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_014',
+    type: 'gamma',
+    difficulty: 'hard',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "May: Hey, can I ask you for some career advice?\nApril: Of course. What's on your mind?\nMay: I want to ask my boss for a raise.\nApril: That's fantastic! You have worked hard and earned it.\nMay: I know, but I'm worried I won't know what to say.\nApril: You need to explain why you deserve higher pay.\nMay: True, but I also have to find the right time and place to talk to her.\nApril: But first, write down all of your big successes.\nMay: That is a smart plan. I'll make a list of all the ways I have increased sales this year.\nApril: Be professional and calm. You can do this!\nMay: Thank you! I feel much more prepared now.",
+    correctAnswer: { decision: 'FLAGGED', flags: ['Rhythmic pattern (rhyming)'] },
+    explanation:
+      'Debrief: May ends with "say" and April\'s very next message ends with "pay" — a rhyme across consecutive messages. FLAGGED. Participant check: May sent 6 texts and April sent 5, so April sent the fewest.',
+    xpValue: 50,
+    tags: ['transcript', 'rhyme', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_015',
+    type: 'gamma',
+    difficulty: 'easy',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Husband: Hey, I just saw that your flight has been delayed again. Do you know what time you'll actually be landing now?\nWife: They're saying four hours later than scheduled. So frustrating.\nHusband: I can still come and get you from the airport, though. Do you want me to wait until the new time or try to rebook you a flight for tomorrow?\nWife: I'll stay on this flight. I don't want to deal with finding a hotel. Maybe grab some coffee while you wait?\nHusband: No problem. I'll bring a book too. Do you want me to meet you with some food?",
+    correctAnswer: { decision: 'CLEAR', flags: [] },
+    explanation:
+      'Debrief: Coherent, natural, everything is something you could say over text. CLEAR. Participant check: the Wife did not start the conversation.',
+    xpValue: 50,
+    tags: ['transcript', 'clean', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_016',
+    type: 'gamma',
+    difficulty: 'easy',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Alex: I am leaving my house soon. What kind of food should I bring for dinner tonight?\nSam: I'm not sure. What do you feel like eating?\nAlex: I could get pizza, Chinese food, or sandwiches. There is also a good Thai restaurant near my house.\nSam: We had pizza last week. Maybe something different would be better tonight.\nAlex: Good point. How about Thai food? They have noodles, rice dishes, and soup.\nSam: Thai food sounds perfect to me. Let's share a few dishes so we can taste more.\nAlex: Great idea! I will order noodles and rice. I hope the food tastes very nice.\nSam: Please also get spring rolls. They are my favorite.\nAlex: Of course! Do you want something spicy or mild?\nSam: Mild, please. Also, can you bring some cold drinks? I only have water in the fridge.",
+    correctAnswer: { decision: 'CLEAR', flags: [] },
+    explanation:
+      'Debrief: Coherent and natural. "rice" and "nice" sit inside the same message, not at the ends of consecutive messages, so they do not count as a rhyme. CLEAR. Participant check: Sam sent the last text, so Alex did not.',
+    xpValue: 50,
+    tags: ['transcript', 'clean', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_017',
+    type: 'gamma',
+    difficulty: 'easy',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Casey: Hey, have you heard?\nRiley: Heard what?\nCasey: Kim and her boyfriend broke up.\nRiley: No way! Why did they split?\nCasey: He said she spent too much time on social media.",
+    correctAnswer: { decision: 'CLEAR', flags: [] },
+    explanation:
+      'Debrief: Short but coherent. Kim is a third party. CLEAR. Participant check: Casey ("have you heard?") and Riley ("Heard what?", "Why did they split?") both asked at least one question, so the answer is Both.',
+    xpValue: 50,
+    tags: ['transcript', 'clean', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_018',
+    type: 'gamma',
+    difficulty: 'easy',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Jesse: A trip to the mountains sounds perfect for hiking and fresh air. What do you think?\nChris: I prefer the beach. Relaxing by the ocean is what I need.\nJesse: How about a place with both? Somewhere like Croatia?\nChris: Croatia would be cool, but isn't it expensive? Maybe Thailand instead?\nJesse: The beaches are beautiful in Thailand, but what about the Smoky Mountains. It's much cheaper to fly there.\nChris: You just convinced me. I relax more when I'm saving money!\nChris: I'll look for some flights.",
+    correctAnswer: { decision: 'CLEAR', flags: [] },
+    explanation:
+      'Debrief: Natural back-and-forth with no misspellings, emojis, or rhymes. Missing punctuation does not count. CLEAR. Participant check: Chris sent the last text, so Jesse did not.',
+    xpValue: 50,
+    tags: ['transcript', 'clean', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_019',
+    type: 'gamma',
+    difficulty: 'easy',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      'Me: Can you assist me in a worthwhile endeavor?\nPerson A: Most certainly! Would you be so gracious as to elaborate?\nMe: Can you create a gathering of like-minded individuals for business-oriented caucus.\nPerson A: At what precise temporal interval should this discussion take place?\nMe: Upcoming Monday at 17:00 UTC\nPerson A: Certainly, what is the gathering for?',
+    correctAnswer: { decision: 'FLAGGED', flags: ['Incoherent/non-human'] },
+    explanation:
+      'Debrief: No person texts "business-oriented caucus" or "precise temporal interval". The language is robotic. FLAGGED. Participant check: both Me and Person A asked questions, so the answer to "Who did not ask any questions?" is None of them.',
+    xpValue: 50,
+    tags: ['transcript', 'robotic', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_020',
+    type: 'gamma',
+    difficulty: 'easy',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Jones: Are you still going to the baby shower tomorrow\nLogan: Yes. Are you?\nJones: Absolutely!\nJones: Did you get Riley a gift? I'm not sure what to bring.\nLogan: I wasn't sure either, so I just got a gift card.\nJones: I was thinking about that too. Do you know if they have a gift registry somewhere?",
+    correctAnswer: { decision: 'CLEAR', flags: [] },
+    explanation:
+      'Debrief: The missing question mark is punctuation, which you ignore. Riley is a third party. CLEAR. Participant check: Jones and Logan ("Are you?") both asked questions, so the answer to "Who did not ask any questions?" is None of them.',
+    xpValue: 50,
+    tags: ['transcript', 'clean', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_021',
+    type: 'gamma',
+    difficulty: 'easy',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Jens: I can't believe the Lakers won. They were not the better team tonight.\nLars: I disagree. I think the Lakers played a solid game.\nJens: The referees were clearly biased. They gave the Lakers too many free throws.\nLars: The Lakers got more free throws because they were more aggressive. It's part of their strategy.\nJens: The Clippers were making baskets from all over the court. Their game was exceptional.\nLars: True, the Clippers put up a good fight.\nJens: The Clippers deserved that win. And there's always next time.\nLars: May the best team win!",
+    correctAnswer: { decision: 'CLEAR', flags: [] },
+    explanation:
+      'Debrief: A friendly disagreement, coherent and clean. CLEAR. Participant check: Lars sent the last text, so Jens did not.',
+    xpValue: 50,
+    tags: ['transcript', 'clean', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_022',
+    type: 'gamma',
+    difficulty: 'easy',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Client: Any update on my car? I dropped it off this morning because of the bad smell.\nClient: Did you find a leak in the engine?\nMechanic: Just finished checking it out. Good news, no engine leak!\nClient: What was causing that smell?\nMechanic: I found a a lunch bag under your front seat. Looks like it's been there a few weeks.\nClient: Oh no! I've been looking for that everywhere. How embarrassing!\nMechanic: This happens more often than you think. Should I throw it away for you?",
+    correctAnswer: { decision: 'FLAGGED', flags: ['Unnecessary repetition'] },
+    explanation:
+      'Debrief: "a a lunch bag" repeats "a" for no reason. FLAGGED. Participant check: the Mechanic sent the last text, so the Client did not.',
+    xpValue: 50,
+    tags: ['transcript', 'repetition', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_023',
+    type: 'gamma',
+    difficulty: 'medium',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Harry: I'm baking a cake for my mom's birthday, but I'm out of eggs.\nHarry: What can I use instead?\nLouis: You could try using mayonnaise. I've heard that works well.\nHarry: In a cake? That sounds terrible.\nLouis: Okay, how about using ketchup? It might add an interesting taste.\nHarry: Are you serious? I'm trying to serve her a cake, not a hamburger.\nLouis: What about using a banana? It could add moisture and sweetness.\nHarry: That might work, but I'm worried it will change the taste too much. Any other ideas?\nLouis: I just did a web search. You can use 1/4 cup of applesauce to replace one egg.\nHarry: That could work. I think I have some in the fridge.\nLouis: It should keep the cake moist without changing how it tastes.",
+    correctAnswer: { decision: 'CLEAR', flags: [] },
+    explanation:
+      'Debrief: The odd suggestions (mayonnaise, ketchup) are part of the story, not incoherence — Harry reacts to each one. CLEAR. Participant check: both Harry and Louis asked at least one question, so the answer is Both.',
+    xpValue: 50,
+    tags: ['transcript', 'clean', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_024',
+    type: 'gamma',
+    difficulty: 'hard',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Ash: I'm so mad at Kai\nEllis: Why?\nAsh: They said they weren't coming to the movie, but then they walked in in the middle of the best part. Totally spoiled the ending.\nEllis: What's the best part?\nAsh: It was when the detective was about to say who killed Colonel Mustard. Kai yelled out that it was Professor Plum.",
+    correctAnswer: { decision: 'FLAGGED', flags: ['Rhythmic pattern (rhyming)'] },
+    explanation:
+      'Debrief: Ash\'s first message ends with "Kai" and Ellis replies "Why?" — consecutive messages ending in rhyming words. FLAGGED. "walked in in the middle" is a natural phrasal verb ("walked in") followed by "in the middle", like "that that", so it is not repetition. Participant check: Ash sent the last text, so Ellis did not.',
+    xpValue: 50,
+    tags: ['transcript', 'rhyme', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_025',
+    type: 'gamma',
+    difficulty: 'medium',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Nephew: Hey, can I ask you something? I need advice about picking a career. I've been asking everyone I know and got some really weird suggestions.\nUncle: What kind of suggestions are you getting?\nNephew: My neighbor said to choose a job based on my astrological sign. He said I was meant to be an underwater welder.\nUncle: That's a new one. What else?\nNephew: A guy online said to flip a coin three times and let fate decide. And my buddy said just follow the money.\nUncle: Lots of opinions out there. You want mine?\nNephew: Yes, please!\nNephew: That's why I texted you. You're always honest with me.\nUncle: Here it is: No matter what you do do your best. That's the whole secret.\nNephew: That's it? No personality test or five-year plan?\nUncle: No, none of those. Pick something you're curious about, then learn as much as possible about it.\nUncle: Excellence opens doors no horoscope ever will.\nNephew: That makes way more sense than underwater welding.",
+    correctAnswer: { decision: 'CLEAR', flags: [] },
+    explanation:
+      'Debrief: "No matter what you do do your best" reads as "whatever you do, do your best" — the repeated "do" has a reason, and missing commas are punctuation. CLEAR. Participant check: both asked questions, so the answer to "Who did not ask any questions?" is None of them.',
+    xpValue: 50,
+    tags: ['transcript', 'clean', 'repetition-trap', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_026',
+    type: 'gamma',
+    difficulty: 'easy',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Vignesh: Hey, want to go for a hike this weekend?\nSylvain: I can't this weekend. I'm going out of town.\nVignesh: Oh! Where are you going?\nSylvain: It's my aunt's birthday, so I'm going to drive to Ashland for her party.\nVignesh: Nice! Have fun!",
+    correctAnswer: { decision: 'CLEAR', flags: [] },
+    explanation:
+      'Debrief: Short, natural, clean. CLEAR. Participant check: Vignesh sent 3 texts and Sylvain sent 2, so Vignesh sent the most.',
+    xpValue: 50,
+    tags: ['transcript', 'clean', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_027',
+    type: 'gamma',
+    difficulty: 'easy',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Remy: Are you at home?\nSage: Yes\nRemy: Can you do me a favor?\nSage: Sure. What?\nRemy: Can you take Rover for a walk?\nSage: Isn't it your trun?\nRemy: Yes, but I'm stuck at the office until 10.",
+    correctAnswer: { decision: 'FLAGGED', flags: ['Spelling errors'] },
+    explanation:
+      'Debrief: "trun" should be "turn". FLAGGED. Participant check: Remy started the conversation.',
+    xpValue: 50,
+    tags: ['transcript', 'spelling', 'tryrating-screening'],
+  },
+  {
+    id: 'gamma_028',
+    type: 'gamma',
+    difficulty: 'easy',
+    category: 'transcript',
+    operationContext: 'Screen this intercepted communication for anomalies.',
+    prompt: 'Review the transcript below for clearance.',
+    transcript:
+      "Harper: How's the job search going?\nJordan: Great news, I got an offer from ACME Corporation.\nHarper: Congratulations, that's amazing!\nJordan: Yeah, the salary is 20% more than I was making before.\nHarper: You can buy me dinner, haha!\nJordan: There's just one problem\nHarper: What's that?\nJordan: The dress code is business casual and I only have sweatpants. What should I wear to the office?",
+    correctAnswer: { decision: 'CLEAR', flags: [] },
+    explanation:
+      'Debrief: Natural and clean; "haha" is fine. CLEAR. Participant check: Jordan sent the last text.',
+    xpValue: 50,
+    tags: ['transcript', 'clean', 'tryrating-screening'],
+  },
+
   // ============ DELTA — Response Selection ============
   {
     id: 'delta_001',
@@ -671,6 +943,260 @@ export const QUESTIONS: Question[] = [
       'Debrief: Option 2 gives the safety-critical correct answer (bleach + ammonia → toxic gas) with a safe alternative. Options 1 and 3 are dangerous; 4 is an unjustified refusal.',
     xpValue: 50,
     tags: ['safety', 'selection'],
+  },
+
+  // Live TryRating screening: best response after a transcript passes.
+  {
+    id: 'delta_007',
+    type: 'delta',
+    difficulty: 'easy',
+    category: 'selection',
+    operationContext: 'Choose the optimal reply for our undercover operative.',
+    transcript:
+      "Chris: I'm sure aliens from outer space built the pyramids in Egypt\nAlex: Come on, there's no evidence to support that theory.\nChris: But how else could they have been built?\nAlex: The ancient Egyptians were incredibly skilled builders and had advanced tools.\nChris: I still think it was aliens. It's the only explanation.\nAlex: I know that that is not true. Scientists have studied the pyramids for years.\nChris: Maybe the scientists are covering up the truth about aliens!\nAlex: You're being ridiculous. Why would they do that?",
+    prompt: 'Alex: "You\'re being ridiculous. Why would they do that?" — reply as Chris.',
+    responses: [
+      'The aliens told them too do it.',
+      'They are all also 👽',
+      'They read a lot of books.',
+      'They want to keep their high-paying jobs.',
+    ],
+    correctAnswer: 3,
+    explanation:
+      'Debrief: Option 4 answers "why" in Chris\'s conspiracy voice. Option 1 misspells "to" as "too", option 2 contains an emoji, and option 3 does not explain a cover-up.',
+    xpValue: 50,
+    tags: ['selection', 'tryrating-screening'],
+  },
+  {
+    id: 'delta_008',
+    type: 'delta',
+    difficulty: 'medium',
+    category: 'selection',
+    operationContext: 'Choose the optimal reply for our undercover operative.',
+    transcript:
+      "Jess: I saw Maya and Chris at that Italian restaurant last night. They were sharing a bottle of wine.\nTyler: Together? Just the two of them?\nJess: Yes! Laughing, sitting close together. It looked super romantic, honestly.\nTyler: They've been friends forever. Probably just catching up.\nJess: Catching up doesn't require candlelight and wine.\nTyler: Maybe it was a work thing? They both work in advertising, right?\nJess: At nine o'clock on a Saturday night? Be serious!\nTyler: Okay. But Maya would have told us if they were dating. She tells us everything.\nJess: Unless they're keeping it secret because they're not ready to tell anybody.\nTyler: That could be true.\nTyler: Should we just ask her about it?",
+    prompt: 'Tyler: "Should we just ask her about it?" — reply as Jess.',
+    responses: [
+      "We don't have to. If they go to Jake's party together, we'll know for sure.",
+      'If she wanted us to know she would have told us allready.',
+      "I've always liked that Italian restaurant.",
+      'I think Maya and Kris will make a great couple.',
+    ],
+    correctAnswer: 0,
+    explanation:
+      'Debrief: Option 1 answers the question and keeps the gossip going. Option 2 misspells "already", option 3 ignores the question, and option 4 spells Chris as "Kris" — a name inconsistent with the transcript.',
+    xpValue: 50,
+    tags: ['selection', 'tryrating-screening'],
+  },
+  {
+    id: 'delta_009',
+    type: 'delta',
+    difficulty: 'easy',
+    category: 'selection',
+    operationContext: 'Choose the optimal reply for our undercover operative.',
+    transcript:
+      "Husband: Hey, I just saw that your flight has been delayed again. Do you know what time you'll actually be landing now?\nWife: They're saying four hours later than scheduled. So frustrating.\nHusband: I can still come and get you from the airport, though. Do you want me to wait until the new time or try to rebook you a flight for tomorrow?\nWife: I'll stay on this flight. I don't want to deal with finding a hotel. Maybe grab some coffee while you wait?\nHusband: No problem. I'll bring a book too. Do you want me to meet you with some food?",
+    prompt: 'Husband: "Do you want me to meet you with some food?" — reply as Wife.',
+    responses: [
+      "Yes, I've been thinking about a a hot chicken sandwich all day.",
+      "If you could bring a sandwich, I'd appreciate it.",
+      'What time will the plane land?',
+      'I wanted a window seat.',
+    ],
+    correctAnswer: 1,
+    explanation:
+      'Debrief: Option 2 answers the food question naturally. Option 1 repeats "a", option 3 asks something the Wife already answered (and she is the one on the plane), and option 4 is off-topic.',
+    xpValue: 50,
+    tags: ['selection', 'tryrating-screening'],
+  },
+  {
+    id: 'delta_010',
+    type: 'delta',
+    difficulty: 'easy',
+    category: 'selection',
+    operationContext: 'Choose the optimal reply for our undercover operative.',
+    transcript:
+      "Alex: I am leaving my house soon. What kind of food should I bring for dinner tonight?\nSam: I'm not sure. What do you feel like eating?\nAlex: I could get pizza, Chinese food, or sandwiches. There is also a good Thai restaurant near my house.\nSam: We had pizza last week. Maybe something different would be better tonight.\nAlex: Good point. How about Thai food? They have noodles, rice dishes, and soup.\nSam: Thai food sounds perfect to me. Let's share a few dishes so we can taste more.\nAlex: Great idea! I will order noodles and rice. I hope the food tastes very nice.\nSam: Please also get spring rolls. They are my favorite.\nAlex: Of course! Do you want something spicy or mild?\nSam: Mild, please. Also, can you bring some cold drinks? I only have water in the fridge.",
+    prompt: 'Sam: "Mild, please. Also, can you bring some cold drinks? I only have water in the fridge." — reply as Alex.',
+    responses: [
+      'I will get a hot tea for each of us.',
+      'I will get an iced tea for each of us.',
+      'I will get some cold ice cream for each of us.',
+      "I don't believe in water.",
+    ],
+    correctAnswer: 1,
+    explanation:
+      'Debrief: Sam asked for cold drinks — iced tea is the only cold drink offered. Hot tea is not cold, ice cream is not a drink, and option 4 is nonsense.',
+    xpValue: 50,
+    tags: ['selection', 'tryrating-screening'],
+  },
+  {
+    id: 'delta_011',
+    type: 'delta',
+    difficulty: 'easy',
+    category: 'selection',
+    operationContext: 'Choose the optimal reply for our undercover operative.',
+    transcript:
+      "Casey: Hey, have you heard?\nRiley: Heard what?\nCasey: Kim and her boyfriend broke up.\nRiley: No way! Why did they split?\nCasey: He said she spent too much time on social media.",
+    prompt: 'Casey: "He said she spent too much time on social media." — reply as Riley.',
+    responses: [
+      'He said she spent too much time on socials.',
+      'They broke up?',
+      'When did they meet?',
+      "That's an interesting reason to break up. Are you sure that's why?",
+    ],
+    correctAnswer: 3,
+    explanation:
+      'Debrief: Option 4 reacts to the reason Casey just gave and keeps the conversation going. Option 1 parrots Casey, option 2 asks something already answered, and option 3 jumps away from the breakup.',
+    xpValue: 50,
+    tags: ['selection', 'tryrating-screening'],
+  },
+  {
+    id: 'delta_012',
+    type: 'delta',
+    difficulty: 'medium',
+    category: 'selection',
+    operationContext: 'Choose the optimal reply for our undercover operative.',
+    transcript:
+      "Jesse: A trip to the mountains sounds perfect for hiking and fresh air. What do you think?\nChris: I prefer the beach. Relaxing by the ocean is what I need.\nJesse: How about a place with both? Somewhere like Croatia?\nChris: Croatia would be cool, but isn't it expensive? Maybe Thailand instead?\nJesse: The beaches are beautiful in Thailand, but what about the Smoky Mountains. It's much cheaper to fly there.\nChris: You just convinced me. I relax more when I'm saving money!\nChris: I'll look for some flights.",
+    prompt: 'Chris: "I\'ll look for some flights." — reply as Jesse.',
+    responses: [
+      "Let's book the trip before prices go up.",
+      'Find us some seats on the train.',
+      'See if any airliines are having a sale.',
+      'Have you considered Greece?',
+    ],
+    correctAnswer: 0,
+    explanation:
+      'Debrief: Option 1 fits the money-saving thread and the plan to fly. Option 2 contradicts flying, option 3 misspells "airlines", and option 4 reopens a destination they already settled.',
+    xpValue: 50,
+    tags: ['selection', 'tryrating-screening'],
+  },
+  {
+    id: 'delta_013',
+    type: 'delta',
+    difficulty: 'easy',
+    category: 'selection',
+    operationContext: 'Choose the optimal reply for our undercover operative.',
+    transcript:
+      "Jones: Are you still going to the baby shower tomorrow\nLogan: Yes. Are you?\nJones: Absolutely!\nJones: Did you get Riley a gift? I'm not sure what to bring.\nLogan: I wasn't sure either, so I just got a gift card.\nJones: I was thinking about that too. Do you know if they have a gift registry somewhere?",
+    prompt: 'Jones: "Do you know if they have a gift registry somewhere?" — reply as Logan.',
+    responses: [
+      'Registration is not required',
+      'Yes, but everything on it is verry expensive.',
+      "Yes, they do have a registry, but I need to look it up. I'll send you the details.",
+      'What registration?',
+    ],
+    correctAnswer: 2,
+    explanation:
+      'Debrief: Option 3 answers the registry question and offers a next step. Options 1 and 4 confuse "registry" with "registration", and option 2 misspells "very".',
+    xpValue: 50,
+    tags: ['selection', 'tryrating-screening'],
+  },
+  {
+    id: 'delta_014',
+    type: 'delta',
+    difficulty: 'medium',
+    category: 'selection',
+    operationContext: 'Choose the optimal reply for our undercover operative.',
+    transcript:
+      "Jens: I can't believe the Lakers won. They were not the better team tonight.\nLars: I disagree. I think the Lakers played a solid game.\nJens: The referees were clearly biased. They gave the Lakers too many free throws.\nLars: The Lakers got more free throws because they were more aggressive. It's part of their strategy.\nJens: The Clippers were making baskets from all over the court. Their game was exceptional.\nLars: True, the Clippers put up a good fight.\nJens: The Clippers deserved that win. And there's always next time.\nLars: May the best team win!",
+    prompt: 'Lars: "May the best team win!" — reply as Jens.',
+    responses: [
+      'And the best team is the Clippers!',
+      "Tickets to the game are too expensive. I'm not buying them.",
+      'And the best team is the Lakers!',
+      'Their coach made a huge mistake.',
+    ],
+    correctAnswer: 0,
+    explanation:
+      'Debrief: Jens has backed the Clippers the whole time, so option 1 stays in character. Option 3 flips Jens\'s position, option 2 is off-topic, and option 4 is vague about whose coach.',
+    xpValue: 50,
+    tags: ['selection', 'tryrating-screening'],
+  },
+  {
+    id: 'delta_015',
+    type: 'delta',
+    difficulty: 'medium',
+    category: 'selection',
+    operationContext: 'Choose the optimal reply for our undercover operative.',
+    transcript:
+      "Harry: I'm baking a cake for my mom's birthday, but I'm out of eggs.\nHarry: What can I use instead?\nLouis: You could try using mayonnaise. I've heard that works well.\nHarry: In a cake? That sounds terrible.\nLouis: Okay, how about using ketchup? It might add an interesting taste.\nHarry: Are you serious? I'm trying to serve her a cake, not a hamburger.\nLouis: What about using a banana? It could add moisture and sweetness.\nHarry: That might work, but I'm worried it will change the taste too much. Any other ideas?\nLouis: I just did a web search. You can use 1/4 cup of applesauce to replace one egg.\nHarry: That could work. I think I have some in the fridge.\nLouis: It should keep the cake moist without changing how it tastes.",
+    prompt: 'Louis: "It should keep the cake moist without changing how it tastes." — reply as Harry.',
+    responses: [
+      "Thanks, Louis, I'll give it a try.",
+      'Thanks for the advice!',
+      'Thanks, I want the cake to be dry.',
+      "Thanks, you saved my dad's birthday!",
+    ],
+    correctAnswer: 1,
+    explanation:
+      'Debrief: Option 2 is a clean, natural close. Option 1 addresses the other participant by name, option 3 contradicts the goal of a moist cake, and option 4 says "dad" when the cake is for Harry\'s mom.',
+    xpValue: 50,
+    tags: ['selection', 'identity', 'tryrating-screening'],
+  },
+  {
+    id: 'delta_016',
+    type: 'delta',
+    difficulty: 'medium',
+    category: 'selection',
+    operationContext: 'Choose the optimal reply for our undercover operative.',
+    transcript:
+      "Nephew: Hey, can I ask you something? I need advice about picking a career. I've been asking everyone I know and got some really weird suggestions.\nUncle: What kind of suggestions are you getting?\nNephew: My neighbor said to choose a job based on my astrological sign. He said I was meant to be an underwater welder.\nUncle: That's a new one. What else?\nNephew: A guy online said to flip a coin three times and let fate decide. And my buddy said just follow the money.\nUncle: Lots of opinions out there. You want mine?\nNephew: Yes, please!\nNephew: That's why I texted you. You're always honest with me.\nUncle: Here it is: No matter what you do do your best. That's the whole secret.\nNephew: That's it? No personality test or five-year plan?\nUncle: No, none of those. Pick something you're curious about, then learn as much as possible about it.\nUncle: Excellence opens doors no horoscope ever will.\nNephew: That makes way more sense than underwater welding.",
+    prompt: 'Nephew: "That makes way more sense than underwater welding." — reply as Uncle.',
+    responses: [
+      'But if you do become an underwater welder, do the very best you can.',
+      'Have you thought about becoming a tree surgeon?',
+      'I heard that ice cream tasters make a lot of money.',
+      "I can find a career for you. What's your astrological sign?",
+    ],
+    correctAnswer: 0,
+    explanation:
+      'Debrief: Option 1 is a light callback that repeats the Uncle\'s own "do your best" advice. Options 2–4 contradict everything the Uncle just said (pick for yourself, ignore money and horoscopes).',
+    xpValue: 50,
+    tags: ['selection', 'tryrating-screening'],
+  },
+  {
+    id: 'delta_017',
+    type: 'delta',
+    difficulty: 'easy',
+    category: 'selection',
+    operationContext: 'Choose the optimal reply for our undercover operative.',
+    transcript:
+      "Vignesh: Hey, want to go for a hike this weekend?\nSylvain: I can't this weekend. I'm going out of town.\nVignesh: Oh! Where are you going?\nSylvain: It's my aunt's birthday, so I'm going to drive to Ashland for her party.\nVignesh: Nice! Have fun!",
+    prompt: 'Vignesh: "Nice! Have fun!" — reply as Sylvain.',
+    responses: [
+      'My birthday party is next month.',
+      "Thanks! Let's plan a hike for the following weekend.",
+      'Did you get him anything?',
+      'Did you hike last weekend?',
+    ],
+    correctAnswer: 1,
+    explanation:
+      'Debrief: Option 2 thanks Vignesh and comes back to the hike they had to skip. Option 1 is unrelated, option 3 says "him" about an aunt (and Sylvain is the one going), and option 4 is off-topic.',
+    xpValue: 50,
+    tags: ['selection', 'tryrating-screening'],
+  },
+  {
+    id: 'delta_018',
+    type: 'delta',
+    difficulty: 'easy',
+    category: 'selection',
+    operationContext: 'Choose the optimal reply for our undercover operative.',
+    transcript:
+      "Harper: How's the job search going?\nJordan: Great news, I got an offer from ACME Corporation.\nHarper: Congratulations, that's amazing!\nJordan: Yeah, the salary is 20% more than I was making before.\nHarper: You can buy me dinner, haha!\nJordan: There's just one problem\nHarper: What's that?\nJordan: The dress code is business casual and I only have sweatpants. What should I wear to the office?",
+    prompt: 'Jordan: "The dress code is business casual and I only have sweatpants. What should I wear to the office?" — reply as Harper.',
+    responses: [
+      'Definitely not sweatpants!',
+      'Do you have a pair of slacks and a dress shirt?',
+      'What size shoe do you wear?',
+      'What is that shirt made of?',
+    ],
+    correctAnswer: 1,
+    explanation:
+      'Debrief: Option 2 actually helps with business casual. Option 1 only restates what Jordan already knows, option 3 is off-target, and option 4 refers to a shirt Harper cannot see over text.',
+    xpValue: 50,
+    tags: ['selection', 'tryrating-screening'],
   },
 ]
 

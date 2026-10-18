@@ -282,6 +282,11 @@ function CoreAssignment({
       {/* DELTA / KAPPA */}
       {(question.type === 'delta' || question.type === 'kappa') && (
         <>
+          {question.type === 'delta' && question.transcript && (
+            <PromptBlock label="Transcript">
+              <span className="whitespace-pre-wrap">{question.transcript}</span>
+            </PromptBlock>
+          )}
           <PromptBlock label={question.type === 'kappa' ? 'Scenario' : 'Last message'}>
             {question.prompt}
           </PromptBlock>

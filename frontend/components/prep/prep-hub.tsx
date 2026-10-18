@@ -494,7 +494,8 @@ function TranscriptSection() {
           {[
             'Write a 1-sentence summary of the transcript (≤ 30 words)',
             'Decide: PASS (no issues) or REJECT (one or more violations)',
-            'If REJECT: select all applicable rejection reasons',
+            'Answer the participant check ("Who started the conversation?" etc.)',
+            'If PASS: the check is replaced by "Select the best response" — pick one of four replies',
           ].map((step, i) => (
             <li key={i} className="flex items-start gap-3">
               <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/20 font-mono text-[10px] font-bold text-primary">{i + 1}</span>
@@ -526,6 +527,34 @@ function TranscriptSection() {
               </div>
             ))}
           </div>
+        </div>
+      </Accordion>
+
+      {/* Participant check */}
+      <Accordion title="The Participant Check" subtitle="Who started / sent / asked — always the two names, Both, None of them" icon={ListChecks}>
+        <div className="space-y-4">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Every screening transcript asks one factual question about the two people. The options are always the two participants, <strong className="text-foreground">Both</strong>, and <strong className="text-foreground">None of them</strong>. Count lines — don&apos;t go by feel.
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {[
+              { q: 'Who started the conversation?', a: 'The speaker on line 1.' },
+              { q: 'Who did not start the conversation?', a: 'The other participant.' },
+              { q: 'Who sent the last text?', a: 'The speaker on the final line.' },
+              { q: 'Who did not send the last text?', a: 'The other participant.' },
+              { q: 'Who sent the most / fewest texts?', a: 'Count each line. Equal counts → Both.' },
+              { q: 'Who asked at least one question?', a: 'Look for "?" from each side. Both asked → Both.' },
+              { q: 'Who did not ask any questions?', a: 'If both asked something → None of them.' },
+            ].map((c) => (
+              <div key={c.q} className="rounded-lg border border-border bg-background/50 p-3">
+                <p className="text-xs font-semibold text-foreground">{c.q}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{c.a}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Two texts in a row from the same person count as two texts. A short reply like &quot;Heard what?&quot; is still a question.
+          </p>
         </div>
       </Accordion>
 
