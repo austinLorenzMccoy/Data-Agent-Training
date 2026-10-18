@@ -13,7 +13,7 @@ import { PlanBadge } from '@/components/billing/plan-badge'
 
 const LINKS = [
   { href: '/prep', label: 'Study' },
-  { href: '/learn', label: 'Lessons' },
+  { href: '/learn', label: 'Videos' },
   { href: '/guidelines', label: 'Guidelines' },
   { href: '/training', label: 'Practice' },
   { href: '/operation', label: 'Test' },

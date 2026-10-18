@@ -58,7 +58,7 @@ export default function RankingsPage() {
   return (
     <main className="relative min-h-screen">
       <PageHero eyebrow="Leaderboard" title="Who is" accent="on the board.">
-        Ranked by XP from the core tasks. Extra-track XP stays on those tracks. Opt in from Progress to appear here.
+        Ranked by XP from timed tests. Opt in from Progress to appear here.
       </PageHero>
       <div className="mx-auto max-w-3xl px-4 py-12">
 

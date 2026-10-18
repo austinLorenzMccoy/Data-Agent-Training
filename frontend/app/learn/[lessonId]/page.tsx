@@ -10,7 +10,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ lessonId: string }> }) {
   const lesson = lessonById((await params).lessonId)
-  return { title: lesson ? `${lesson.title} lesson — Datanerds Annotation` : 'Lesson not found' }
+  return { title: lesson ? `${lesson.title} — Video — Datanerds Annotation` : 'Video not found' }
 }
 
 export default async function LessonPage({ params }: { params: Promise<{ lessonId: string }> }) {
@@ -20,13 +20,19 @@ export default async function LessonPage({ params }: { params: Promise<{ lessonI
     <main className="relative min-h-screen">
       <div className="mx-auto max-w-6xl px-4 py-8">
         <Link href="/learn" className="text-sm text-primary hover:underline">
-          ← All lessons
+          ← All videos
         </Link>
         <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">
-          {TYPE_NAMES[lesson.track]} · {lesson.chapters.length} chapters · {lessonMinutes(lesson)} min
+          {lesson.kind === 'tutorial' ? 'Tutorial' : `Guideline video · ${TYPE_NAMES[lesson.track]}`} · {lesson.chapters.length} chapters ·{' '}
+          {lessonMinutes(lesson)} min
         </p>
         <h1 className="mt-1 font-heading text-4xl font-medium">{lesson.title}</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">{lesson.summary}</p>
+        {lesson.guide && (
+          <Link href={lesson.guide.href} className="mt-2 inline-block text-sm text-primary underline underline-offset-4">
+            {lesson.guide.label}
+          </Link>
+        )}
         <div className="mt-8">
           <LessonPlayer lesson={lesson} />
         </div>

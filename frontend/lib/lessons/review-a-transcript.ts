@@ -6,9 +6,12 @@ import type { Lesson } from './types'
 
 export const REVIEW_A_TRANSCRIPT: Lesson = {
   id: 'review-a-transcript',
+  kind: 'guideline',
   track: 'gamma',
   title: 'Review a transcript',
-  summary: 'Pass a text conversation, or flag every reason it cannot be used. Eight reasons, five short chapters.',
+  summary: 'The transcript guideline in five short chapters: pass a text conversation, or flag every reason it cannot be used.',
+  guide: { href: '/prep?tab=transcript', label: 'Read the transcript guideline' },
+  next: { href: '/training', label: 'Start practice' },
   chapters: [
     {
       id: 'the-job',
@@ -152,8 +155,12 @@ export const REVIEW_A_TRANSCRIPT: Lesson = {
         },
         {
           id: 'rhyme-rule',
-          say: 'Rhyming means lines with a set rhythm and rhyme, like a short poem. People do not text in verse.',
-          visual: { kind: 'rule', icon: '♪', title: 'Rhyming', body: 'A rhythm-and-rhyme line, like a poem, flags it.' },
+          say: 'Rhyming has two forms. The last word of one message rhymes with the last word of the very next message. Or a message is written as verse, like a poem. A chance rhyme inside an ordinary sentence does not count.',
+          visual: {
+            kind: 'compare',
+            left: { text: 'Where do you want to go today? / Somewhere far away.', flag: true, label: 'Flag: today / away' },
+            right: { text: "I'll get rice. I hope it tastes nice.", flag: false, label: 'Pass: inside one sentence' },
+          },
         },
         {
           id: 'physical-example',

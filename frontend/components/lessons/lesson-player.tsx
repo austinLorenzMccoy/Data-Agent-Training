@@ -319,11 +319,11 @@ export function LessonPlayer({ lesson }: { lesson: Lesson }) {
                   <Check className="size-7" />
                 </span>
                 <p className="font-heading text-2xl text-ink-foreground sm:text-3xl">
-                  Lesson <em className="italic text-ink-accent">complete.</em>
+                  {lesson.kind === 'tutorial' ? 'Tutorial' : 'Video guide'} <em className="italic text-ink-accent">complete.</em>
                 </p>
                 <div className="flex flex-wrap justify-center gap-2">
                   <Button asChild className="rounded-full bg-ink-accent text-ink hover:bg-ink-accent/90">
-                    <Link href="/training">Start practice</Link>
+                    <Link href={lesson.next.href}>{lesson.next.label}</Link>
                   </Button>
                   <Button variant="outline" onClick={() => goTo(0)} className="rounded-full border-white/30 bg-transparent text-ink-foreground">
                     Watch again

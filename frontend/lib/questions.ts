@@ -520,7 +520,7 @@ export const QUESTIONS: Question[] = [
     responseB:
       '1. Place the egg in a pot and cover with water.\n2. Bring to a boil.\n3. Boil for 9-12 minutes.\n4. Transfer to cold water, then peel.',
     correctAnswer: 'B',
-    ratingA: 'AMBIGUOUS',
+    ratingA: 'COMPROMISED',
     ratingB: 'CLEAR',
     explanation:
       'Debrief: The instruction asked for a numbered list. Response A is prose; Response B follows the format and adds useful timing. B is superior.',
@@ -577,7 +577,7 @@ export const QUESTIONS: Question[] = [
     responseA: "Python is a great choice. Its syntax is clean and readable. It is used in web development, data science and automation. There are many free tutorials. The community is large and welcoming. You can build real projects quickly.",
     responseB: "Python is a good first language because its syntax reads almost like English. It also has a huge community, so answers to beginner questions are easy to find.",
     correctAnswer: 'B',
-    ratingA: 'AMBIGUOUS',
+    ratingA: 'COMPROMISED',
     ratingB: 'CLEAR',
     explanation: "Debrief: Both recommend Python for sound reasons, but A ignores the two-sentence limit. B gives the same substance within the brief, so B is better.",
     rubric: "Award 2 if the agent cites the two-sentence limit that A breaks. Award 1 for picking B because it is shorter without naming the limit.",

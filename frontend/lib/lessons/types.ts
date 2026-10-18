@@ -1,6 +1,6 @@
 import type { AssignmentType } from '@/lib/types'
 
-// A lesson plays like a video: each chapter is narrated scene by scene over
+// A video guide plays like a video: each chapter is narrated scene by scene over
 // an animated stage, then pauses on a check question. A chapter can instead
 // carry a recorded or AI-generated `videoUrl`; the player shows that and
 // keeps the same chapters, captions and checks.
@@ -48,9 +48,16 @@ export interface Chapter {
 
 export interface Lesson {
   id: string
+  /** Guideline videos explain a guideline; tutorials show how to use the site. */
+  kind: 'guideline' | 'tutorial'
+  /** Task type the video is about, for its card art. */
   track: AssignmentType
   title: string
   summary: string
+  /** The written guide this video goes with. */
+  guide?: { href: string; label: string }
+  /** Where the "done" screen sends the viewer. */
+  next: { href: string; label: string }
   chapters: Chapter[]
 }
 

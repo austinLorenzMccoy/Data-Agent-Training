@@ -60,7 +60,7 @@
     },
     "robotic-rhyme-real-world": {
       "src": "/lessons/review-a-transcript/robotic-rhyme-real-world.m4a",
-      "duration": 31.92,
+      "duration": 38.2,
       "cues": [
         {
           "scene": "robotic-example",
@@ -72,11 +72,11 @@
         },
         {
           "scene": "physical-example",
-          "start": 17.7
+          "start": 23.97
         },
         {
           "scene": "physical-compare",
-          "start": 27.83
+          "start": 34.11
         }
       ]
     },
@@ -95,6 +95,62 @@
         {
           "scene": "ready",
           "start": 20.84
+        }
+      ]
+    }
+  },
+  "how-a-timed-test-works": {
+    "starting": {
+      "src": "/lessons/how-a-timed-test-works/starting.m4a",
+      "duration": 26.46,
+      "cues": [
+        {
+          "scene": "intro",
+          "start": 0
+        },
+        {
+          "scene": "before",
+          "start": 6.92
+        },
+        {
+          "scene": "quota",
+          "start": 18.64
+        }
+      ]
+    },
+    "during": {
+      "src": "/lessons/how-a-timed-test-works/during.m4a",
+      "duration": 28.93,
+      "cues": [
+        {
+          "scene": "clock",
+          "start": 0
+        },
+        {
+          "scene": "answers",
+          "start": 12.29
+        },
+        {
+          "scene": "integrity",
+          "start": 19.13
+        }
+      ]
+    },
+    "result": {
+      "src": "/lessons/how-a-timed-test-works/result.m4a",
+      "duration": 24,
+      "cues": [
+        {
+          "scene": "score",
+          "start": 0
+        },
+        {
+          "scene": "reasons",
+          "start": 8.08
+        },
+        {
+          "scene": "after",
+          "start": 16.61
         }
       ]
     }

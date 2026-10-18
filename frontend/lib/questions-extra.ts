@@ -101,7 +101,7 @@ const GAMMA: Question[] = [
     'medium',
     "Ben: How was your trip to the coast?\nZara: The sun was bright, the sea was blue, I wished the whole time I was there with you.\nBen: That sounds lovely, I'm glad you enjoyed it.",
     ['Rhythmic pattern (rhyming)'],
-    "Zara's line is a rhyming couplet (blue / you) with a set rhythm. People don't text like that, so it is a rhythmic pattern.",
+    "Zara's reply is written as verse: a rhyming couplet (blue / you) with a set beat. A message written like a poem is flagged, even though the line endings of the messages don't rhyme.",
     ['rhyme'],
   ),
   gamma(

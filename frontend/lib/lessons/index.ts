@@ -1,9 +1,10 @@
 import type { AssignmentType } from '@/lib/types'
 import type { AudioManifest, Lesson } from './types'
 import { REVIEW_A_TRANSCRIPT } from './review-a-transcript'
+import { TIMED_TEST_TUTORIAL } from './timed-test-tutorial'
 import manifest from './audio-manifest.json'
 
-export const LESSONS: Lesson[] = [REVIEW_A_TRANSCRIPT]
+export const LESSONS: Lesson[] = [REVIEW_A_TRANSCRIPT, TIMED_TEST_TUTORIAL]
 
 export const AUDIO = manifest as AudioManifest
 
@@ -11,8 +12,9 @@ export function lessonById(id: string): Lesson | undefined {
   return LESSONS.find((l) => l.id === id)
 }
 
-export function lessonForTrack(track: AssignmentType): Lesson | undefined {
-  return LESSONS.find((l) => l.track === track)
+/** The guideline video for a task type, if there is one. */
+export function guideVideoForTrack(track: AssignmentType): Lesson | undefined {
+  return LESSONS.find((l) => l.kind === 'guideline' && l.track === track)
 }
 
 /** Narration length in minutes, from the generated audio when present. */

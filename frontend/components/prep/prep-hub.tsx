@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'motion/react'
 import { cn } from '@/lib/utils'
 import { specialisationGuidelinePacks } from '@/lib/guidelines'
+import { guideVideoForTrack, lessonMinutes } from '@/lib/lessons'
 import {
   BookOpen,
   ChevronDown,
@@ -24,6 +25,7 @@ import {
   Search,
   AudioLines,
   ClipboardCheck,
+  Play,
 } from 'lucide-react'
 import { getEnabledTypes, isV4Type } from '@/lib/feature-flags'
 import { Button } from '@/components/ui/button'
@@ -255,8 +257,8 @@ function CoreFrameworkSection() {
         </p>
         <div className="grid gap-3 sm:grid-cols-3">
           {[
-            { icon: Shield, title: 'Truthfulness', color: 'text-success', bg: 'bg-success/10', desc: 'Is the response factually correct, accurate, and free of hallucinations or fabricated information? Even one false claim is disqualifying.' },
-            { icon: Target, title: 'Instruction Following', color: 'text-primary', bg: 'bg-primary/10', desc: 'Does it fulfill all explicit and implicit constraints? Explicit = stated directly. Implicit = inferred from context. Any violation = automatic Bad.' },
+            { icon: Shield, title: 'Truthfulness', color: 'text-success', bg: 'bg-success/10', desc: 'Is every claim correct, with nothing made up? One false or invented claim makes the response Bad.' },
+            { icon: Target, title: 'Instruction Following', color: 'text-primary', bg: 'bg-primary/10', desc: 'Does it do what was asked? Breaking a hard instruction (required format, count, length limit, language or register) makes it Bad. Missing part of the request, or an implied need such as audience or tone, makes it Okay.' },
             { icon: ListChecks, title: 'Helpfulness', color: 'text-xp', bg: 'bg-xp/10', desc: 'Is it well-formatted, polite, clear, concise, and genuinely useful? Covers completeness, writing quality, and fitness for the user\'s actual need.' },
           ].map(({ icon: Icon, title, color, bg, desc }) => (
             <div key={title} className="rounded-lg border border-border bg-background/50 p-4">
@@ -274,9 +276,9 @@ function CoreFrameworkSection() {
       <Accordion title="Rating Scale" subtitle="Good · Okay · Bad — know each precisely" icon={GitCompare} defaultOpen>
         <div className="space-y-3">
           {[
-            { verdict: 'good' as const, label: 'GOOD', def: 'Truthful, follows all instructions (explicit & implicit), and genuinely helpful. All three pillars satisfied.', example: 'Prompt: "What is the capital of Australia?" → Response: "The capital of Australia is Canberra. While Sydney is the largest city, Canberra was purpose-built as the capital." — Correct, complete, pre-empts common confusion.' },
-            { verdict: 'okay' as const, label: 'OKAY', def: 'Truthful and follows instructions, but falls short on helpfulness — e.g., vague, off-tone, or unhelpful. Not wrong, just mediocre.', example: 'Prompt: "Explain monetary policy like I\'m five." → A response that uses words like "interest rates", "central banks", "monetary policy" without simplifying is technically correct but fails the implicit instruction.' },
-            { verdict: 'bad' as const, label: 'BAD', def: 'Any truthfulness OR instruction-following failure makes it automatically Bad, regardless of formatting quality.', example: 'Prompt: "List the steps as a numbered list." → Response in prose paragraphs = Bad. Prompt: "When did WWII end?" → "1944 with liberation of Paris" = Bad (factually wrong).' },
+            { verdict: 'good' as const, label: 'GOOD', def: 'Truthful, does everything that was asked, and genuinely useful. All three checks pass.', example: 'Prompt: "What is the capital of Australia?" → Response: "The capital of Australia is Canberra. While Sydney is the largest city, Canberra was purpose-built as the capital." — Correct, complete, pre-empts common confusion.' },
+            { verdict: 'okay' as const, label: 'OKAY', def: 'Truthful and breaks no hard instruction, but falls short: it leaves out part of what was asked, misses the audience or tone, or is vague. Not wrong, just not good enough.', example: 'Prompt: "Explain monetary policy like I\'m five." → A correct answer full of "interest rates" and "central banks" misses the audience: Okay. Prompt: "How do I make green tea? Include water temperature." → Correct steps with no temperature: Okay.' },
+            { verdict: 'bad' as const, label: 'BAD', def: 'Anything false or made up, a broken hard instruction (format, count, length, language or register), an answer that goes against what the user asked for, unsafe content, or a refusal of a reasonable request. Good formatting does not save it.', example: 'Prompt: "List the steps as a numbered list." → Response in prose paragraphs = Bad. Prompt: "When did WWII end?" → "1944 with liberation of Paris" = Bad (factually wrong).' },
           ].map(({ verdict, label, def, example }) => (
             <Example key={label} label={label} verdict={verdict}>
               <p className="mb-2">{def}</p>
@@ -311,10 +313,10 @@ function CoreFrameworkSection() {
               </ul>
             </div>
           </div>
-          <Example label="Violation example" verdict="bad" reason="implicit instruction failure">
+          <Example label="Missed implied need" verdict="okay" reason="implicit instruction">
             <p className="mb-2"><strong>Prompt:</strong> A user writes: &quot;My grandmother just passed away and I need to write her eulogy. Can you help?&quot;</p>
             <p><strong>Response:</strong> &quot;Sure! Here are 5 tips: 1) Keep it under 5 minutes 2) Open with a joke 3) List achievements…&quot;</p>
-            <p className="mt-2 text-xs text-muted-foreground">The response ignores the emotional context. &quot;Open with a joke&quot; is tone-deaf. Implicit instruction: warmth and empathy. Verdict: Okay at best, often Bad.</p>
+            <p className="mt-2 text-xs text-muted-foreground">The tips are not wrong, but the response ignores the emotional context and &quot;open with a joke&quot; is tone-deaf. A missed implied need, with nothing false or broken: Okay.</p>
           </Example>
         </div>
       </Accordion>
@@ -323,16 +325,16 @@ function CoreFrameworkSection() {
       <Accordion title="Writing Good Justifications" subtitle="2–3 sentences that cite the specific flaw or strength" icon={BookOpen}>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Your justification must demonstrate your reasoning — not just state the verdict. Generic explanations that could apply to any response earn zero partial credit from the grader.
+            Your reason is graded 0, 1 or 2 and must show your reasoning, not just restate the verdict. A generic reason that could fit any response scores 0. A reason only earns points when your rating or pick is right: a good argument for the wrong call scores nothing.
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             <Example label="Weak justification" verdict="bad">
               <p>&quot;Response A followed instructions and was truthful. Response B did neither of those things.&quot;</p>
-              <p className="mt-2 text-xs text-muted-foreground">No specifics. Could apply to anything. Zero grader credit.</p>
+              <p className="mt-2 text-xs text-muted-foreground">No specifics. Could apply to anything. Scores 0.</p>
             </Example>
             <Example label="Strong justification" verdict="good">
               <p>&quot;Response A is better because it correctly states the capital as Canberra and pre-empts the Sydney misconception. Response B incorrectly says Sydney is the capital, which is a direct truthfulness failure.&quot;</p>
-              <p className="mt-2 text-xs text-muted-foreground">Names the specific fact, names the specific failure. Full grader credit.</p>
+              <p className="mt-2 text-xs text-muted-foreground">Names the specific fact and the specific failure. Scores 2.</p>
             </Example>
           </div>
           <div className="rounded-lg border border-border bg-background/50 p-4">
@@ -342,7 +344,6 @@ function CoreFrameworkSection() {
                 'Mention the specific flaw (e.g., "uses informal \'tu\' instead of \'vous\'")',
                 'Cite the relevant dimension (truthfulness / instruction-following / helpfulness)',
                 'Reference the exact prompt constraint violated if applicable',
-                'If using external knowledge to fact-check, link the source',
                 '2–3 complete sentences with proper grammar and punctuation',
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2">
@@ -356,17 +357,17 @@ function CoreFrameworkSection() {
       </Accordion>
 
       {/* Worked examples from tasks */}
-      <Accordion title="Worked Examples — Response Rating" subtitle="From real DataAnnotation tasks" icon={Target}>
+      <Accordion title="Worked Examples — Response Rating" subtitle="Two prompts, both responses rated" icon={Target}>
         <div className="space-y-4">
           {[
             {
-              prompt: 'Write me a review about an Italian restaurant called "Pasta World". Food was okay but too salty, waiter rude, music lovely, expensive, beautiful presentation, dessert delicious. Overall 4/10, not recommended. Make it 70 words or less.',
-              a: { text: 'Pasta World boasts beautiful presentation and a delicious dessert, but that\'s where the positives end. It was overly salty! Our server was unpleasant, and the prices were steep. The lovely music couldn\'t make up for the overall disappointment. I give it a 4/10 and wouldn\'t recommend it.', verdict: 'good' as const, why: 'Covers every point accurately, under 70 words, reads as a natural review.' },
-              b: { text: 'I dined at Pasta World. While the presentation was beautiful and the music lovely, the apple pie dessert was downright disgusting...', verdict: 'bad' as const, why: 'Fabricates "apple pie dessert" and directly contradicts the user by calling dessert "disgusting" — two violations at once.' },
+              prompt: 'Write a short review of a café called "Bean There". Coffee was excellent, service was slow, seating was cramped, prices were fair. 3/5, I would go back. Keep it under 60 words.',
+              a: { text: 'Bean There pours excellent coffee at fair prices, but expect to wait and to squeeze in: service is slow and the seating is cramped. 3/5, and I would still go back for the coffee.', verdict: 'good' as const, why: 'Every point the user gave, accurate, natural, and 34 words.' },
+              b: { text: 'Bean There has great coffee and fair prices. Sadly the croissants were stale and the staff were rude, so I would not return. 3/5.', verdict: 'bad' as const, why: 'Invents stale croissants and rude staff, and says "would not return" when the user would. Made-up and contradicted facts make it Bad.' },
             },
             {
               prompt: 'Give me the steps to boil an egg as a numbered list.',
-              a: { text: 'First put the egg in water, then boil it, then wait, then take it out.', verdict: 'okay' as const, why: 'Ignores the explicit numbered-list format. Prose instead of list. Instruction-following failure → Bad (not Okay — format requirement missed entirely).' },
+              a: { text: 'First put the egg in water, then boil it, then wait, then take it out.', verdict: 'bad' as const, why: 'The prompt required a numbered list and this is prose. A broken format instruction is Bad, even though the steps are right.' },
               b: { text: '1. Place the egg in a pot and cover with water.\n2. Bring to a boil.\n3. Boil for 9-12 minutes.\n4. Transfer to cold water, then peel.', verdict: 'good' as const, why: 'Follows numbered-list format, adds useful timing detail, complete and helpful.' },
             },
           ].map((ex, i) => (
@@ -471,24 +472,44 @@ const REJECTION_REASONS = [
   {
     title: 'Conversation Rhymes',
     icon: '🎵',
-    rule: 'Reject if the LAST word of one message rhymes with the LAST word of the immediately following message (different words only — same word repeated is fine).',
+    rule: 'Reject if the LAST word of one message rhymes with the LAST word of the very next message (different words only; the same word repeated is fine), or if a message is written as verse, like a poem. A chance rhyme inside an ordinary sentence ("rice… nice") does not count.',
     examples: [
       { text: "Person A: Where do you want to go today?\nPerson B: I'd like to go someplace far away.", verdict: 'reject' as const, note: '"today" and "away" rhyme' },
       { text: "July: My dog won't eat his pill.\nAugust: If you hide it in cheese he will.", verdict: 'reject' as const, note: '"pill" and "will" rhyme' },
       { text: "Jewel: Where do you want to go today?\nBijou: How about the beach?", verdict: 'pass' as const, note: '"today" and "beach" do not rhyme' },
       { text: "Jewel: Where do you want to go today?\nBijou: How about the beach?\nJewel: I hate the beach.", verdict: 'pass' as const, note: 'Same word "beach" repeated — not a rhyme' },
+      { text: "Person A: How do I get to the station?\nPerson B: Head down the road where the north winds blow, then turn left where the rivers flow.", verdict: 'reject' as const, note: 'The reply is written as verse' },
+      { text: "Person A: I'll order noodles and rice. I hope it tastes nice.\nPerson B: Sounds good to me.", verdict: 'pass' as const, note: '"rice" and "nice" sit inside one ordinary message' },
     ],
   },
 ]
 
 function TranscriptSection() {
+  const video = guideVideoForTrack('gamma')
   return (
     <>
+      {video && (
+        <Link
+          href={`/learn/${video.id}`}
+          className="group ink-band flex items-center gap-4 rounded-xl p-4 text-ink-foreground"
+        >
+          <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-ink-accent text-ink transition-transform group-hover:scale-105">
+            <Play className="ml-0.5 size-5" />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-accent">
+              Video guide · {lessonMinutes(video)} min
+            </span>
+            <span className="block font-heading text-lg">Watch this guideline explained, then read the details below</span>
+          </span>
+          <ArrowRight className="ml-auto size-4 shrink-0 transition-transform group-hover:translate-x-1" />
+        </Link>
+      )}
       {/* Overview card */}
       <div className="agency-card agency-card-accent p-5">
         <p className="mb-3 text-[12px] font-medium text-primary">Review a transcript</p>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          You will receive a text-message conversation between two people. Your job is to:
+          On the live task you receive a text-message conversation between two people. Your job is to:
         </p>
         <ol className="mt-3 space-y-1.5 text-sm">
           {[
@@ -503,6 +524,9 @@ function TranscriptSection() {
             </li>
           ))}
         </ol>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Practice here covers step 2 (Review a transcript) and step 4 (Pick the best reply). Learn steps 1 and 3 below; they are not scored on this site.
+        </p>
       </div>
 
       {/* Transcript summary guide */}
@@ -513,9 +537,9 @@ function TranscriptSection() {
           </p>
           <div className="space-y-3">
             {[
-              { label: 'Example 1 (14 words)', transcript: 'Person A: I need a ride to work. Can you take me?\nMe: Sure! What time?\nPerson A: Now! It\'s my first day!', summary: 'My friend is late for their first day of work and asked me for a ride.' },
+              { label: 'Example 1 (16 words)', transcript: 'Person A: I need a ride to work. Can you take me?\nMe: Sure! What time?\nPerson A: Now! It\'s my first day!', summary: 'My friend is late for their first day of work and asked me for a ride.' },
               { label: 'Example 2 (29 words)', transcript: 'Me: Do you want to go to the farmers market Saturday?\nPerson A: Sure! What time? … What are you shopping for?\nMe: I\'m looking for fennel\nPerson A: Do you have a good recipe?', summary: 'I ask my friend to go to the farmers market and what time to pick them up. They ask what I\'m looking for and if I have a recipe.' },
-              { label: 'Example 3 — multi-topic (22 words)', transcript: 'Person A talks about gyms, yoga, meat shops, and driving directions — multiple overlapping topics, doesn\'t make much sense.', summary: 'Two people are talking about many topics including gyms, zumba, yoga, meat, and driving directions. The conversation does not make much sense.' },
+              { label: 'Example 3 — multi-topic (22 words)', transcript: 'Person A talks about gyms, zumba, yoga, meat shops, and driving directions — multiple overlapping topics, doesn\'t make much sense.', summary: 'Two people are talking about many topics including gyms, zumba, yoga, meat, and driving directions. The conversation does not make much sense.' },
             ].map((ex) => (
               <div key={ex.label} className="rounded-lg border border-border bg-background/40 p-4">
                 <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{ex.label}</p>
@@ -593,7 +617,7 @@ function TranscriptSection() {
       ))}
 
       {/* Full pass/reject examples */}
-      <Accordion title="Full Transcript Examples" subtitle="11 complete pass/reject cases with explanations" icon={FileText}>
+      <Accordion title="Full Transcript Examples" subtitle="6 complete pass/reject cases with explanations" icon={FileText}>
         <div className="space-y-4">
           {[
             {
@@ -626,7 +650,7 @@ function TranscriptSection() {
               verdict: 'reject' as const,
               label: 'Reject — Name of Participant + Could Not Happen Over Text',
               transcript: "PersonA: Hey Me, I have something cool to show you!\n…\nMe: I'm here! What's the surprise?\nPersonA: Close your eyes and hold out your hands!\nMe: Okay, they're closed!",
-              why: 'PersonA addresses "Me" directly by name. After line 11, the scene becomes a physical narration — impossible over text.',
+              why: 'PersonA addresses "Me" directly by name. Later, "close your eyes and hold out your hands" only works face to face — impossible over text.',
               reason: 'Could Not Happen Over Text + Includes Name of Participant',
             },
             {
@@ -731,7 +755,7 @@ function ResponseSelectionSection() {
                 { text: "Okay, I'm all ears.", verdict: 'good' as const, why: '✓ Makes sense, natural, invites them to continue' },
                 { text: "I need to ask for something", verdict: 'bad' as const, why: 'Repeats what Sylvain already said, wrong perspective' },
                 { text: "Let me know what you neeed", verdict: 'bad' as const, why: '"neeed" is a spelling mistake — automatic disqualifier' },
-                { text: "I don't do favors", verdict: 'bad' as const, why: 'Contradicts Martinique\'s earlier agreement to help' },
+                { text: "I don't do favors", verdict: 'bad' as const, why: 'Shuts the conversation down instead of replying to what Sylvain said' },
               ],
             },
             {
@@ -748,7 +772,7 @@ function ResponseSelectionSection() {
               label: 'Example 5 — Closing a conversation warmly',
               lastMessage: 'Thanks for your help, that solved my problem!',
               options: [
-                { text: "No problem at all — glad it worked out! Feel free to reach out if anything else comes up.", verdict: 'good' as const, why: '✓ Warm, professional, invites further engagement' },
+                { text: "No problem, glad it worked!", verdict: 'good' as const, why: '✓ Warm and casual, the way a friend texts back' },
                 { text: "Finally.", verdict: 'bad' as const, why: 'Rude and dismissive' },
                 { text: "You should have figured that out yourself.", verdict: 'bad' as const, why: 'Insulting' },
                 { text: "OK.", verdict: 'bad' as const, why: 'Curt, unhelpful closure' },
@@ -796,7 +820,7 @@ function ResponseSelectionSection() {
           {[
             'Contains a spelling mistake',
             'Uses an emoji',
-            'Rhymes with the previous message',
+            'Rhymes with the previous message, or is written as verse',
             'Uses offensive language',
             'Addresses the other person by name/ID',
             'Refers to physically being with the other person',
@@ -831,7 +855,8 @@ function GuidelinePointer() {
           </h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
             DataAnnotation.tech, maps, search quality, transcription, and the English exam.
-            Figures scale on screen. Nothing downloads. This page only covers how practice works.
+            Figures scale on screen. Nothing downloads. The tabs below summarise the rules and how
+            practice here is scored.
           </p>
         </div>
         <Button asChild size="lg" className="h-11 w-full shrink-0 text-base sm:w-auto">
@@ -867,7 +892,7 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
         </p>
         <p className="text-sm leading-relaxed text-muted-foreground">
           These match the rating grids used on live map, search, and transcription jobs.
-          XP from these tracks stays on the track and does not feed the main rank ladder.
+          Test XP from every track, these included, counts toward your rank.
           Full guidelines live on the Guidelines page.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
@@ -886,8 +911,8 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
       >
         <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
           <p>
-            The assignment opens a real street map: a blue YOU marker is the user’s location, gold
-            pins are the results, and a dashed ring is the near-me search radius. First answer
+            The assignment opens a real street map: a blue YOU marker is the user’s location, red
+            numbered pins are the results, and a dashed ring is the near-me search radius. First answer
             whether any result is navigational, then rate each card. Click a pin to jump to that
             result. Business Closed is a flag — it can sit on any relevance rating.
           </p>
@@ -901,8 +926,9 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
             also mark the other Starbucks Navigational — that second shop is Acceptable at best.
           </Example>
           <p>
-            Grading is structural: each of relevance / name / address / pin is a quarter of the
-            result. Adjacent guesses are not tolerated here.
+            Grading is exact-match: relevance, name, address and pin each count equally, and the
+            navigational answer counts as one more part. A near miss scores nothing. Business
+            Closed is checked and shown but does not change the score.
           </p>
           <Button asChild variant="outline" size="sm" className="mt-1">
             <Link href="/guidelines/epsilon">
@@ -1004,9 +1030,9 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
         <div className="space-y-3 text-sm leading-relaxed text-muted-foreground">
           <p>
             Not a rating track. Recruiters running transcription (or any English-heavy track) can
-            require the en-CA exam before enrolment. The live exam is timed and one-shot — study
-            the patterns below, then sit it from the Proficiency page. The answer key is not shown
-            during the exam.
+            require the en-CA exam before enrolment. The exam is timed and scored on the server.
+            A pass is final; if you miss the mark you can retake it. Answers are not shown during
+            or after the exam.
           </p>
           <Button asChild variant="outline" size="sm" className="mt-1">
             <Link href="/guidelines/proficiency">
@@ -1027,12 +1053,12 @@ function SpecialisationSection({ highlight }: { highlight: string }) {
           <p>
             A separate vendor pack — not the English exam. Rate each AI response Good, Okay, or
             Bad, pick the better one, and write a reason that names the real failure:
-            truthfulness, instruction following, or helpfulness. Any truthfulness or instruction
-            miss is automatically Bad.
+            truthfulness, instruction following, or helpfulness. Anything false or a broken hard
+            instruction is Bad; a missed part or a wrong tone is Okay.
           </p>
           <Example label="Invented detail" verdict="bad" reason="truthfulness">
-            The user said the dessert was delicious. A reply that invents “apple pie” and calls it
-            disgusting is Bad even if the rest of the review is well written.
+            The user said they would go back. A review that invents stale croissants and says
+            “would not return” is Bad, even if the rest is well written.
           </Example>
           <p>
             The starter assessment and worked Tasks 1–7 live on the guideline page. Maps for this
