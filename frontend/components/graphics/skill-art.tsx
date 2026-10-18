@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import type { AssignmentType } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { MechanicChip, SkillScene } from './skill-scene'
 
 type Tone = 'red' | 'mustard' | 'sage' | 'blue' | 'clay'
 
@@ -163,12 +164,30 @@ export function SkillArt({ type, className }: { type: AssignmentType; className?
   )
 }
 
+export type SkillCardShape = 'stack' | 'wide' | 'tall'
+
+/** Landing-page layout per skill, so the grid reads as a mix of shapes, not a row of clones. */
+export const SKILL_SHAPE: Partial<Record<AssignmentType, SkillCardShape>> = {
+  alpha: 'wide',
+  delta: 'wide',
+  epsilon: 'tall',
+  theta: 'wide',
+  kappa: 'wide',
+}
+
+export const SHAPE_SPAN: Record<SkillCardShape, string> = {
+  stack: '',
+  wide: 'lg:col-span-2',
+  tall: 'lg:row-span-2',
+}
+
 export function SkillArtCard({
   type,
   tag,
   name,
   blurb,
   href,
+  shape = 'stack',
   className,
 }: {
   type: AssignmentType
@@ -176,49 +195,62 @@ export function SkillArtCard({
   name: string
   blurb: string
   href?: string
+  shape?: SkillCardShape
   className?: string
 }) {
   const tone = TONES[SKILL_TONE[type]]
+  const darkText = tone.fg === '#1a1714'
   const body = (
     <div
       className={cn(
-        'group relative flex h-full min-h-[19rem] flex-col overflow-hidden rounded-2xl p-5 shadow-[0_10px_30px_-12px_rgba(26,23,20,0.35)] transition-transform duration-300',
+        'group relative flex h-full overflow-hidden rounded-2xl p-5 shadow-[0_10px_30px_-12px_rgba(26,23,20,0.35)] transition-transform duration-300',
+        shape === 'wide' ? 'flex-col gap-5 sm:flex-row sm:items-center' : 'flex-col',
         href && 'hover:-translate-y-1',
         className,
       )}
       style={{ background: tone.bg, color: tone.fg }}
     >
-      <span className={cn('self-start rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]', tone.tag)}>
-        {tag}
-      </span>
-      <SkillArt type={type} className="mx-auto my-4 h-28 w-auto opacity-85 transition-transform duration-500 group-hover:scale-105" />
-      <div className="mt-auto">
-        <h3 className="font-heading text-[1.7rem] font-medium italic leading-tight">{name}</h3>
-        <div className="mt-2 flex items-end justify-between gap-3">
-          <p className="line-clamp-3 text-[11px] font-medium uppercase leading-relaxed tracking-[0.12em] opacity-85">
-            {blurb}
-          </p>
-          {href && (
-            <span className={cn('flex size-8 shrink-0 items-center justify-center rounded-full', tone.button)}>
-              <ArrowRight className="size-4" />
-            </span>
-          )}
+      <SkillArt
+        type={type}
+        className="pointer-events-none absolute -right-6 -top-6 h-36 w-auto opacity-[0.07] transition-transform duration-700 group-hover:rotate-6"
+      />
+      <div className={cn('relative flex flex-col', shape === 'wide' && 'sm:w-[42%] sm:shrink-0')}>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className={cn('rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em]', tone.tag)}>{tag}</span>
+          <MechanicChip type={type} tone={darkText ? 'light' : 'dark'} />
         </div>
+        <h3 className={cn('mt-4 font-heading font-medium italic leading-tight', shape === 'stack' ? 'text-[1.6rem]' : 'text-[1.9rem]')}>
+          {name}
+        </h3>
+        <p className="mt-2 text-sm leading-relaxed opacity-85">{blurb}</p>
+        {href && (
+          <span className={cn('mt-4 inline-flex size-9 items-center justify-center rounded-full', tone.button)}>
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+          </span>
+        )}
       </div>
+      <SkillScene
+        type={type}
+        className={cn(
+          'relative transition-transform duration-500 group-hover:-rotate-1 group-hover:scale-[1.02]',
+          shape === 'wide' ? 'flex-1 text-[13px]' : shape === 'tall' ? 'mt-6 flex-1 text-[13px]' : 'mt-5 text-[12px]',
+        )}
+        aspect={shape === 'tall' ? '3/5' : undefined}
+      />
     </div>
   )
 
   return href ? (
-    <Link href={href} className="block h-full rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+    <Link href={href} className={cn('block h-full rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary', SHAPE_SPAN[shape])}>
       {body}
     </Link>
   ) : (
-    body
+    <div className={SHAPE_SPAN[shape]}>{body}</div>
   )
 }
 
 // Small gradient tile with the line art, for denser lists.
-export function SkillTile({ type, className }: { type: AssignmentType; className?: string }) {
+export function SkillTile({ type, className, children }: { type: AssignmentType; className?: string; children?: React.ReactNode }) {
   const tone = TONES[SKILL_TONE[type]]
   return (
     <div
@@ -226,7 +258,7 @@ export function SkillTile({ type, className }: { type: AssignmentType; className
       className={cn('flex shrink-0 items-center justify-center overflow-hidden rounded-xl', className)}
       style={{ background: tone.bg, color: tone.fg }}
     >
-      <SkillArt type={type} className="h-[62%] w-auto opacity-90" />
+      {children ?? <SkillArt type={type} className="h-[62%] w-auto opacity-90" />}
     </div>
   )
 }

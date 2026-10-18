@@ -5,31 +5,9 @@ import { TYPE_BLURBS, TYPE_NAMES } from '@/lib/scoring'
 import type { AssignmentType } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { useAgent } from '@/components/providers/agent-provider'
-import {
-  AudioLines,
-  ClipboardCheck,
-  Crosshair,
-  GitCompare,
-  Images,
-  ListChecks,
-  MapPin,
-  Search,
-  ShieldCheck,
-} from 'lucide-react'
 import { PageHero } from '@/components/page-hero'
-
-const ICONS: Record<AssignmentType, typeof Crosshair> = {
-  alpha: Crosshair,
-  beta: GitCompare,
-  gamma: ShieldCheck,
-  delta: ListChecks,
-  epsilon: MapPin,
-  zeta: Search,
-  eta: Search,
-  theta: AudioLines,
-  iota: Images,
-  kappa: ClipboardCheck,
-}
+import { SkillTile } from '@/components/graphics/skill-art'
+import { SKILL_ACCENT, SKILL_MECHANIC, SkillScene } from '@/components/graphics/skill-scene'
 
 const TEST_LENGTH = 12
 
@@ -118,22 +96,27 @@ function TrackButton({
   needsPractice?: boolean
   count: number
 }) {
-  const Icon = ICONS[type]
   const blocked = locked || needsPractice || count === 0
+  const minutes = Math.max(10, Math.round(count * 2.5))
   return (
     <button
       type="button"
       disabled={blocked}
       onClick={() => onPick(type)}
       className={cn(
-        'rounded-xl border p-5 text-left transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-50',
+        'group flex flex-col overflow-hidden rounded-2xl border text-left transition-colors hover:border-primary/50 disabled:cursor-not-allowed disabled:opacity-50',
         featured ? 'border-primary/30 bg-background/50' : 'border-border bg-card',
       )}
     >
-      <div className="flex size-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-        <Icon className="size-5" />
+      <SkillTile type={type} className="w-full rounded-none px-6 pb-3 pt-5">
+        <SkillScene type={type} className="w-full max-w-[17rem] text-[9px] transition-transform duration-300 group-hover:-translate-y-1" />
+      </SkillTile>
+      <div className="flex flex-1 flex-col p-5 pt-4">
+      <div className="flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: SKILL_ACCENT[type] }}>
+        <span>{SKILL_MECHANIC[type].verb} · {SKILL_MECHANIC[type].detail}</span>
+        {count > 0 && <span className="font-mono normal-case tracking-normal text-muted-foreground">~{minutes} min</span>}
       </div>
-      <h3 className="mt-3 font-sans text-lg font-semibold">{TYPE_NAMES[type]}</h3>
+      <h3 className="mt-1 font-heading text-xl font-medium">{TYPE_NAMES[type]}</h3>
       <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{TYPE_BLURBS[type]}</p>
       <p className="mt-2 text-xs text-muted-foreground">
         {locked
@@ -142,6 +125,7 @@ function TrackButton({
             ? 'Finish practice for this type first'
             : `${count} question${count === 1 ? '' : 's'} · this type only`}
       </p>
+      </div>
     </button>
   )
 }

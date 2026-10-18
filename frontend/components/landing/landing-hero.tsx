@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Constellation } from '@/components/graphics/constellation'
-import { SkillArtCard } from '@/components/graphics/skill-art'
+import { SKILL_SHAPE, SkillArtCard } from '@/components/graphics/skill-art'
 import { RecruitDialog } from '@/components/landing/recruit-dialog'
 import { useAgent } from '@/components/providers/agent-provider'
 import { useAuth } from '@/contexts/AuthContext'
@@ -185,9 +185,17 @@ export function LandingHero() {
           </div>
           <p className="text-sm text-muted-foreground">{enabled.length} task types</p>
         </div>
-        <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid min-w-0 grid-flow-dense gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {core.map((t) => (
-            <SkillArtCard key={t} type={t} tag="Core" name={TYPE_NAMES[t]} blurb={TYPE_BLURBS[t]} href="/training" />
+            <SkillArtCard
+              key={t}
+              type={t}
+              tag="Core"
+              name={TYPE_NAMES[t]}
+              blurb={TYPE_BLURBS[t]}
+              href="/training"
+              shape={SKILL_SHAPE[t]}
+            />
           ))}
         </div>
       </section>
@@ -211,7 +219,7 @@ export function LandingHero() {
               </Link>
             </Button>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-flow-dense gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {special.map((t) => (
               <SkillArtCard
                 key={t}
@@ -220,6 +228,7 @@ export function LandingHero() {
                 name={TYPE_NAMES[t]}
                 blurb={TYPE_BLURBS[t]}
                 href={guidelineFor(t) ? `/guidelines/${t}` : '/training'}
+                shape={SKILL_SHAPE[t]}
               />
             ))}
           </div>

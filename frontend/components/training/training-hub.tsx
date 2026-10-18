@@ -12,6 +12,7 @@ import { AssignmentRenderer, type SubmittedAnswer } from '@/components/assignmen
 import { FeedbackPanel } from '@/components/assignments/feedback-panel'
 import { PageHero } from '@/components/page-hero'
 import { SkillTile } from '@/components/graphics/skill-art'
+import { SKILL_ACCENT, SKILL_MECHANIC, SkillScene } from '@/components/graphics/skill-scene'
 import { WeakAreasCard } from './weak-areas-card'
 import { recordPractice } from '@/lib/weak-areas'
 import { Button } from '@/components/ui/button'
@@ -144,21 +145,24 @@ function DrillCard({
   return (
     <div
       className={cn(
-        'group relative overflow-hidden rounded-xl border bg-card p-5 text-left transition-colors hover:border-primary/50',
+        'group relative flex gap-4 overflow-hidden rounded-2xl border bg-card p-4 text-left transition-colors hover:border-primary/50',
         featured ? 'border-primary/30 bg-background/50' : 'border-border',
       )}
+      style={{ borderLeftWidth: 4, borderLeftColor: SKILL_ACCENT[type] }}
     >
-      <div className="flex items-start justify-between">
-        <SkillTile type={type} className="h-16 w-24 transition-transform duration-300 group-hover:-rotate-2" />
-        <div className="flex items-center gap-2">
-          {featured && (
-            <span className="rounded-full border border-primary/50 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-              New
-            </span>
-          )}
-        </div>
+      <SkillTile type={type} className="w-32 shrink-0 self-start p-2 sm:w-40">
+        <SkillScene type={type} className="w-full text-[7px] transition-transform duration-300 group-hover:-rotate-2 sm:text-[8px]" />
+      </SkillTile>
+      <div className="min-w-0 flex-1">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: SKILL_ACCENT[type] }}>
+          {SKILL_MECHANIC[type].verb} · {SKILL_MECHANIC[type].detail}
+        </span>
+        {featured && (
+          <span className="rounded-full border border-primary/50 px-1.5 py-0.5 text-[10px] font-medium text-primary">New</span>
+        )}
       </div>
-      <h3 className="mt-4 font-sans text-lg font-semibold">{TYPE_NAMES[type]}</h3>
+      <h3 className="mt-1 font-heading text-xl font-medium">{TYPE_NAMES[type]}</h3>
       <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{TYPE_BLURBS[type]}</p>
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
         <button
@@ -181,6 +185,7 @@ function DrillCard({
             Read the guideline
           </Link>
         )}
+      </div>
       </div>
     </div>
   )
