@@ -8,7 +8,7 @@ import { tallyAttempt, type StoredAnswer } from '@/lib/exam/score'
 import type { Permutation, ReviewItem } from '@/lib/exam/public'
 import type { AttemptView, FinishView } from '@/lib/exam/attempt-types'
 import { normalizeReport, type IntegrityReport } from '@/lib/integrity-core'
-import { drawExam, questionById } from './bank'
+import { drawExam, ensureBank, questionById } from './bank'
 import { clampJustification, gradeJustification as defaultGrader, type GradeInput, type GradeOutput } from './grader'
 
 export const MAX_TRACK_QUESTIONS = 12
@@ -201,6 +201,7 @@ export interface StartOptions {
  * tab gets the same questions and deadline instead of a fresh draw.
  */
 export async function startAttempt({ store, agentId, track, checkQuota, orgExam, now = new Date(), draw = drawExam, rng }: StartOptions): Promise<AttemptView> {
+  await ensureBank()
   const enabled = getEnabledTypes()
   const wanted = orgExam ? orgExam.track : track
   if (!(enabled as string[]).includes(wanted)) throw new AttemptError('unknown_track', 400)
@@ -280,6 +281,7 @@ export interface AnswerOptions {
  */
 export async function answerAttempt({ store, agentId, attemptId, index, selection, justification, now = new Date(), grade = defaultGrader }: AnswerOptions): Promise<{ answered: number }> {
   if (!Number.isInteger(index) || index < 0) throw new AttemptError('bad_request', 400)
+  await ensureBank()
   if (JSON.stringify(selection ?? null).length > MAX_SELECTION_BYTES) throw new AttemptError('bad_request', 413)
 
   const row = await store.getAttempt(attemptId)
@@ -371,6 +373,7 @@ function resultFromOperation(op: OperationRow, row: AttemptRow): OperationResult
  * already written instead of scoring twice.
  */
 export async function finishAttempt({ store, agentId, attemptId, integrity, now = new Date() }: FinishOptions): Promise<FinishView> {
+  await ensureBank()
   const existing = await store.getAttempt(attemptId)
   if (!existing || existing.agent_id !== agentId) throw new AttemptError('not_found', 404)
 

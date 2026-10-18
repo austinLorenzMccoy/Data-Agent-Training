@@ -1,6 +1,6 @@
 import { getEnabledTypes } from '@/lib/feature-flags'
 import { toPublicQuestion } from '@/lib/exam/sanitize'
-import { drawPractice } from '@/lib/server/bank'
+import { drawPractice, ensureBank } from '@/lib/server/bank'
 import { ipKey, rateLimit, tooMany } from '@/lib/server/rate-limit'
 
 const PRACTICE_SET = 8
@@ -15,6 +15,7 @@ export async function GET(req: Request) {
   if (!(getEnabledTypes() as string[]).includes(type)) {
     return Response.json({ error: 'unknown_track' }, { status: 400 })
   }
+  await ensureBank()
   const questions = drawPractice(type as never, PRACTICE_SET).map((q) => toPublicQuestion(q))
   return Response.json({ questions }, { headers: { 'Cache-Control': 'no-store' } })
 }

@@ -2,7 +2,7 @@ import { checkAndConsumeQuota } from '@/lib/entitlements'
 import { hasJustification } from '@/lib/scoring'
 import { buildFeedback } from '@/lib/exam/score'
 import type { Feedback } from '@/lib/exam/public'
-import { isExamOnly, questionById } from '@/lib/server/bank'
+import { ensureBank, isExamOnly, questionById } from '@/lib/server/bank'
 import { clampJustification, gradeJustification, heuristicGrade } from '@/lib/server/grader'
 import { supabaseAttemptStore } from '@/lib/server/attempt-store'
 import { currentUser, readJson } from '@/lib/server/http'
@@ -22,6 +22,7 @@ export async function POST(req: Request) {
   if (!body || typeof body.questionId !== 'string') {
     return Response.json({ error: 'bad_request' }, { status: 400 })
   }
+  await ensureBank()
   const q = questionById(body.questionId)
   if (!q || isExamOnly(q)) return Response.json({ error: 'not_found' }, { status: 404 })
 

@@ -16,17 +16,99 @@ function fnv1a(text: string): number {
   return h >>> 0
 }
 
+// The bank is the built-in questions plus edits made in the content admin
+// (`bank_questions`). A live DB row with a built-in id replaces it; a new
+// id adds a question; 'retired' takes it out of new draws. Retired
+// questions stay resolvable by id so attempts already in flight can still
+// be scored. An edit to a live question applies to any grading after it
+// lands, including attempts in progress.
+
+export interface BankRow {
+  id: string
+  data: Question
+  status: 'draft' | 'live' | 'retired'
+}
+
+export type BankLoader = () => Promise<BankRow[]>
+
+const REFRESH_MS = 60_000
+let loader: BankLoader | null = defaultLoader
+let dbRows: BankRow[] = []
+let loadedAt = 0
 let cachedBank: Question[] | null = null
 let cachedById: Map<string, Question> | null = null
 
+async function defaultLoader(): Promise<BankRow[]> {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return []
+  const { createAdminClient } = await import('@/lib/supabase/server')
+  const { data, error } = await createAdminClient()
+    .from('bank_questions' as never)
+    .select('id, data, status')
+    .in('status', ['live', 'retired'])
+  if (error) throw new Error(`bank_questions: ${error.message}`)
+  return (data as unknown as BankRow[]) ?? []
+}
+
+/** Swap the DB source (tests), or pass null to use only the built-in bank. */
+export function setBankLoader(fn: BankLoader | null) {
+  loader = fn
+  loadedAt = 0
+  dbRows = []
+  cachedBank = null
+  cachedById = null
+}
+
+/** Pull content-admin edits at most once a minute per server instance. */
+export async function ensureBank(force = false): Promise<void> {
+  if (!loader || (!force && Date.now() - loadedAt < REFRESH_MS)) return
+  try {
+    dbRows = await loader()
+    loadedAt = Date.now()
+    cachedBank = null
+    cachedById = null
+  } catch (err) {
+    // Keep serving the last good bank rather than failing tests mid-flight.
+    console.error('ensureBank:', (err as Error).message)
+    loadedAt = Date.now()
+  }
+}
+
+function builtIn(): Question[] {
+  return getQuestionBank(getEnabledTypes())
+}
+
 function bank(): Question[] {
-  if (!cachedBank) cachedBank = getQuestionBank(getEnabledTypes())
+  if (cachedBank) return cachedBank
+  const enabled = new Set<string>(getEnabledTypes())
+  const byId = new Map(builtIn().map((q) => [q.id, q]))
+  for (const row of dbRows) {
+    if (row.status === 'retired') byId.delete(row.id)
+    else if (row.status === 'live' && enabled.has(row.data.type)) byId.set(row.id, { ...row.data, id: row.id })
+  }
+  cachedBank = [...byId.values()]
   return cachedBank
 }
 
 export function questionById(id: string): Question | undefined {
-  if (!cachedById) cachedById = new Map(bank().map((q) => [q.id, q]))
+  if (!cachedById) {
+    cachedById = new Map(builtIn().map((q) => [q.id, q]))
+    for (const row of dbRows) cachedById.set(row.id, { ...row.data, id: row.id })
+  }
   return cachedById.get(id)
+}
+
+/** Every question, built-in and edited, with where it comes from. For the content admin. */
+export function allQuestionsForAdmin(): { question: Question; source: 'built-in' | 'edited' | 'new'; status: 'live' | 'retired' }[] {
+  const builtInIds = new Set(getQuestionBank(['epsilon', 'zeta', 'eta', 'theta', 'iota', 'kappa']).map((q) => q.id))
+  const live = new Map(bank().map((q) => [q.id, q]))
+  const out: { question: Question; source: 'built-in' | 'edited' | 'new'; status: 'live' | 'retired' }[] = []
+  const seen = new Set<string>()
+  for (const row of dbRows) {
+    seen.add(row.id)
+    out.push({ question: { ...row.data, id: row.id }, source: builtInIds.has(row.id) ? 'edited' : 'new', status: row.status === 'retired' ? 'retired' : 'live' })
+  }
+  for (const q of live.values()) if (!seen.has(q.id)) out.push({ question: q, source: 'built-in', status: 'live' })
+  return out
 }
 
 export function questionsOfType(type: AssignmentType): Question[] {
