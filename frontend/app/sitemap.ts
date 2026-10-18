@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://datanerds-ai-training.vercel.app').replace(/\/$/, '')
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://datanerds-aitraining.vercel.app').replace(/\/$/, '')
 
 const ROUTES = ['', '/prep', '/guidelines', '/training', '/operation', '/dossier', '/rankings', '/login', '/pricing', '/terms', '/privacy', '/verify']
 

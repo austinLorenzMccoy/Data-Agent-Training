@@ -12,6 +12,6 @@ jobs:
       # Set the repository variable SITE_URL to the production domain.
       # A failed run here is the uptime alert: GitHub emails the owner.
       - name: Check production health
-        run: curl -fsS --retry 3 --retry-delay 5 "${SITE_URL:-https://datanerds-ai-training.vercel.app}/api/health"
+        run: curl -fsS --retry 3 --retry-delay 5 "${SITE_URL:-https://datanerds-aitraining.vercel.app}/api/health"
         env:
           SITE_URL: ${{ vars.SITE_URL }}

@@ -16,7 +16,7 @@ jobs:
       - name: Run housekeeping
         run: |
           if [ -z "$CRON_SECRET" ]; then echo "CRON_SECRET not set; skipping"; exit 0; fi
-          curl -fsS --retry 2 -H "Authorization: Bearer $CRON_SECRET" "${SITE_URL:-https://datanerds-ai-training.vercel.app}/api/cron/tick"
+          curl -fsS --retry 2 -H "Authorization: Bearer $CRON_SECRET" "${SITE_URL:-https://datanerds-aitraining.vercel.app}/api/cron/tick"
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           SITE_URL: ${{ vars.SITE_URL }}

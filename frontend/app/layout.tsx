@@ -25,7 +25,7 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ['400', '500', '600'],
 })
 
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://datanerds-ai-training.vercel.app').replace(/\/$/, '')
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://datanerds-aitraining.vercel.app').replace(/\/$/, '')
 const SITE_TITLE = 'Datanerds Annotation'
 const SITE_DESCRIPTION =
   'Practice rating AI responses, maps, search results, and transcripts. Earn XP and climb the ranks.'
