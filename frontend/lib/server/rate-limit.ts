@@ -20,6 +20,7 @@ export const LIMITS = {
   testStart: { max: 10, windowSec: 60 * 60 },
   testAnswer: { max: 120, windowSec: 60 * 10 },
   proficiency: { max: 10, windowSec: 60 * 60 },
+  manualPayment: { max: 6, windowSec: 60 * 60 },
 } as const
 
 export type LimitName = keyof typeof LIMITS

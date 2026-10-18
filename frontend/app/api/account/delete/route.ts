@@ -4,7 +4,8 @@ import { currentUser, readJson, unauthorized } from '@/lib/server/http'
 
 // Deletes the signed-in account and everything keyed to it. Deleting the
 // auth user cascades through agents → operations, attempts, badges,
-// subscriptions, usage counters, grades and proficiency results. A paid
+// subscriptions, usage counters, grades, proficiency results and manual
+// payments; payment screenshots are removed from storage first. A paid
 // Paystack subscription is disabled first so billing stops.
 export async function POST(req: Request) {
   const user = await currentUser()
@@ -39,6 +40,12 @@ export async function POST(req: Request) {
       // Refuse rather than delete an account that would keep being charged.
       return Response.json({ error: 'billing_cancel_failed' }, { status: 502 })
     }
+  }
+
+  // Payment screenshots live in storage, outside the cascade.
+  const { data: proofs } = await admin.storage.from('payment-proofs').list(user.id, { limit: 1000 })
+  if (proofs?.length) {
+    await admin.storage.from('payment-proofs').remove(proofs.map((f) => `${user.id}/${f.name}`))
   }
 
   const { error } = await admin.auth.admin.deleteUser(user.id)

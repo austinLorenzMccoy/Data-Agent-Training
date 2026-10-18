@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
@@ -158,6 +159,17 @@ export default function PricingPage() {
                     {loadingSlug === plan.slug ? 'Redirecting…' : 'Start free trial'}
                     <ArrowRight className="size-3.5" />
                   </Button>
+                )}
+                {plan.slug !== 'free' && (
+                  <Link
+                    href={`/billing/pay?plan=${plan.slug}`}
+                    className={cn(
+                      'mt-3 text-center text-xs underline underline-offset-4',
+                      plan.accent ? 'text-ink-muted hover:text-ink-foreground' : 'text-muted-foreground hover:text-foreground',
+                    )}
+                  >
+                    Or pay with Airtm, crypto or Grey
+                  </Link>
                 )}
               </div>
             </div>

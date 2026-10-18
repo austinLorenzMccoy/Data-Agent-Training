@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { CreditCard, ArrowRight } from 'lucide-react'
 import { PageHero } from '@/components/page-hero'
 import { DeleteAccount } from '@/components/account/delete-account'
+import { ManualPayments } from '@/components/billing/manual-payments-list'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface EntitlementsResponse {
@@ -121,6 +122,8 @@ export default function BillingPage() {
             </div>
           </div>
         )}
+
+        {user && <ManualPayments />}
 
         {user && <DeleteAccount />}
       </div>
