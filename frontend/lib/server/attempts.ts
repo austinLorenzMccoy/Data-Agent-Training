@@ -354,7 +354,7 @@ export async function finishAttempt({ store, agentId, attemptId, integrity, now 
     const op = opId ? await store.getOperation(opId) : null
     if (!op) throw new AttemptError('busy', 409)
     return {
-      result: { ...resultFromOperation(op, row), bestStreak },
+      result: { ...resultFromOperation(op, row), track: row.track, bestStreak },
       rankedUp: (op.rank_after ?? 0) > (op.rank_before ?? 0),
       items: reviewItems(questions, answers),
       integrity: op.integrity,
@@ -401,7 +401,7 @@ export async function finishAttempt({ store, agentId, attemptId, integrity, now 
   }
 
   return {
-    result: { ...result, id: op.id, rankAtCompletion: String(fresh.rank_after ?? '') },
+    result: { ...result, id: op.id, track: row.track, rankAtCompletion: String(fresh.rank_after ?? '') },
     rankedUp: (fresh.rank_after ?? 0) > (fresh.rank_before ?? 0),
     items: reviewItems(questions, answers),
     integrity: report,

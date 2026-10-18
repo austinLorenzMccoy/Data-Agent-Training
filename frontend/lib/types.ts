@@ -97,6 +97,8 @@ export interface OperationSession {
 export interface OperationResult {
   id: string
   operationName: string
+  /** The single task type a timed test covered. Missing on older history. */
+  track?: AssignmentType
   iqScore: number // 0-100
   passed: boolean
   xpEarned: number

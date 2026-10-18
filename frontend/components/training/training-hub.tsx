@@ -12,6 +12,8 @@ import { AssignmentRenderer, type SubmittedAnswer } from '@/components/assignmen
 import { FeedbackPanel } from '@/components/assignments/feedback-panel'
 import { PageHero } from '@/components/page-hero'
 import { SkillTile } from '@/components/graphics/skill-art'
+import { WeakAreasCard } from './weak-areas-card'
+import { recordPractice } from '@/lib/weak-areas'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { ArrowRight, ShieldCheck, Lock } from 'lucide-react'
@@ -61,6 +63,8 @@ export function TrainingHub() {
         and choose what you would like to practice next.
       </PageHero>
       <div className="relative mx-auto max-w-5xl px-4 pb-16">
+        <WeakAreasCard enabled={enabled} onPractice={startType} />
+
         <p className="mb-3 mt-8 font-sans text-sm font-medium text-muted-foreground">
           Practice areas
         </p>
@@ -231,6 +235,7 @@ function TrainingSession({
       if (!res.ok) throw new Error(String(res.status))
       const feedback = (await res.json()) as Feedback & { quotaExceeded?: boolean }
       if (feedback.quotaExceeded) setQuotaBlocked(true)
+      recordPractice(type, feedback.ratio)
       setResult(feedback)
     } catch {
       setLoadError(true)
