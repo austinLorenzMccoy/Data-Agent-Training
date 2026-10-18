@@ -29,6 +29,7 @@ function DebriefBody() {
   const xp = data?.result.xpEarned ?? Number(search.get('xp') || 0)
   const rankedUp = data?.rankedUp ?? search.get('rankedUp') === 'true'
   const name = data?.result.operationName ?? 'Timed test'
+  const isOrg = search.get('org') === '1'
 
   if (!ready) {
     return <p className="text-sm text-muted-foreground">Loading results…</p>
@@ -109,12 +110,17 @@ function DebriefBody() {
             </li>
           ))}
         </ol>
+      ) : isOrg ? (
+        <p className="mt-8 rounded-md border border-border bg-surface-raised px-4 py-3 text-sm text-muted-foreground">
+          Your result has been sent to the organisation that invited you. You can close this page.
+        </p>
       ) : (
         <p className="mt-8 text-sm text-muted-foreground">
           Detailed review is only available right after you finish a test in this browser.
         </p>
       )}
 
+      {!isOrg && (
       <div className="mt-10 flex flex-wrap gap-3">
         <Button asChild size="lg">
           <Link href="/operation">Sit another test</Link>
@@ -126,6 +132,7 @@ function DebriefBody() {
           <Link href="/dossier">Your progress</Link>
         </Button>
       </div>
+      )}
     </>
   )
 }

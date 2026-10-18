@@ -97,6 +97,10 @@ export interface AttemptStore {
   getOperation(id: string): Promise<OperationRow | null>
   logGrade(entry: GradeLogEntry): Promise<void>
   issueCertificate(cert: CertificateInsert): Promise<{ code: string }>
+  /** Whether candidates may see explanations after an organisation exam. */
+  reviewVisible(orgExamId: string): Promise<boolean>
+  /** Called once per attempt, after its result is written (queues org webhooks). */
+  onFinished(row: AttemptRow, op: OperationRow): Promise<void>
   hasPassedProficiency(agentId: string, examId: string): Promise<boolean>
 }
 
@@ -114,7 +118,9 @@ export class AttemptError extends Error {
       | 'expired'
       | 'already_answered'
       | 'bad_request'
-      | 'empty_bank',
+      | 'empty_bank'
+      | 'exam_closed'
+      | 'exam_not_open',
     public status: number,
     public detail: Record<string, unknown> = {},
   ) {
@@ -164,11 +170,26 @@ export function maxAttemptsPerTrack(): number | null {
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : null
 }
 
+/** An organisation's exam, as the start route loads it from an invite token. */
+export interface OrgExamConfig {
+  id: string
+  title: string
+  track: AssignmentType
+  questionCount: number
+  minutes: number
+  maxAttempts: number
+  opensAt: string | null
+  closesAt: string | null
+  archived: boolean
+}
+
 export interface StartOptions {
   store: AttemptStore
   agentId: string
   track: string
   checkQuota: QuotaCheck
+  /** Set for an organisation exam: it fixes the track, length, timer and attempt limit, and skips the learner quota. */
+  orgExam?: OrgExamConfig
   now?: Date
   draw?: (type: AssignmentType, count: number) => Question[]
   rng?: () => number
@@ -179,15 +200,23 @@ export interface StartOptions {
  * can be active per agent (enforced by a partial unique index), so a second
  * tab gets the same questions and deadline instead of a fresh draw.
  */
-export async function startAttempt({ store, agentId, track, checkQuota, now = new Date(), draw = drawExam, rng }: StartOptions): Promise<AttemptView> {
+export async function startAttempt({ store, agentId, track, checkQuota, orgExam, now = new Date(), draw = drawExam, rng }: StartOptions): Promise<AttemptView> {
   const enabled = getEnabledTypes()
-  if (!(enabled as string[]).includes(track)) throw new AttemptError('unknown_track', 400)
-  const type = track as AssignmentType
+  const wanted = orgExam ? orgExam.track : track
+  if (!(enabled as string[]).includes(wanted)) throw new AttemptError('unknown_track', 400)
+  const type = wanted as AssignmentType
+
+  if (orgExam) {
+    if (orgExam.archived) throw new AttemptError('exam_closed', 403)
+    if (orgExam.opensAt && now < new Date(orgExam.opensAt)) throw new AttemptError('exam_not_open', 403, { opensAt: orgExam.opensAt })
+    if (orgExam.closesAt && now > new Date(orgExam.closesAt)) throw new AttemptError('exam_closed', 403)
+  }
 
   const active = await store.activeAttempt(agentId)
   if (active) {
     if (!isExpired(active, now)) {
-      if (active.track !== type) {
+      const same = orgExam ? active.org_exam_id === orgExam.id : active.track === type && !active.org_exam_id
+      if (!same) {
         throw new AttemptError('busy', 409, { track: active.track, expiresAt: active.expires_at })
       }
       return view(active, now)
@@ -196,33 +225,39 @@ export async function startAttempt({ store, agentId, track, checkQuota, now = ne
     await finishAttempt({ store, agentId, attemptId: active.id, integrity: null, now })
   }
 
-  if (REQUIRED_PROFICIENCY_EXAM && getProficiencyGatedTypes().includes(type)) {
+  if (orgExam) {
+    if ((await store.countAttempts(agentId, { orgExamId: orgExam.id })) >= orgExam.maxAttempts) {
+      throw new AttemptError('attempt_limit', 403, { limit: orgExam.maxAttempts })
+    }
+  } else if (REQUIRED_PROFICIENCY_EXAM && getProficiencyGatedTypes().includes(type)) {
     if (!(await store.hasPassedProficiency(agentId, REQUIRED_PROFICIENCY_EXAM))) {
       throw new AttemptError('proficiency_required', 403, { examId: REQUIRED_PROFICIENCY_EXAM })
     }
   }
 
-  const maxPerTrack = maxAttemptsPerTrack()
-  if (maxPerTrack !== null && (await store.countAttempts(agentId, { track: type })) >= maxPerTrack) {
-    throw new AttemptError('attempt_limit', 403, { limit: maxPerTrack })
+  if (!orgExam) {
+    const maxPerTrack = maxAttemptsPerTrack()
+    if (maxPerTrack !== null && (await store.countAttempts(agentId, { track: type })) >= maxPerTrack) {
+      throw new AttemptError('attempt_limit', 403, { limit: maxPerTrack })
+    }
+    const quota = await checkQuota()
+    if (!quota.allowed) throw new AttemptError('quota_exceeded', 402, quota)
   }
 
-  const quota = await checkQuota()
-  if (!quota.allowed) throw new AttemptError('quota_exceeded', 402, quota)
-
-  const questions = draw(type, MAX_TRACK_QUESTIONS)
+  const questions = draw(type, orgExam?.questionCount ?? MAX_TRACK_QUESTIONS)
   if (questions.length === 0) throw new AttemptError('empty_bank', 404)
 
   const startedAt = now
-  const expiresAt = new Date(startedAt.getTime() + minutesFor(questions.length) * 60_000)
+  const minutes = orgExam?.minutes ?? minutesFor(questions.length)
+  const expiresAt = new Date(startedAt.getTime() + minutes * 60_000)
   const row = await store.createAttempt({
     agent_id: agentId,
     track: type,
-    operation_name: TYPE_NAMES[type],
+    operation_name: orgExam?.title ?? TYPE_NAMES[type],
     questions: questions.map((q) => ({ id: q.id, perm: randomPermutation(q, rng) })),
     started_at: startedAt.toISOString(),
     expires_at: expiresAt.toISOString(),
-    org_exam_id: null,
+    org_exam_id: orgExam?.id ?? null,
   })
   return view(row, now)
 }
@@ -344,6 +379,9 @@ export async function finishAttempt({ store, agentId, attemptId, integrity, now 
   const questions = loadQuestions(row.questions)
   const { answers, bestStreak } = tallyAttempt(questions, row.answers ?? {})
 
+  const showReview = row.org_exam_id ? await store.reviewVisible(row.org_exam_id) : true
+  const review = (items: ReviewItem[]) => (showReview ? items : [])
+
   if (!claimed) {
     // Someone else finished it; wait briefly for their operation row.
     let opId = row.operation_id
@@ -356,7 +394,7 @@ export async function finishAttempt({ store, agentId, attemptId, integrity, now 
     return {
       result: { ...resultFromOperation(op, row), track: row.track, bestStreak },
       rankedUp: (op.rank_after ?? 0) > (op.rank_before ?? 0),
-      items: reviewItems(questions, answers),
+      items: review(reviewItems(questions, answers)),
       integrity: op.integrity,
     }
   }
@@ -381,6 +419,13 @@ export async function finishAttempt({ store, agentId, attemptId, integrity, now 
   await store.linkOperation(attemptId, op.id)
   const fresh = (await store.getOperation(op.id)) ?? op
 
+  try {
+    await store.onFinished({ ...row, operation_id: op.id }, fresh)
+  } catch (err) {
+    // Webhook delivery is retried from its own queue; never fail the result.
+    console.error('onFinished:', (err as Error).message)
+  }
+
   let certificateCode: string | undefined
   if (result.passed) {
     try {
@@ -403,7 +448,7 @@ export async function finishAttempt({ store, agentId, attemptId, integrity, now 
   return {
     result: { ...result, id: op.id, track: row.track, rankAtCompletion: String(fresh.rank_after ?? '') },
     rankedUp: (fresh.rank_after ?? 0) > (fresh.rank_before ?? 0),
-    items: reviewItems(questions, answers),
+    items: review(reviewItems(questions, answers)),
     integrity: report,
     certificateCode,
   }

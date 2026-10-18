@@ -1,6 +1,7 @@
 import 'server-only'
 import { randomBytes } from 'node:crypto'
 import { createAdminClient } from '@/lib/supabase/server'
+import { enqueue, resultPayload } from './webhooks'
 import type { AttemptRow, AttemptStore, GradeLogEntry, OperationInsert, OperationRow } from './attempts'
 
 // The generated Supabase types collapse to `never` on most tables (see
@@ -109,6 +110,48 @@ export function supabaseAttemptStore(admin: Admin = createAdminClient()): Attemp
         if (!error.message.includes('duplicate')) fail('issueCertificate', error)
       }
       throw new Error('issueCertificate: could not find a free code')
+    },
+
+    async reviewVisible(orgExamId) {
+      const { data } = await admin.from('org_exams' as never).select('show_review').eq('id', orgExamId).maybeSingle()
+      return (data as unknown as { show_review: boolean } | null)?.show_review === true
+    },
+
+    async onFinished(row, op) {
+      if (!row.org_exam_id) return
+      const { data: examRow } = await admin
+        .from('org_exams' as never)
+        .select('id, org_id, title, track')
+        .eq('id', row.org_exam_id)
+        .maybeSingle()
+      const exam = examRow as unknown as { id: string; org_id: string; title: string; track: string } | null
+      if (!exam) return
+      const { data: candRow } = await admin
+        .from('org_exam_candidates' as never)
+        .select('name, email')
+        .eq('org_exam_id', exam.id)
+        .eq('agent_id', row.agent_id)
+        .maybeSingle()
+      const cand = candRow as unknown as { name: string | null; email: string | null } | null
+      const integrity = op.integrity as { verified?: boolean; reasons?: string[] } | null
+      await enqueue(
+        exam.org_id,
+        resultPayload('exam.completed', {
+          attemptId: row.id,
+          operationId: op.id,
+          orgExam: { id: exam.id, title: exam.title, track: exam.track },
+          candidate: { id: row.agent_id, name: cand?.name ?? null, email: cand?.email ?? null },
+          score: op.iq_score,
+          passed: op.passed,
+          questionsTotal: op.questions_total,
+          questionsCorrect: op.questions_correct,
+          timeTakenSeconds: op.time_taken_seconds,
+          integrity: integrity ? { verified: integrity.verified !== false, reasons: integrity.reasons ?? [] } : null,
+          completedAt: op.created_at,
+        }),
+        row.id,
+        admin,
+      )
     },
 
     async hasPassedProficiency(agentId, examId) {

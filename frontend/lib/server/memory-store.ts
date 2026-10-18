@@ -12,6 +12,8 @@ export function memoryAttemptStore(opts: { now?: () => Date; graceSec?: number }
   const grades: GradeLogEntry[] = []
   const proficiency = new Set<string>()
   const certificates = new Map<string, CertificateInsert>()
+  const reviewVisibility = new Map<string, boolean>()
+  const finished: { attemptId: string; operationId: string; orgExamId: string | null }[] = []
   let seq = 0
 
   const store: AttemptStore = {
@@ -77,6 +79,12 @@ export function memoryAttemptStore(opts: { now?: () => Date; graceSec?: number }
       certificates.set(code, cert)
       return { code }
     },
+    async reviewVisible(orgExamId) {
+      return reviewVisibility.get(orgExamId) ?? false
+    },
+    async onFinished(row, op) {
+      finished.push({ attemptId: row.id, operationId: op.id, orgExamId: row.org_exam_id })
+    },
     async hasPassedProficiency(agentId, examId) {
       return proficiency.has(`${agentId}:${examId}`)
     },
@@ -88,6 +96,8 @@ export function memoryAttemptStore(opts: { now?: () => Date; graceSec?: number }
     operations,
     grades,
     certificates,
+    finished,
+    setReviewVisible: (orgExamId: string, visible: boolean) => reviewVisibility.set(orgExamId, visible),
     passProficiency: (agentId: string, examId: string) => proficiency.add(`${agentId}:${examId}`),
   }
 }

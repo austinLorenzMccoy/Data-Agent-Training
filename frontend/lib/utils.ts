@@ -7,5 +7,5 @@ export function cn(...inputs: ClassValue[]) {
 
 /** Pages that render without the app sidebar/header chrome. */
 export function pathHasSidebar(pathname: string | null | undefined) {
-  return !!pathname && pathname !== '/' && pathname !== '/login' && !pathname.startsWith('/verify')
+  return !!pathname && pathname !== '/' && pathname !== '/login' && !pathname.startsWith('/verify') && !pathname.startsWith('/exam/')
 }

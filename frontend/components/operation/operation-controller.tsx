@@ -43,7 +43,27 @@ function firstUnanswered(total: number, answered: number[]): number {
   return total
 }
 
-export function OperationController({ counts }: { counts: Partial<Record<AssignmentType, number>> }) {
+export interface OrgExamIntro {
+  token: string
+  title: string
+  orgName: string
+  trackName: string
+  questionCount: number
+  minutes: number
+  maxAttempts: number
+  closesAt: string | null
+  closed: boolean
+  signedIn: boolean
+}
+
+export function OperationController({
+  counts = {},
+  orgExam,
+}: {
+  counts?: Partial<Record<AssignmentType, number>>
+  /** Run an organisation's exam from its invite link instead of the learner track picker. */
+  orgExam?: OrgExamIntro
+}) {
   const router = useRouter()
   const { logOperation, addXp } = useAgent()
 
@@ -70,26 +90,33 @@ export function OperationController({ counts }: { counts: Partial<Record<Assignm
   const gated = new Set(getProficiencyGatedTypes())
 
   async function startTrack(type: AssignmentType) {
-    setStartError(null)
     if (gated.has(type) && !examPassed) {
       router.push(`/proficiency/${REQUIRED_PROFICIENCY_EXAM}?next=/operation`)
       return
     }
+    await begin({ track: type })
+  }
+
+  async function begin(body: { track: AssignmentType } | { examToken: string }) {
+    setStartError(null)
+    const back = orgExam ? `/exam/${orgExam.token}` : '/operation'
     // Must run inside the click handler — browsers refuse fullscreen
     // without a user gesture, and the request below would outlive it.
     enterFullscreen()
     setCheckingQuota(true)
-    const res = await post<AttemptView>('/api/operations/start', { track: type })
+    const res = await post<AttemptView>('/api/operations/start', body)
     setCheckingQuota(false)
 
     if (!res.ok) {
       exitFullscreen()
-      if (res.status === 401) router.push('/login?next=/operation')
+      if (res.status === 401) router.push(`/login?next=${encodeURIComponent(back)}`)
       else if (res.status === 402) setQuotaBlocked(true)
       else if (res.error === 'proficiency_required') router.push(`/proficiency/${REQUIRED_PROFICIENCY_EXAM}?next=/operation`)
       else if (res.error === 'busy')
         setStartError(`You have a ${TYPE_NAMES[res.data.track as AssignmentType] ?? 'test'} in progress. Finish it first.`)
       else if (res.error === 'attempt_limit') setStartError('You have used every attempt allowed for this test.')
+      else if (res.error === 'exam_closed') setStartError('This exam is closed.')
+      else if (res.error === 'exam_not_open') setStartError('This exam has not opened yet.')
       else if (res.error === 'rate_limited') setStartError('Too many test starts. Try again later.')
       else setStartError('Could not start the test. Try again.')
       return
@@ -164,7 +191,20 @@ export function OperationController({ counts }: { counts: Partial<Record<Assignm
     saveLastTest({ result, rankedUp, items, integrity: report ?? undefined, certificateCode })
     setState('complete')
     router.push(
-      `/operation/debrief?iqScore=${Math.round(result.iqScore)}&passed=${result.passed}&xp=${result.xpEarned}&rankedUp=${rankedUp}`,
+      `/operation/debrief?${orgExam ? 'org=1&' : ''}iqScore=${Math.round(result.iqScore)}&passed=${result.passed}&xp=${result.xpEarned}&rankedUp=${rankedUp}`,
+    )
+  }
+
+  if (state === 'selecting' && orgExam) {
+    return (
+      <>
+        <OrgExamLanding exam={orgExam} busy={checkingQuota} onStart={() => begin({ examToken: orgExam.token })} />
+        {startError && (
+          <div role="alert" className="fixed inset-x-0 bottom-6 z-50 mx-auto w-fit max-w-[90vw] rounded-md border border-danger/40 bg-surface px-4 py-2 text-sm text-danger shadow">
+            {startError}
+          </div>
+        )}
+      </>
     )
   }
 
@@ -275,5 +315,58 @@ export function OperationController({ counts }: { counts: Partial<Record<Assignm
         />
       )}
     </div>
+  )
+}
+
+function OrgExamLanding({ exam, busy, onStart }: { exam: OrgExamIntro; busy: boolean; onStart: () => void }) {
+  const router = useRouter()
+  return (
+    <main className="mx-auto max-w-2xl px-4 py-16">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">{exam.orgName}</p>
+      <h1 className="mt-3 font-heading text-4xl font-medium leading-tight">{exam.title}</h1>
+      <dl className="mt-8 grid grid-cols-2 gap-4 rounded-2xl border border-border bg-surface-raised p-5 text-sm sm:grid-cols-4">
+        <div>
+          <dt className="text-xs text-muted-foreground">Task</dt>
+          <dd className="mt-1 font-medium">{exam.trackName}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-muted-foreground">Questions</dt>
+          <dd className="mt-1 font-medium">{exam.questionCount}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-muted-foreground">Time</dt>
+          <dd className="mt-1 font-medium">{exam.minutes} min</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-muted-foreground">Attempts</dt>
+          <dd className="mt-1 font-medium">{exam.maxAttempts}</dd>
+        </div>
+      </dl>
+      <ul className="mt-6 list-disc space-y-1.5 pl-5 text-sm text-muted-foreground">
+        <li>The timer starts when you press Start and keeps running if you close the page.</li>
+        <li>The test runs fullscreen. Leaving the page, switching tabs or pasting is recorded and shared with {exam.orgName}.</li>
+        <li>You see your score at the end. Your result goes to {exam.orgName}.</li>
+        {exam.closesAt && <li>Closes {new Date(exam.closesAt).toLocaleString('en-GB')}.</li>}
+      </ul>
+      {exam.closed ? (
+        <p className="mt-8 rounded-md border border-border bg-muted px-4 py-3 text-sm">This exam is closed.</p>
+      ) : exam.signedIn ? (
+        <Button size="lg" className="mt-8 rounded-full px-8" onClick={onStart} disabled={busy}>
+          {busy ? 'Starting…' : 'Start exam'}
+        </Button>
+      ) : (
+        <Button
+          size="lg"
+          className="mt-8 rounded-full px-8"
+          onClick={() => router.push(`/login?next=${encodeURIComponent(`/exam/${exam.token}`)}`)}
+        >
+          Sign in to start
+        </Button>
+      )}
+      <p className="mt-6 text-xs text-muted-foreground">
+        By starting you agree to the <a href="/terms" className="underline">terms</a>. See how your data is used in the{' '}
+        <a href="/privacy" className="underline">privacy policy</a>.
+      </p>
+    </main>
   )
 }

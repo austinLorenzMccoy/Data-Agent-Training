@@ -25,6 +25,7 @@ const COLUMNS = [
     title: 'Account',
     links: [
       { href: '/pricing', label: 'Pricing' },
+      { href: '/org', label: 'For teams' },
       { href: '/billing', label: 'Billing' },
       { href: '/login', label: 'Sign in' },
       { href: '/terms', label: 'Terms' },

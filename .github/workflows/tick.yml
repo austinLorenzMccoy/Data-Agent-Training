@@ -1,0 +1,22 @@
+name: Housekeeping
+
+# Scores tests whose time ran out unattended and retries results webhooks.
+# Needs the repository secret CRON_SECRET (same value as the Vercel env
+# var) and the repository variable SITE_URL.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run housekeeping
+        run: |
+          if [ -z "$CRON_SECRET" ]; then echo "CRON_SECRET not set; skipping"; exit 0; fi
+          curl -fsS --retry 2 -H "Authorization: Bearer $CRON_SECRET" "${SITE_URL:-https://datanerds-ai-training.vercel.app}/api/cron/tick"
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: ${{ vars.SITE_URL }}
