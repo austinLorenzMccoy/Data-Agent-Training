@@ -2,6 +2,7 @@ import 'server-only'
 import type { AssignmentType, Question } from './types'
 import { isTrackEnabled } from './feature-flags'
 import { V4_QUESTIONS } from './questions-v4'
+import { EXTRA_CORE, EXTRA_SPECIAL } from './questions-extra'
 
 export const QUESTIONS: Question[] = [
   // ============ ALPHA — Response Rating ============
@@ -2055,14 +2056,14 @@ const KAPPA: Question[] = [
   },
 ]
 
-const SPECIAL_QUESTIONS: Question[] = [...V4_QUESTIONS, ...IOTA, ...KAPPA]
+const SPECIAL_QUESTIONS: Question[] = [...V4_QUESTIONS, ...IOTA, ...KAPPA, ...EXTRA_SPECIAL]
 
 export function getQuestionBank(extraEnabled?: AssignmentType[]): Question[] {
   const special = SPECIAL_QUESTIONS.filter((q) => {
     if (extraEnabled && extraEnabled.includes(q.type)) return true
     return isTrackEnabled(q.type)
   })
-  return [...QUESTIONS, ...special]
+  return [...QUESTIONS, ...EXTRA_CORE, ...special]
 }
 
 export function getQuestionsByType(type: Question['type']): Question[] {
