@@ -1,0 +1,102 @@
+{
+  "review-a-transcript": {
+    "the-job": {
+      "src": "/lessons/review-a-transcript/the-job.m4a",
+      "duration": 27.01,
+      "cues": [
+        {
+          "scene": "intro",
+          "start": 0
+        },
+        {
+          "scene": "two-outcomes",
+          "start": 9.46
+        },
+        {
+          "scene": "eight-reasons",
+          "start": 18.66
+        }
+      ]
+    },
+    "spelling-and-repetition": {
+      "src": "/lessons/review-a-transcript/spelling-and-repetition.m4a",
+      "duration": 37.26,
+      "cues": [
+        {
+          "scene": "spelling-rule",
+          "start": 0
+        },
+        {
+          "scene": "spelling-example",
+          "start": 9.62
+        },
+        {
+          "scene": "repetition-rule",
+          "start": 19.31
+        },
+        {
+          "scene": "repetition-compare",
+          "start": 25.08
+        }
+      ]
+    },
+    "emoji-offensive-names": {
+      "src": "/lessons/review-a-transcript/emoji-offensive-names.m4a",
+      "duration": 24.97,
+      "cues": [
+        {
+          "scene": "emoji-rule",
+          "start": 0
+        },
+        {
+          "scene": "offensive-rule",
+          "start": 7.37
+        },
+        {
+          "scene": "names-compare",
+          "start": 15.73
+        }
+      ]
+    },
+    "robotic-rhyme-real-world": {
+      "src": "/lessons/review-a-transcript/robotic-rhyme-real-world.m4a",
+      "duration": 31.92,
+      "cues": [
+        {
+          "scene": "robotic-example",
+          "start": 0
+        },
+        {
+          "scene": "rhyme-rule",
+          "start": 11.31
+        },
+        {
+          "scene": "physical-example",
+          "start": 17.7
+        },
+        {
+          "scene": "physical-compare",
+          "start": 27.83
+        }
+      ]
+    },
+    "putting-it-together": {
+      "src": "/lessons/review-a-transcript/putting-it-together.m4a",
+      "duration": 26.98,
+      "cues": [
+        {
+          "scene": "routine",
+          "start": 0
+        },
+        {
+          "scene": "multi-flag",
+          "start": 14.52
+        },
+        {
+          "scene": "ready",
+          "start": 20.84
+        }
+      ]
+    }
+  }
+}

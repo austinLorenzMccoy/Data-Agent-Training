@@ -15,9 +15,10 @@ import { SkillTile } from '@/components/graphics/skill-art'
 import { SKILL_ACCENT, SKILL_MECHANIC, SkillScene } from '@/components/graphics/skill-scene'
 import { WeakAreasCard } from './weak-areas-card'
 import { recordPractice } from '@/lib/weak-areas'
+import { lessonForTrack, lessonMinutes } from '@/lib/lessons'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { ArrowRight, ShieldCheck, Lock } from 'lucide-react'
+import { ArrowRight, ShieldCheck, Lock, PlayCircle } from 'lucide-react'
 import { CORE_TYPES, FEATURE_PROFICIENCY_GATE, REQUIRED_PROFICIENCY_EXAM, getEnabledTypes, getProficiencyGatedTypes, isV4Type } from '@/lib/feature-flags'
 import { guidelineFor } from '@/lib/guidelines'
 import { hasPassedProficiency } from '@/lib/proficiency'
@@ -142,6 +143,7 @@ function DrillCard({
   featured?: boolean
 }) {
   const pack = featured ? guidelineFor(type) : undefined
+  const lesson = lessonForTrack(type)
   return (
     <div
       className={cn(
@@ -177,6 +179,14 @@ function DrillCard({
           )}
           <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
         </button>
+        {lesson && (
+          <Link
+            href={`/learn/${lesson.id}`}
+            className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:text-primary"
+          >
+            <PlayCircle className="size-3.5" /> Watch the lesson · {lessonMinutes(lesson)} min
+          </Link>
+        )}
         {pack && (
           <Link
             href={`/guidelines/${type}`}

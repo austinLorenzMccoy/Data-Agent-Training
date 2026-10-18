@@ -8,6 +8,7 @@ const COLUMNS = [
     title: 'Learn',
     links: [
       { href: '/prep', label: 'Study guide' },
+      { href: '/learn', label: 'Video lessons' },
       { href: '/guidelines', label: 'Guidelines' },
       { href: '/training', label: 'Practice' },
       { href: '/operation', label: 'Timed tests' },

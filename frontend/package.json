@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "tsx --conditions=react-server --test 'lib/**/*.test.ts'",
+    "lessons:audio": "tsx scripts/build-lesson-audio.ts",
     "test:scoring": "tsx --test lib/domain-scoring.test.ts lib/integrity.test.ts"
   },
   "dependencies": {
