@@ -38,7 +38,7 @@ const PLANS: PlanCard[] = [
     price: '₦5,000',
     cadence: '/ month',
     trial: '7-day free trial',
-    features: ['Unlimited guideline reading', '150 practice questions / day', '20 Live Operations / month'],
+    features: ['Unlimited guideline reading', '150 practice questions / day', '20 Live Operations / month', 'Premium platform assessment guides'],
     accent: true,
   },
   {
@@ -48,7 +48,7 @@ const PLANS: PlanCard[] = [
     price: '₦10,000',
     cadence: '/ month',
     trial: '7-day free trial',
-    features: ['Unlimited guideline reading', 'Effectively unlimited practice', 'Effectively unlimited Live Operations'],
+    features: ['Unlimited guideline reading', 'Effectively unlimited practice', 'Effectively unlimited Live Operations', 'Premium platform assessment guides'],
     accent: false,
   },
 ]
@@ -57,6 +57,7 @@ const COMPARE: { label: string; values: (string | boolean)[] }[] = [
   { label: 'Guideline reading', values: [true, true, true] },
   { label: 'Practice questions / day', values: ['15', '150', '2,000'] },
   { label: 'Live Operations / month', values: ['2', '20', '100'] },
+  { label: 'Platform assessment guides', values: [false, true, true] },
   { label: 'XP, ranks and badges', values: [true, true, true] },
   { label: '7-day free trial', values: [false, true, true] },
 ]
