@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { ArrowRight, Check, Crown } from 'lucide-react'
+import { ArrowRight, Check, Crown, MessageCircle } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { PageHero } from '@/components/page-hero'
 import { PremiumGate } from '@/components/premium/premium-gate'
 import { PLATFORMS } from '@/lib/platforms'
@@ -14,6 +15,7 @@ export const metadata = {
 }
 
 const PERKS = [
+  'The members’ WhatsApp group for questions, tips and new task alerts',
   'A guide to every platform’s screening assessment: each section, how it is graded, and how to approach it',
   'Worked examples of weak and strong written reasons',
   '150 practice questions a day on Operative, effectively unlimited on Director',
@@ -23,6 +25,8 @@ const PERKS = [
 export default async function PremiumPage() {
   const user = await currentUser()
   const premium = user ? await hasPremium(user.id) : false
+  // Read only for members so the invite never reaches anyone else's page.
+  const whatsapp = premium ? process.env.PREMIUM_WHATSAPP_URL?.trim() : undefined
 
   return (
     <main className="relative min-h-screen">
@@ -51,6 +55,29 @@ export default async function PremiumPage() {
             </Link>
           )}
         </section>
+
+        {premium && (
+          <section className="flex flex-col gap-4 rounded-2xl border border-border bg-surface-raised p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <MessageCircle className="mt-0.5 size-5 shrink-0 text-success" />
+              <div>
+                <h2 className="font-heading text-xl">Members’ WhatsApp group</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Ask questions, share tips and hear about new tasks first. Please don’t share the link.
+                </p>
+              </div>
+            </div>
+            {whatsapp ? (
+              <Button asChild className="rounded-full">
+                <a href={whatsapp} target="_blank" rel="noopener noreferrer">
+                  Join the group <ArrowRight className="size-3.5" />
+                </a>
+              </Button>
+            ) : (
+              <p className="text-sm text-muted-foreground">Link coming soon</p>
+            )}
+          </section>
+        )}
 
         {!premium && <PremiumGate signedIn={!!user} next="/premium" />}
 

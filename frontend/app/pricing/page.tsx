@@ -58,6 +58,7 @@ const COMPARE: { label: string; values: (string | boolean)[] }[] = [
   { label: 'Practice questions / day', values: ['15', '150', '2,000'] },
   { label: 'Live Operations / month', values: ['2', '20', '100'] },
   { label: 'Platform assessment guides', values: [false, true, true] },
+  { label: 'Members’ WhatsApp group', values: [false, true, true] },
   { label: 'XP, ranks and badges', values: [true, true, true] },
   { label: '7-day free trial', values: [false, true, true] },
 ]
