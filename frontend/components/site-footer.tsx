@@ -35,6 +35,8 @@ const COLUMNS = [
   },
 ]
 
+const TELEGRAM_URL = process.env.NEXT_PUBLIC_TELEGRAM_URL?.trim() || ''
+
 export function SiteFooter() {
   const pathname = usePathname()
   if (pathname?.startsWith('/operation/run')) return null
@@ -62,6 +64,18 @@ export function SiteFooter() {
                   </Link>
                 </li>
               ))}
+              {col.title === 'Progress' && TELEGRAM_URL && (
+                <li>
+                  <a
+                    href={TELEGRAM_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-ink-muted transition-colors hover:text-ink-foreground"
+                  >
+                    Community on Telegram
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
         ))}

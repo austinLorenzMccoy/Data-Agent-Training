@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Check, Crown, MessageCircle } from 'lucide-react'
+import { ArrowRight, Check, Crown, MessageCircle, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PageHero } from '@/components/page-hero'
 import { PremiumGate } from '@/components/premium/premium-gate'
@@ -27,6 +27,7 @@ export default async function PremiumPage() {
   const premium = user ? await hasPremium(user.id) : false
   // Read only for members so the invite never reaches anyone else's page.
   const whatsapp = premium ? process.env.PREMIUM_WHATSAPP_URL?.trim() : undefined
+  const telegram = process.env.NEXT_PUBLIC_TELEGRAM_URL?.trim()
 
   return (
     <main className="relative min-h-screen">
@@ -80,6 +81,25 @@ export default async function PremiumPage() {
         )}
 
         {!premium && <PremiumGate signedIn={!!user} next="/premium" />}
+
+        {telegram && (
+          <section className="flex flex-col gap-4 rounded-2xl border border-border bg-surface-raised p-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3">
+              <Send className="mt-0.5 size-5 shrink-0 text-primary" />
+              <div>
+                <h2 className="font-heading text-xl">Free community on Telegram</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Open to everyone. Meet other annotators, ask about platforms and share what worked.
+                </p>
+              </div>
+            </div>
+            <Button asChild variant="outline" className="rounded-full">
+              <a href={telegram} target="_blank" rel="noopener noreferrer">
+                Join on Telegram <ArrowRight className="size-3.5" />
+              </a>
+            </Button>
+          </section>
+        )}
 
         <section>
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Platform assessments</p>
