@@ -18,6 +18,7 @@ const PERKS = [
   'The members’ WhatsApp group for questions, tips and new task alerts',
   'A guide to every platform’s screening assessment: each section, how it is graded, and how to approach it',
   'Worked examples of weak and strong written reasons',
+  'The resume builder for AI trainer, rater and annotation roles',
   '150 practice questions a day on Operative, effectively unlimited on Director',
   '20 timed tests a month on Operative, 100 on Director',
 ]

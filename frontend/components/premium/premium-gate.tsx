@@ -2,7 +2,15 @@ import Link from 'next/link'
 import { ArrowRight, Lock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export function PremiumGate({ signedIn, next }: { signedIn: boolean; next: string }) {
+export function PremiumGate({
+  signedIn,
+  next,
+  unlocks = 'every platform guide',
+}: {
+  signedIn: boolean
+  next: string
+  unlocks?: string
+}) {
   return (
     <div className="ink-band flex flex-col gap-4 rounded-2xl p-6 text-ink-foreground sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-start gap-3">
@@ -10,7 +18,7 @@ export function PremiumGate({ signedIn, next }: { signedIn: boolean; next: strin
         <div>
           <p className="font-heading text-xl">For premium members</p>
           <p className="mt-1 text-sm text-ink-muted">
-            Operative and Director clearances, including the 7-day free trial, open every platform guide.
+            Operative and Director clearances, including the 7-day free trial, open {unlocks}.
           </p>
         </div>
       </div>
