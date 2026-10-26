@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Check, Crown, MessageCircle, Send } from 'lucide-react'
+import { ArrowRight, Check, Crown, FileText, MessageCircle, Send } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PageHero } from '@/components/page-hero'
 import { PremiumGate } from '@/components/premium/premium-gate'
@@ -100,6 +100,24 @@ export default async function PremiumPage() {
             </Button>
           </section>
         )}
+
+        <section className="flex flex-col gap-4 rounded-2xl border border-border bg-surface-raised p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <FileText className="mt-0.5 size-5 shrink-0 text-primary" />
+            <div>
+              <h2 className="font-heading text-xl">Resume builder</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                A one-page resume for AI trainer, rater and annotation roles, with suggested skills and bullets for
+                each. Save it as a PDF for your applications.
+              </p>
+            </div>
+          </div>
+          <Button asChild variant="outline" className="rounded-full">
+            <Link href="/resume">
+              Build your resume <ArrowRight className="size-3.5" />
+            </Link>
+          </Button>
+        </section>
 
         <section>
           <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary">Platform assessments</p>
