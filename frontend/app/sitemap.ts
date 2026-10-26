@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://datanerds-aitraining.vercel.app').replace(/\/$/, '')
 
-const ROUTES = ['', '/prep', '/prep/rating', '/prep/transcripts', '/prep/replies', '/prep/extra-tracks', '/learn', '/learn/review-a-transcript', '/learn/how-a-timed-test-works', '/learn/rate-ai-responses', '/learn/pick-the-best-reply', '/guidelines', '/training', '/operation', '/dossier', '/rankings', '/login', '/pricing', '/premium', '/terms', '/privacy', '/verify']
+const ROUTES = ['', '/prep', '/prep/rating', '/prep/transcripts', '/prep/replies', '/prep/extra-tracks', '/learn', '/learn/review-a-transcript', '/learn/how-a-timed-test-works', '/learn/rate-ai-responses', '/learn/pick-the-best-reply', '/guidelines', '/training', '/operation', '/dossier', '/rankings', '/login', '/pricing', '/premium', '/resume', '/terms', '/privacy', '/verify']
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return ROUTES.map((route) => ({

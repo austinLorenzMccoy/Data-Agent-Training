@@ -372,3 +372,22 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* Resume builder: print only the sheet, whatever chrome surrounds it. */
+@media print {
+  body:has(#resume-sheet) * {
+    visibility: hidden;
+  }
+  body:has(#resume-sheet) #resume-sheet,
+  body:has(#resume-sheet) #resume-sheet * {
+    visibility: visible;
+  }
+  body:has(#resume-sheet) #resume-sheet {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+  }
+  body:has(#resume-sheet) {
+    background: #fff;
+  }
+}

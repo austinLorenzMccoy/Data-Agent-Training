@@ -18,6 +18,7 @@ const LINKS = [
   { href: '/operation', label: 'Test' },
   { href: '/dossier', label: 'Progress' },
   { href: '/rankings', label: 'Rankings' },
+  { href: '/resume', label: 'Resume' },
   { href: '/premium', label: 'Premium' },
   { href: '/billing', label: 'Billing' },
 ]
